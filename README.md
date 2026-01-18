@@ -32,14 +32,14 @@ Add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.lchau1017:Kyrics:main-SNAPSHOT")
+    implementation("com.github.lchau1017:Kyrics:v1.0.0")
 }
 ```
 
-For a specific release tag:
+For the latest development version:
 ```kotlin
 dependencies {
-    implementation("com.github.lchau1017:Kyrics:v1.0.0")
+    implementation("com.github.lchau1017:Kyrics:main-SNAPSHOT")
 }
 ```
 
