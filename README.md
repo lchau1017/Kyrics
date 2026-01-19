@@ -25,6 +25,7 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 - **Visual Effects** - Blur, shadows, and opacity transitions
 - **Type-Safe DSL** - Kotlin DSL for configuration and lyrics creation
 - **Extension Functions** - Rich utilities for working with synced lines
+- **Single Import** - All APIs available from `com.kyrics` package
 - **Compose-First** - Built entirely with Jetpack Compose
 
 ---
@@ -65,7 +66,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.lchau1017:Kyrics:v1.1.0")
+    implementation("com.github.lchau1017:Kyrics:v1.1.1")
 }
 ```
 
@@ -123,6 +124,12 @@ dependencies {
 
 ## Quick Start
 
+All Kyrics APIs are available from a single import:
+
+```kotlin
+import com.kyrics.*
+```
+
 ### Basic Usage
 
 ```kotlin
@@ -167,6 +174,8 @@ fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
 ### Using DSL Builder
 
 ```kotlin
+import com.kyrics.*
+
 val lyrics = kyricsLyrics {
     line(start = 0, end = 2000) {
         syllable("When ", start = 0, end = 200)
@@ -204,6 +213,8 @@ val lyrics = kyricsLyrics {
 ### Factory Functions
 
 ```kotlin
+import com.kyrics.*
+
 // Simple line (single syllable)
 val line1 = kyricsLineFromText("Hello World", start = 0, end = 1000)
 
@@ -221,6 +232,8 @@ val line3 = kyricsAccompaniment("(Background)", start = 0, end = 1000)
 ### Full Configuration Example
 
 ```kotlin
+import com.kyrics.*
+
 val config = kyricsConfig {
     // Colors
     colors {
@@ -297,6 +310,8 @@ val config = kyricsConfig {
 
 ## Extension Functions
 
+All extension functions are available from `com.kyrics.*`:
+
 ### Finding Lines
 
 ```kotlin
@@ -346,6 +361,8 @@ val syllableCount = kyricsLines.getTotalSyllableCount()
 
 ## Data Models
 
+All types are available from `com.kyrics.*`:
+
 ### SyncedLine (Interface)
 
 ```kotlin
@@ -382,6 +399,8 @@ data class KyricsSyllable(
 ## State Management
 
 ```kotlin
+import com.kyrics.*
+
 // Basic
 val stateHolder = rememberKyricsStateHolder(config)
 
