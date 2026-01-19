@@ -10,41 +10,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kyrics.demo.presentation.model.ViewerTypeUiModel
 
 /**
  * Stateless viewer type selector composable.
  */
 @Composable
 fun ViewerTypeSelector(
+    viewerTypeOptions: List<ViewerTypeUiModel>,
     selectedIndex: Int,
     onSelectViewerType: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val viewerTypes =
-        listOf(
-            "Center",
-            "Smooth",
-            "Stacked",
-            "H-Paged",
-            "Wave",
-            "Spiral",
-            "3D-Carousel",
-            "Split",
-            "Bounce",
-            "Fade",
-            "Burst",
-            "Flip",
-        )
-
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier.fillMaxWidth(),
     ) {
-        itemsIndexed(viewerTypes) { index, name ->
+        itemsIndexed(viewerTypeOptions) { index, option ->
             FilterChip(
                 selected = selectedIndex == index,
                 onClick = { onSelectViewerType(index) },
-                label = { Text(name, fontSize = 10.sp) },
+                label = { Text(option.displayName, fontSize = 10.sp) },
             )
         }
     }

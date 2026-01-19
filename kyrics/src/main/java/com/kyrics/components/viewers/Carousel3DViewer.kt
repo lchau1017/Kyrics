@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.zIndex
 import com.kyrics.components.KyricsSingleLine
 import com.kyrics.config.KyricsConfig
-import com.kyrics.models.ISyncedLine
+import com.kyrics.models.SyncedLine
 import com.kyrics.state.KyricsUiState
 import kotlin.math.cos
 import kotlin.math.sin
@@ -22,7 +22,7 @@ import kotlin.math.sin
 internal fun Carousel3DViewer(
     uiState: KyricsUiState,
     config: KyricsConfig,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
 ) {
     val currentLineIndex = uiState.currentLineIndex ?: 0
 

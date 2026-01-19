@@ -1,11 +1,12 @@
 package com.kyrics.demo.data.datasource
 
 import com.google.common.truth.Truth.assertThat
+import com.kyrics.demo.domain.datasource.LyricsDataSource
 import org.junit.Before
 import org.junit.Test
 
 class DemoLyricsDataSourceTest {
-    private lateinit var dataSource: DemoLyricsDataSource
+    private lateinit var dataSource: LyricsDataSource
 
     @Before
     fun setup() {
@@ -13,15 +14,15 @@ class DemoLyricsDataSourceTest {
     }
 
     @Test
-    fun `getDemoLyrics returns non-empty list`() {
-        val lyrics = dataSource.getDemoLyrics()
+    fun `getLyrics returns non-empty list`() {
+        val lyrics = dataSource.getLyrics()
 
         assertThat(lyrics).isNotEmpty()
     }
 
     @Test
-    fun `getDemoLyrics returns correct number of lines`() {
-        val lyrics = dataSource.getDemoLyrics()
+    fun `getLyrics returns correct number of lines`() {
+        val lyrics = dataSource.getLyrics()
 
         // We have 9 lines in our demo lyrics
         assertThat(lyrics).hasSize(9)
@@ -29,7 +30,7 @@ class DemoLyricsDataSourceTest {
 
     @Test
     fun `each line has valid start and end times`() {
-        val lyrics = dataSource.getDemoLyrics()
+        val lyrics = dataSource.getLyrics()
 
         lyrics.forEach { line ->
             assertThat(line.start).isAtLeast(0)
@@ -39,7 +40,7 @@ class DemoLyricsDataSourceTest {
 
     @Test
     fun `each line has syllables`() {
-        val lyrics = dataSource.getDemoLyrics()
+        val lyrics = dataSource.getLyrics()
 
         lyrics.forEach { line ->
             assertThat(line.syllables).isNotEmpty()
@@ -48,7 +49,7 @@ class DemoLyricsDataSourceTest {
 
     @Test
     fun `lines are in chronological order`() {
-        val lyrics = dataSource.getDemoLyrics()
+        val lyrics = dataSource.getLyrics()
 
         for (i in 0 until lyrics.size - 1) {
             assertThat(lyrics[i].end).isAtMost(lyrics[i + 1].start)
@@ -57,7 +58,7 @@ class DemoLyricsDataSourceTest {
 
     @Test
     fun `syllables within line are in order`() {
-        val lyrics = dataSource.getDemoLyrics()
+        val lyrics = dataSource.getLyrics()
 
         lyrics.forEach { line ->
             for (i in 0 until line.syllables.size - 1) {
@@ -67,23 +68,23 @@ class DemoLyricsDataSourceTest {
     }
 
     @Test
-    fun `total duration constant is correct`() {
-        val lyrics = dataSource.getDemoLyrics()
+    fun `total duration is correct`() {
+        val lyrics = dataSource.getLyrics()
         val lastLineEnd = lyrics.last().end
 
-        assertThat(DemoLyricsDataSource.TOTAL_DURATION_MS).isEqualTo(lastLineEnd)
+        assertThat(dataSource.getTotalDurationMs()).isEqualTo(lastLineEnd)
     }
 
     @Test
     fun `first line starts at time zero`() {
-        val lyrics = dataSource.getDemoLyrics()
+        val lyrics = dataSource.getLyrics()
 
         assertThat(lyrics.first().start).isEqualTo(0)
     }
 
     @Test
     fun `syllable text is not empty`() {
-        val lyrics = dataSource.getDemoLyrics()
+        val lyrics = dataSource.getLyrics()
 
         lyrics.forEach { line ->
             line.syllables.forEach { syllable ->

@@ -1,7 +1,7 @@
 package com.kyrics.state
 
 import com.kyrics.config.KyricsConfig
-import com.kyrics.models.ISyncedLine
+import com.kyrics.models.SyncedLine
 import kotlin.math.abs
 
 /**
@@ -21,7 +21,7 @@ class KyricsStateCalculator {
      * @return Complete UI state ready for rendering
      */
     fun calculateState(
-        lines: List<ISyncedLine>,
+        lines: List<SyncedLine>,
         currentTimeMs: Int,
         config: KyricsConfig,
     ): KyricsUiState {
@@ -61,7 +61,7 @@ class KyricsStateCalculator {
      * @return Index of the playing line, or null if no line is playing
      */
     fun findCurrentLineIndex(
-        lines: List<ISyncedLine>,
+        lines: List<SyncedLine>,
         currentTimeMs: Int,
     ): Int? =
         lines
@@ -80,7 +80,7 @@ class KyricsStateCalculator {
      * @return Calculated line UI state
      */
     fun calculateLineState(
-        line: ISyncedLine,
+        line: SyncedLine,
         lineIndex: Int,
         currentLineIndex: Int?,
         currentTimeMs: Int,
@@ -209,7 +209,7 @@ class KyricsStateCalculator {
      * Useful for simple state checks without full calculation.
      */
     fun getLineStateCategory(
-        line: ISyncedLine,
+        line: SyncedLine,
         currentTimeMs: Int,
     ): LineStateCategory =
         when {

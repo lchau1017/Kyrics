@@ -10,7 +10,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.kyrics.demo.data.datasource.DemoLyricsDataSource
 
 /**
  * Stateless playback control panel composable.
@@ -19,6 +18,7 @@ import com.kyrics.demo.data.datasource.DemoLyricsDataSource
 fun ControlPanel(
     isPlaying: Boolean,
     currentTimeMs: Long,
+    totalDurationMs: Long,
     onPlayPause: () -> Unit,
     onReset: () -> Unit,
     onSeek: (Long) -> Unit,
@@ -42,7 +42,7 @@ fun ControlPanel(
         Slider(
             value = currentTimeMs.toFloat(),
             onValueChange = { onSeek(it.toLong()) },
-            valueRange = 0f..DemoLyricsDataSource.TOTAL_DURATION_MS.toFloat(),
+            valueRange = 0f..totalDurationMs.toFloat(),
             modifier = Modifier.fillMaxWidth(),
         )
 

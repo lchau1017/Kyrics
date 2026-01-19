@@ -1,8 +1,8 @@
 package com.kyrics.testdata
 
-import com.kyrics.models.ISyncedLine
 import com.kyrics.models.KyricsLine
 import com.kyrics.models.KyricsSyllable
+import com.kyrics.models.SyncedLine
 
 /**
  * Test data fixtures for unit tests.
@@ -10,13 +10,13 @@ import com.kyrics.models.KyricsSyllable
  */
 object TestData {
     /**
-     * Simple implementation of ISyncedLine for testing
+     * Simple implementation of SyncedLine for testing
      */
     data class SimpleSyncedLine(
         override val start: Int,
         override val end: Int,
         private val content: String,
-    ) : ISyncedLine {
+    ) : SyncedLine {
         override fun getContent(): String = content
     }
 
@@ -31,7 +31,7 @@ object TestData {
      * Line 3: 7500ms - 9500ms ("Are fun to sing")
      * Line 4: 10000ms - 12000ms ("The end")
      */
-    fun createSimpleLines(): List<ISyncedLine> =
+    fun createSimpleLines(): List<SyncedLine> =
         listOf(
             SimpleSyncedLine(start = 0, end = 2000, content = "Hello world"),
             SimpleSyncedLine(start = 2500, end = 4500, content = "This is a test"),

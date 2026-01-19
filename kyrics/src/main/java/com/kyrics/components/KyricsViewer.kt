@@ -6,8 +6,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.kyrics.components.viewers.*
 import com.kyrics.config.KyricsConfig
+import com.kyrics.config.KyricsConfigBuilder
 import com.kyrics.config.ViewerType
-import com.kyrics.models.ISyncedLine
+import com.kyrics.config.kyricsConfig
+import com.kyrics.models.SyncedLine
 import com.kyrics.state.KyricsUiState
 import com.kyrics.state.rememberKyricsStateHolder
 
@@ -27,11 +29,11 @@ import com.kyrics.state.rememberKyricsStateHolder
  */
 @Composable
 fun KyricsViewer(
-    lines: List<ISyncedLine>,
+    lines: List<SyncedLine>,
     currentTimeMs: Int,
     config: KyricsConfig = KyricsConfig.Default,
     modifier: Modifier = Modifier,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
 ) {
     // Create and manage state holder internally
     val stateHolder = rememberKyricsStateHolder(config)
@@ -58,6 +60,56 @@ fun KyricsViewer(
 }
 
 /**
+ * Complete karaoke lyrics viewer with inline DSL configuration.
+ *
+ * This overload allows configuring the viewer using a trailing lambda DSL,
+ * following standard Compose conventions like LazyColumn, Scaffold, etc.
+ *
+ * Example usage:
+ * ```kotlin
+ * KyricsViewer(
+ *     lines = lyrics,
+ *     currentTimeMs = playerPosition
+ * ) {
+ *     colors {
+ *         playing = Color.Yellow
+ *         sung = Color.Green
+ *     }
+ *     animations {
+ *         characterAnimations = true
+ *         characterScale = 1.2f
+ *     }
+ *     viewer {
+ *         type = ViewerType.CAROUSEL_3D
+ *     }
+ * }
+ * ```
+ *
+ * @param lines List of synchronized lines to display
+ * @param currentTimeMs Current playback time in milliseconds
+ * @param modifier Modifier for the composable
+ * @param onLineClick Optional callback when a line is clicked
+ * @param configBuilder DSL builder for configuration
+ */
+@Composable
+fun KyricsViewer(
+    lines: List<SyncedLine>,
+    currentTimeMs: Int,
+    modifier: Modifier = Modifier,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
+    configBuilder: KyricsConfigBuilder.() -> Unit,
+) {
+    val config = kyricsConfig(configBuilder)
+    KyricsViewer(
+        lines = lines,
+        currentTimeMs = currentTimeMs,
+        config = config,
+        modifier = modifier,
+        onLineClick = onLineClick,
+    )
+}
+
+/**
  * Internal content renderer that uses KyricsUiState.
  * This separates state management from rendering.
  */
@@ -66,7 +118,7 @@ private fun KyricsViewerContent(
     uiState: KyricsUiState,
     config: KyricsConfig,
     modifier: Modifier = Modifier,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
 ) {
     Box(
         modifier =
