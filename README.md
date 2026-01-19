@@ -5,11 +5,12 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 ## Features
 
 - **Synchronized Lyrics Display** - Character-by-character and syllable-by-syllable highlighting
-- **Multiple Viewer Types** - Scrolling, Teleprompter, Spiral, Wave Flow, and Radial Burst viewers
+- **Multiple Viewer Types** - 12 viewer styles including Smooth Scroll, Carousel 3D, Wave Flow, Spiral, and more
 - **Rich Animations** - Character pop, float, rotation, and pulse effects
 - **Customizable Gradients** - Progress-based, multi-color, and preset gradient options
 - **Visual Effects** - Blur, shadows, and opacity transitions
-- **Type-Safe DSL** - Kotlin DSL for easy configuration
+- **Full DSL Support** - Type-safe Kotlin DSL for configuration, lyrics creation, and inline configuration
+- **Extension Functions** - Rich collection utilities for working with synced lines
 - **Compose-First** - Built entirely with Jetpack Compose
 
 ## Installation
@@ -90,42 +91,86 @@ dependencies {
 ```kotlin
 @Composable
 fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
-    val config = kyricsConfig {
-        visual {
-            fontSize = 24.sp
-            sungColor = Color(0xFFFFD700)
-            unsungColor = Color.White
-        }
-    }
-
     KyricsViewer(
         lines = lyrics,
-        currentTimeMs = currentTimeMs.toInt(),
-        config = config
+        currentTimeMs = currentTimeMs.toInt()
     )
 }
 ```
 
-### With Syllable-Level Timing
+### With Inline DSL Configuration
 
 ```kotlin
-val lyrics = listOf(
-    KyricsLine(
-        syllables = listOf(
-            KyricsSyllable("Hel", start = 0, end = 300),
-            KyricsSyllable("lo ", start = 300, end = 600),
-            KyricsSyllable("World", start = 600, end = 1000)
-        ),
-        start = 0,
-        end = 1000
-    )
-)
+@Composable
+fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
+    KyricsViewer(
+        lines = lyrics,
+        currentTimeMs = currentTimeMs.toInt()
+    ) {
+        colors {
+            playing = Color.Yellow
+            sung = Color.Green
+            unsung = Color.White
+        }
+        animations {
+            characterAnimations = true
+            characterScale = 1.2f
+        }
+        viewer {
+            type = ViewerType.CAROUSEL_3D
+        }
+    }
+}
+```
 
-KyricsViewer(
-    lines = lyrics,
-    currentTimeMs = playerPosition,
-    config = config
-)
+### Creating Lyrics with DSL
+
+```kotlin
+val lyrics = kyricsLyrics {
+    line(start = 0, end = 2000) {
+        syllable("When ", start = 0, end = 200)
+        syllable("the ", start = 200, end = 400)
+        syllable("sun ", start = 400, end = 800)
+        syllable("goes ", start = 800, end = 1200)
+        syllable("down", start = 1200, end = 2000)
+    }
+    line(start = 2000, end = 4000) {
+        syllable("And ", start = 2000, end = 2200)
+        syllable("the ", start = 2200, end = 2400)
+        syllable("stars ", start = 2400, end = 2800)
+        syllable("come ", start = 2800, end = 3200)
+        syllable("out", start = 3200, end = 4000)
+    }
+    // Accompaniment/background vocals
+    accompaniment(start = 4000, end = 5000) {
+        syllable("(ooh)", duration = 1000)
+    }
+}
+```
+
+### With Duration-Based Syllables
+
+```kotlin
+val lyrics = kyricsLyrics {
+    line(start = 0, end = 2000) {
+        syllable("Hel", duration = 200)
+        syllable("lo ", duration = 300)
+        syllable("World", duration = 500)
+    }
+}
+```
+
+### Factory Functions for Quick Creation
+
+```kotlin
+// Simple line from text (single syllable)
+val line1 = kyricsLineFromText("Hello World", start = 0, end = 1000)
+
+// Line from words (auto-split on whitespace)
+val line2 = kyricsLineFromWords("Hello World", start = 0, end = 1000)
+
+// Accompaniment line
+val line3 = kyricsAccompaniment("(Background)", start = 0, end = 1000)
 ```
 
 ## Configuration
@@ -134,20 +179,19 @@ Kyrics uses a type-safe DSL for configuration:
 
 ```kotlin
 val config = kyricsConfig {
-    // Visual settings
-    visual {
+    // Color settings
+    colors {
+        playing = Color.Yellow
+        played = Color.Green
+        upcoming = Color.White
+        background = Color.Black
+    }
+
+    // Typography settings
+    typography {
         fontSize = 28.sp
         fontWeight = FontWeight.Bold
         textAlign = TextAlign.Center
-
-        // Colors
-        sungColor = Color(0xFFFFD700)
-        unsungColor = Color.White
-        activeColor = Color(0xFFFFA500)
-
-        // Gradients
-        gradientType = GradientType.PRESET
-        gradientPreset = GradientPreset.SUNSET
     }
 
     // Animation settings
@@ -169,80 +213,82 @@ val config = kyricsConfig {
     effects {
         blur = true
         blurIntensity = 1.0f
+    }
 
-        shadows = true
-        shadowColor = Color.Black.copy(alpha = 0.3f)
-
-        playedOpacity = 0.25f
-        upcomingOpacity = 0.6f
-        visibleRange = 3
+    // Gradient settings
+    gradient {
+        enabled = true
+        angle = 45f
     }
 
     // Viewer type
     viewer {
-        type = ViewerType.SCROLLING
-        scrollBehavior = ScrollBehavior.SMOOTH
+        type = ViewerType.SMOOTH_SCROLL
+    }
+
+    // Layout settings
+    layout {
+        lineSpacing = 16.dp
     }
 }
 ```
 
 ## Viewer Types
 
-### Scrolling (Default)
-Standard vertical scrolling with the current line centered.
+Kyrics includes 12 different viewer types:
+
+| Viewer | Description |
+|--------|-------------|
+| `CENTER_FOCUSED` | Shows only the active line centered |
+| `SMOOTH_SCROLL` | Standard vertical scrolling with smooth animations |
+| `STACKED` | Z-layer overlapping effect with active line on top |
+| `HORIZONTAL_PAGED` | Horizontal swipe transitions between lines |
+| `WAVE_FLOW` | Sinusoidal motion pattern with wave-like effects |
+| `SPIRAL` | Lines arranged in a spiral pattern |
+| `CAROUSEL_3D` | 3D cylindrical carousel arrangement |
+| `SPLIT_DUAL` | Shows current and next line simultaneously |
+| `ELASTIC_BOUNCE` | Physics-based spring animations |
+| `FADE_THROUGH` | Pure opacity transitions |
+| `RADIAL_BURST` | Lines emerge from center in burst pattern |
+| `FLIP_CARD` | 3D card flip transitions |
+
+## Extension Functions
+
+Rich collection utilities for working with synced lines:
 
 ```kotlin
-viewer {
-    type = ViewerType.SCROLLING
-    scrollBehavior = ScrollBehavior.SMOOTH
-}
+// Find line at a specific time
+val currentLine = lyrics.findLineAtTime(timeMs)
+val currentIndex = lyrics.findLineIndexAtTime(timeMs)
+
+// Navigation
+val nextLine = lyrics.findNextLine(timeMs)
+val prevLine = lyrics.findPreviousLine(timeMs)
+
+// Progress calculations
+val progress = line.progressAt(timeMs)  // 0.0 to 1.0
+val overallProgress = lyrics.calculateOverallProgress(timeMs)
+
+// Time utilities
+val duration = line.duration
+val totalDuration = lyrics.getTotalDuration()
+val (start, end) = lyrics.getTimeRange()
+
+// State checks
+val isPlaying = line.containsTime(timeMs)
+val hasPlayed = line.hasPlayedAt(timeMs)
+val isUpcoming = line.isUpcomingAt(timeMs)
+
+// Filtering
+val playedLines = lyrics.getPlayedLines(timeMs)
+val upcomingLines = lyrics.getUpcomingLines(timeMs)
+val nearbyLines = lyrics.getLinesInRange(currentIndex, range = 3)
+
+// KyricsLine specific
+val mainVocals = kyricsLines.filterMainVocals()
+val accompaniment = kyricsLines.filterAccompaniment()
+val syllableCount = kyricsLines.getTotalSyllableCount()
 ```
-
-### Teleprompter
-Lines flow from bottom to top, ideal for professional displays.
-
-```kotlin
-viewer {
-    type = ViewerType.TELEPROMPTER
-}
-```
-
-### Spiral
-Lines arranged in a spiral pattern around the active line.
-
-```kotlin
-viewer {
-    type = ViewerType.SPIRAL
-}
-```
-
-### Wave Flow
-Sinusoidal motion pattern with wave-like effects.
-
-```kotlin
-viewer {
-    type = ViewerType.WAVE_FLOW
-}
-```
-
-### Radial Burst
-Lines emerge from the center in a burst pattern.
-
-```kotlin
-viewer {
-    type = ViewerType.RADIAL_BURST
-}
-```
-
-## Gradient Presets
-
-Built-in gradient presets for quick styling:
-
-- `GradientPreset.RAINBOW` - Full spectrum colors
-- `GradientPreset.SUNSET` - Warm orange and pink tones
-- `GradientPreset.OCEAN` - Cool blue tones
-- `GradientPreset.FIRE` - Red to yellow gradient
-- `GradientPreset.NEON` - Vibrant cyan, magenta, yellow
 
 ## Data Models
 
@@ -267,7 +313,7 @@ data class KyricsLine(
     val syllables: List<KyricsSyllable>,
     override val start: Int,
     override val end: Int,
-    val metadata: Map<String, Any> = emptyMap()
+    val metadata: Map<String, String> = emptyMap()
 ) : SyncedLine
 ```
 
@@ -281,6 +327,29 @@ data class KyricsSyllable(
     val start: Int,
     val end: Int
 )
+```
+
+## State Management
+
+Use `rememberKyricsStateHolder` for advanced state management:
+
+```kotlin
+// Basic usage
+val stateHolder = rememberKyricsStateHolder(config)
+
+// With initial lines
+val stateHolder = rememberKyricsStateHolder(lyrics, config)
+
+// With inline DSL
+val stateHolder = rememberKyricsStateHolder {
+    colors { playing = Color.Yellow }
+    animations { characterScale = 1.2f }
+}
+
+// With lines and inline DSL
+val stateHolder = rememberKyricsStateHolder(lyrics) {
+    colors { playing = Color.Yellow }
+}
 ```
 
 ## Architecture
@@ -302,7 +371,11 @@ kyrics/
 
 ## Demo App
 
-The `kyrics-demo` module provides a fully-featured demo application showcasing all library capabilities with an MVI architecture pattern.
+The `kyrics-demo` module provides a fully-featured demo application showcasing all library capabilities. It follows clean architecture with MVI pattern:
+
+- **Data Layer** - `DemoLyricsDataSource` using DSL for lyrics
+- **Domain Layer** - Use cases and domain models
+- **Presentation Layer** - MVI with `DemoViewModel`, `DemoIntent`, and `DemoUiState`
 
 To run the demo:
 
