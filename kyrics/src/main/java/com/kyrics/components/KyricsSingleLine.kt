@@ -20,8 +20,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kyrics.config.KyricsConfig
-import com.kyrics.models.ISyncedLine
 import com.kyrics.models.KyricsLine
+import com.kyrics.models.SyncedLine
 import com.kyrics.rendering.RenderingCalculations
 import com.kyrics.rendering.syllable.SyllableRenderer
 import com.kyrics.state.LineUiState
@@ -39,12 +39,12 @@ import com.kyrics.state.LineUiState
  */
 @Composable
 internal fun KyricsSingleLine(
-    line: ISyncedLine,
+    line: SyncedLine,
     lineUiState: LineUiState,
     currentTimeMs: Int,
     config: KyricsConfig,
     modifier: Modifier = Modifier,
-    onLineClick: ((ISyncedLine) -> Unit)? = null,
+    onLineClick: ((SyncedLine) -> Unit)? = null,
 ) {
     // Use pre-calculated state for opacity and scale
     // But still need animated values for smooth transitions
@@ -150,7 +150,7 @@ private fun SimpleTextLine(
  * Create text style based on line type and configuration
  */
 private fun createTextStyle(
-    line: ISyncedLine,
+    line: SyncedLine,
     config: KyricsConfig,
 ): TextStyle {
     val isAccompaniment = line is KyricsLine && line.isAccompaniment
@@ -173,7 +173,7 @@ private fun createTextStyle(
  * Calculate text color based on LineUiState
  */
 private fun calculateTextColor(
-    line: ISyncedLine,
+    line: SyncedLine,
     lineUiState: LineUiState,
     config: KyricsConfig,
 ): Color {

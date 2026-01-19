@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.kyrics.components.KyricsSingleLine
 import com.kyrics.config.KyricsConfig
-import com.kyrics.models.ISyncedLine
+import com.kyrics.models.SyncedLine
 import com.kyrics.state.KyricsUiState
 import kotlinx.coroutines.launch
 
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 internal fun SmoothScrollViewer(
     uiState: KyricsUiState,
     config: KyricsConfig,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()

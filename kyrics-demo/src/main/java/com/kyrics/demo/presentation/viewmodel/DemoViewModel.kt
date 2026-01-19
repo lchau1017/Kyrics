@@ -1,25 +1,20 @@
 package com.kyrics.demo.presentation.viewmodel
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kyrics.config.AnimationConfig
-import com.kyrics.config.ColorConfig
-import com.kyrics.config.EffectsConfig
-import com.kyrics.config.KyricsConfig
-import com.kyrics.config.KyricsPresets
-import com.kyrics.config.LayoutConfig
-import com.kyrics.config.ViewerConfig
-import com.kyrics.config.ViewerType
-import com.kyrics.config.VisualConfig
-import com.kyrics.demo.data.datasource.DemoLyricsDataSource
+import com.kyrics.demo.domain.dispatcher.DispatcherProvider
 import com.kyrics.demo.domain.model.DemoSettings
+import com.kyrics.demo.domain.model.Preset
 import com.kyrics.demo.domain.usecase.GetDemoSettingsUseCase
+import com.kyrics.demo.domain.usecase.GetLyricsUseCase
 import com.kyrics.demo.domain.usecase.UpdateDemoSettingsUseCase
+import com.kyrics.demo.presentation.mapper.DemoUiMapper
+import com.kyrics.demo.presentation.model.ColorPickerTarget
+import com.kyrics.demo.presentation.model.DemoUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -38,10 +33,12 @@ class DemoViewModel
     constructor(
         private val getDemoSettingsUseCase: GetDemoSettingsUseCase,
         private val updateDemoSettingsUseCase: UpdateDemoSettingsUseCase,
-        private val demoLyricsDataSource: DemoLyricsDataSource,
+        private val getLyricsUseCase: GetLyricsUseCase,
+        private val dispatcherProvider: DispatcherProvider,
+        private val uiMapper: DemoUiMapper,
     ) : ViewModel() {
-        private val _state = MutableStateFlow(DemoState.Initial)
-        val state: StateFlow<DemoState> = _state.asStateFlow()
+        private val _state = MutableStateFlow(createInitialState())
+        val state: StateFlow<DemoUiState> = _state.asStateFlow()
 
         private val _effect = Channel<DemoEffect>(Channel.BUFFERED)
         val effect = _effect.receiveAsFlow()
@@ -53,19 +50,23 @@ class DemoViewModel
             observeSettings()
         }
 
+        private fun createInitialState(): DemoUiState =
+            DemoUiState.Initial.copy(
+                viewerTypeOptions = uiMapper.mapViewerTypeOptions(),
+            )
+
         private fun loadInitialData() {
-            val demoLines = demoLyricsDataSource.getDemoLyrics()
-            _state.update { it.copy(demoLines = demoLines) }
+            val lyricsData = getLyricsUseCase()
+            _state.update { currentState ->
+                uiMapper.mapLyricsToUiState(lyricsData, currentState)
+            }
         }
 
         private fun observeSettings() {
-            viewModelScope.launch {
+            viewModelScope.launch(dispatcherProvider.main) {
                 getDemoSettingsUseCase().collect { settings ->
                     _state.update { currentState ->
-                        currentState.copy(
-                            settings = settings,
-                            libraryConfig = buildLibraryConfig(settings),
-                        )
+                        uiMapper.mapSettingsToUiState(settings, currentState)
                     }
                 }
             }
@@ -73,59 +74,83 @@ class DemoViewModel
 
         fun onIntent(intent: DemoIntent) {
             when (intent) {
-                // Playback
-                is DemoIntent.TogglePlayPause -> togglePlayPause()
-                is DemoIntent.Reset -> reset()
-                is DemoIntent.Seek -> seek(intent.timeMs)
-                is DemoIntent.UpdateTime -> updateTime(intent.timeMs)
-
-                // Line selection
-                is DemoIntent.SelectLine -> selectLine(intent.index)
-
-                // Viewer type
-                is DemoIntent.SelectViewerType -> updateViewerType(intent.index)
-
-                // Color picker
-                is DemoIntent.ShowColorPicker -> showColorPicker(intent.target)
-                is DemoIntent.DismissColorPicker -> dismissColorPicker()
-                is DemoIntent.UpdateColor -> updateColor(intent.target, intent.color)
-
-                // Font settings
-                is DemoIntent.UpdateFontSize -> updateFontSize(intent.size)
-                is DemoIntent.UpdateFontWeight -> updateFontWeight(intent.weight)
-                is DemoIntent.UpdateFontFamily -> updateFontFamily(intent.family)
-                is DemoIntent.UpdateTextAlign -> updateTextAlign(intent.align)
-
-                // Layout
-                is DemoIntent.UpdateLineSpacing -> updateLineSpacing(intent.spacing)
-
-                // Visual effects
-                is DemoIntent.ToggleGradient -> toggleGradient(intent.enabled)
-                is DemoIntent.UpdateGradientAngle -> updateGradientAngle(intent.angle)
-                is DemoIntent.ToggleBlur -> toggleBlur(intent.enabled)
-                is DemoIntent.UpdateBlurIntensity -> updateBlurIntensity(intent.intensity)
-
-                // Character animations
-                is DemoIntent.ToggleCharAnimation -> toggleCharAnimation(intent.enabled)
-                is DemoIntent.UpdateCharMaxScale -> updateCharMaxScale(intent.scale)
-                is DemoIntent.UpdateCharFloatOffset -> updateCharFloatOffset(intent.offset)
-                is DemoIntent.UpdateCharRotation -> updateCharRotation(intent.degrees)
-
-                // Line animations
-                is DemoIntent.ToggleLineAnimation -> toggleLineAnimation(intent.enabled)
-                is DemoIntent.UpdateLineScaleOnPlay -> updateLineScaleOnPlay(intent.scale)
-
-                // Pulse
-                is DemoIntent.TogglePulse -> togglePulse(intent.enabled)
-                is DemoIntent.UpdatePulseMinScale -> updatePulseMinScale(intent.scale)
-                is DemoIntent.UpdatePulseMaxScale -> updatePulseMaxScale(intent.scale)
-
-                // Presets
-                is DemoIntent.LoadPreset -> loadPreset(intent.presetName)
+                is DemoIntent.Playback -> handlePlayback(intent)
+                is DemoIntent.Selection -> handleSelection(intent)
+                is DemoIntent.ColorPicker -> handleColorPicker(intent)
+                is DemoIntent.Font -> handleFont(intent)
+                is DemoIntent.Layout -> handleLayout(intent)
+                is DemoIntent.VisualEffect -> handleVisualEffect(intent)
+                is DemoIntent.Animation -> handleAnimation(intent)
+                is DemoIntent.LoadPreset -> loadPreset(intent.preset)
             }
         }
 
-        // Playback handlers
+        // ==================== Intent Handlers ====================
+
+        private fun handlePlayback(intent: DemoIntent.Playback) {
+            when (intent) {
+                is DemoIntent.Playback.TogglePlayPause -> togglePlayPause()
+                is DemoIntent.Playback.Reset -> reset()
+                is DemoIntent.Playback.Seek -> seek(intent.timeMs)
+                is DemoIntent.Playback.UpdateTime -> updateTime(intent.timeMs)
+            }
+        }
+
+        private fun handleSelection(intent: DemoIntent.Selection) {
+            when (intent) {
+                is DemoIntent.Selection.SelectLine -> selectLine(intent.index)
+                is DemoIntent.Selection.SelectViewerType -> updateViewerType(intent.index)
+            }
+        }
+
+        private fun handleColorPicker(intent: DemoIntent.ColorPicker) {
+            when (intent) {
+                is DemoIntent.ColorPicker.Show -> showColorPicker(intent.target)
+                is DemoIntent.ColorPicker.Dismiss -> dismissColorPicker()
+                is DemoIntent.ColorPicker.UpdateColor -> updateColor(intent.target, intent.color)
+            }
+        }
+
+        private fun handleFont(intent: DemoIntent.Font) {
+            when (intent) {
+                is DemoIntent.Font.UpdateSize -> updateFontSize(intent.size)
+                is DemoIntent.Font.UpdateWeight -> updateFontWeight(intent.weight)
+                is DemoIntent.Font.UpdateFamily -> updateFontFamily(intent.family)
+                is DemoIntent.Font.UpdateAlign -> updateTextAlign(intent.align)
+            }
+        }
+
+        private fun handleLayout(intent: DemoIntent.Layout) {
+            when (intent) {
+                is DemoIntent.Layout.UpdateLineSpacing -> updateLineSpacing(intent.spacing)
+            }
+        }
+
+        private fun handleVisualEffect(intent: DemoIntent.VisualEffect) {
+            when (intent) {
+                is DemoIntent.VisualEffect.ToggleGradient -> toggleGradient(intent.enabled)
+                is DemoIntent.VisualEffect.UpdateGradientAngle -> updateGradientAngle(intent.angle)
+                is DemoIntent.VisualEffect.ToggleBlur -> toggleBlur(intent.enabled)
+                is DemoIntent.VisualEffect.UpdateBlurIntensity -> updateBlurIntensity(intent.intensity)
+            }
+        }
+
+        private fun handleAnimation(intent: DemoIntent.Animation) {
+            when (intent) {
+                is DemoIntent.Animation.ToggleCharAnimation -> toggleCharAnimation(intent.enabled)
+                is DemoIntent.Animation.UpdateCharMaxScale -> updateCharMaxScale(intent.scale)
+                is DemoIntent.Animation.UpdateCharFloatOffset -> updateCharFloatOffset(intent.offset)
+                is DemoIntent.Animation.UpdateCharRotation -> updateCharRotation(intent.degrees)
+                is DemoIntent.Animation.ToggleLineAnimation -> toggleLineAnimation(intent.enabled)
+                is DemoIntent.Animation.UpdateLineScaleOnPlay -> updateLineScaleOnPlay(intent.scale)
+                is DemoIntent.Animation.TogglePulse -> togglePulse(intent.enabled)
+                is DemoIntent.Animation.UpdatePulseMinScale -> updatePulseMinScale(intent.scale)
+                is DemoIntent.Animation.UpdatePulseMaxScale -> updatePulseMaxScale(intent.scale)
+            }
+        }
+
+        // ==================== Playback Logic ====================
+
         private fun togglePlayPause() {
             val newIsPlaying = !_state.value.isPlaying
             _state.update { it.copy(isPlaying = newIsPlaying) }
@@ -140,12 +165,13 @@ class DemoViewModel
         private fun startPlaybackTimer() {
             playbackJob?.cancel()
             playbackJob =
-                viewModelScope.launch {
+                viewModelScope.launch(dispatcherProvider.main) {
+                    val totalDuration = _state.value.totalDurationMs
                     while (_state.value.isPlaying) {
                         delay(100)
                         val currentTime = _state.value.currentTimeMs
                         val newTime =
-                            if (currentTime + 100 > DemoLyricsDataSource.TOTAL_DURATION_MS) {
+                            if (currentTime + 100 > totalDuration) {
                                 0L
                             } else {
                                 currentTime + 100
@@ -182,7 +208,8 @@ class DemoViewModel
         }
 
         private fun updateTime(timeMs: Long) {
-            val newTime = if (timeMs > DemoLyricsDataSource.TOTAL_DURATION_MS) 0L else timeMs
+            val totalDuration = _state.value.totalDurationMs
+            val newTime = if (timeMs > totalDuration) 0L else timeMs
             _state.update { it.copy(currentTimeMs = newTime) }
             if (newTime == 0L) {
                 _state.update { it.copy(selectedLineIndex = 0) }
@@ -206,10 +233,12 @@ class DemoViewModel
             _state.update { it.copy(selectedLineIndex = index) }
         }
 
-        // Settings update helpers
+        // ==================== Settings Updates ====================
+
         private fun updateSettings(transform: (DemoSettings) -> DemoSettings) {
-            viewModelScope.launch {
-                val newSettings = transform(_state.value.settings)
+            viewModelScope.launch(dispatcherProvider.main) {
+                val currentSettings = uiMapper.mapUiStateToSettings(_state.value)
+                val newSettings = transform(currentSettings)
                 updateDemoSettingsUseCase(newSettings)
             }
         }
@@ -218,7 +247,7 @@ class DemoViewModel
             updateSettings { it.copy(viewerTypeIndex = index) }
         }
 
-        // Color picker handlers
+        // Color picker
         private fun showColorPicker(target: ColorPickerTarget) {
             _state.update { it.copy(showColorPicker = target) }
         }
@@ -242,29 +271,29 @@ class DemoViewModel
             _state.update { it.copy(showColorPicker = null) }
         }
 
-        // Font handlers
+        // Font settings
         private fun updateFontSize(size: Float) {
             updateSettings { it.copy(fontSize = size) }
         }
 
-        private fun updateFontWeight(weight: androidx.compose.ui.text.font.FontWeight) {
+        private fun updateFontWeight(weight: FontWeight) {
             updateSettings { it.copy(fontWeight = weight) }
         }
 
-        private fun updateFontFamily(family: androidx.compose.ui.text.font.FontFamily) {
+        private fun updateFontFamily(family: FontFamily) {
             updateSettings { it.copy(fontFamily = family) }
         }
 
-        private fun updateTextAlign(align: androidx.compose.ui.text.style.TextAlign) {
+        private fun updateTextAlign(align: TextAlign) {
             updateSettings { it.copy(textAlign = align) }
         }
 
-        // Layout handlers
+        // Layout
         private fun updateLineSpacing(spacing: Float) {
             updateSettings { it.copy(lineSpacing = spacing) }
         }
 
-        // Visual effects handlers
+        // Visual effects
         private fun toggleGradient(enabled: Boolean) {
             updateSettings { it.copy(gradientEnabled = enabled) }
         }
@@ -281,7 +310,7 @@ class DemoViewModel
             updateSettings { it.copy(blurIntensity = intensity) }
         }
 
-        // Character animation handlers
+        // Character animations
         private fun toggleCharAnimation(enabled: Boolean) {
             updateSettings { it.copy(charAnimEnabled = enabled) }
         }
@@ -298,7 +327,7 @@ class DemoViewModel
             updateSettings { it.copy(charRotationDegrees = degrees) }
         }
 
-        // Line animation handlers
+        // Line animations
         private fun toggleLineAnimation(enabled: Boolean) {
             updateSettings { it.copy(lineAnimEnabled = enabled) }
         }
@@ -307,7 +336,7 @@ class DemoViewModel
             updateSettings { it.copy(lineScaleOnPlay = scale) }
         }
 
-        // Pulse handlers
+        // Pulse
         private fun togglePulse(enabled: Boolean) {
             updateSettings { it.copy(pulseEnabled = enabled) }
         }
@@ -320,115 +349,30 @@ class DemoViewModel
             updateSettings { it.copy(pulseMaxScale = scale) }
         }
 
-        // Preset handler
-        private fun loadPreset(presetName: String) {
-            viewModelScope.launch {
-                val preset =
-                    when (presetName) {
-                        "Classic" -> KyricsPresets.Classic
-                        "Neon" -> KyricsPresets.Neon
-                        "Minimal" -> KyricsPresets.Minimal
-                        "Rainbow" -> KyricsPresets.Rainbow
-                        "Fire" -> KyricsPresets.Fire
-                        "Ocean" -> KyricsPresets.Ocean
-                        "Retro" -> KyricsPresets.Retro
-                        "Elegant" -> KyricsPresets.Elegant
-                        "Party" -> KyricsPresets.Party
-                        "Matrix" -> KyricsPresets.Matrix
-                        else -> null
-                    }
-
-                preset?.let { config ->
-                    val newSettings =
-                        _state.value.settings.copy(
-                            fontSize = config.visual.fontSize.value,
-                            fontWeight = config.visual.fontWeight,
-                            sungColor = config.visual.playedTextColor,
-                            unsungColor = config.visual.upcomingTextColor,
-                            activeColor = config.visual.playingTextColor,
-                            backgroundColor = config.visual.backgroundColor,
-                            charAnimEnabled = config.animation.enableCharacterAnimations,
-                            lineAnimEnabled = config.animation.enableLineAnimations,
-                            pulseEnabled = config.animation.enablePulse,
-                            pulseMinScale = config.animation.pulseMinScale,
-                            pulseMaxScale = config.animation.pulseMaxScale,
-                            gradientEnabled = config.visual.gradientEnabled,
-                            blurEnabled = config.effects.enableBlur,
-                            blurIntensity = config.effects.blurIntensity,
-                        )
-                    updateDemoSettingsUseCase(newSettings)
-                    _effect.send(DemoEffect.PresetLoaded)
-                }
+        // Presets
+        private fun loadPreset(preset: Preset) {
+            viewModelScope.launch(dispatcherProvider.main) {
+                val config = preset.config
+                val currentSettings = uiMapper.mapUiStateToSettings(_state.value)
+                val newSettings =
+                    currentSettings.copy(
+                        fontSize = config.visual.fontSize.value,
+                        fontWeight = config.visual.fontWeight,
+                        sungColor = config.visual.playedTextColor,
+                        unsungColor = config.visual.upcomingTextColor,
+                        activeColor = config.visual.playingTextColor,
+                        backgroundColor = config.visual.backgroundColor,
+                        charAnimEnabled = config.animation.enableCharacterAnimations,
+                        lineAnimEnabled = config.animation.enableLineAnimations,
+                        pulseEnabled = config.animation.enablePulse,
+                        pulseMinScale = config.animation.pulseMinScale,
+                        pulseMaxScale = config.animation.pulseMaxScale,
+                        gradientEnabled = config.visual.gradientEnabled,
+                        blurEnabled = config.effects.enableBlur,
+                        blurIntensity = config.effects.blurIntensity,
+                    )
+                updateDemoSettingsUseCase(newSettings)
+                _effect.send(DemoEffect.PresetLoaded)
             }
         }
-
-        private fun buildLibraryConfig(settings: DemoSettings): KyricsConfig =
-            KyricsConfig(
-                visual =
-                    VisualConfig(
-                        fontSize = settings.fontSize.sp,
-                        fontWeight = settings.fontWeight,
-                        fontFamily = settings.fontFamily,
-                        textAlign = settings.textAlign,
-                        playingTextColor = settings.activeColor,
-                        playedTextColor = settings.sungColor,
-                        upcomingTextColor = settings.unsungColor,
-                        backgroundColor = settings.backgroundColor,
-                        gradientEnabled = settings.gradientEnabled,
-                        gradientAngle = settings.gradientAngle,
-                        colors =
-                            ColorConfig(
-                                sung = settings.sungColor,
-                                unsung = settings.unsungColor,
-                                active = settings.activeColor,
-                            ),
-                    ),
-                animation =
-                    AnimationConfig(
-                        enableCharacterAnimations = settings.charAnimEnabled,
-                        characterMaxScale = settings.charMaxScale,
-                        characterFloatOffset = settings.charFloatOffset,
-                        characterRotationDegrees = settings.charRotationDegrees,
-                        characterAnimationDuration = 800f,
-                        enableLineAnimations = settings.lineAnimEnabled,
-                        lineScaleOnPlay = settings.lineScaleOnPlay,
-                        lineAnimationDuration = 700f,
-                        enablePulse = settings.pulseEnabled,
-                        pulseMinScale = settings.pulseMinScale,
-                        pulseMaxScale = settings.pulseMaxScale,
-                    ),
-                effects =
-                    EffectsConfig(
-                        enableBlur = settings.blurEnabled,
-                        blurIntensity = settings.blurIntensity,
-                        upcomingLineBlur = (3 * settings.blurIntensity).dp,
-                        distantLineBlur = (6 * settings.blurIntensity).dp,
-                    ),
-                layout =
-                    LayoutConfig(
-                        viewerConfig =
-                            ViewerConfig(
-                                type = getViewerType(settings.viewerTypeIndex),
-                            ),
-                        lineSpacing = settings.lineSpacing.dp,
-                        containerPadding = PaddingValues(8.dp),
-                    ),
-            )
-
-        private fun getViewerType(index: Int): ViewerType =
-            when (index) {
-                0 -> ViewerType.CENTER_FOCUSED
-                1 -> ViewerType.SMOOTH_SCROLL
-                2 -> ViewerType.STACKED
-                3 -> ViewerType.HORIZONTAL_PAGED
-                4 -> ViewerType.WAVE_FLOW
-                5 -> ViewerType.SPIRAL
-                6 -> ViewerType.CAROUSEL_3D
-                7 -> ViewerType.SPLIT_DUAL
-                8 -> ViewerType.ELASTIC_BOUNCE
-                9 -> ViewerType.FADE_THROUGH
-                10 -> ViewerType.RADIAL_BURST
-                11 -> ViewerType.FLIP_CARD
-                else -> ViewerType.CENTER_FOCUSED
-            }
     }

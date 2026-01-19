@@ -1,16 +1,15 @@
 package com.kyrics.demo.domain.model
 
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 
 /**
- * Immutable data class for all demo settings.
- * Using @Immutable helps Compose optimize recomposition.
+ * Domain model for demo settings.
+ * Note: This is a domain model, so no Compose annotations here.
+ * The presentation layer handles Compose-specific optimizations.
  */
-@Immutable
 data class DemoSettings(
     // Text settings
     val fontSize: Float = 32f,

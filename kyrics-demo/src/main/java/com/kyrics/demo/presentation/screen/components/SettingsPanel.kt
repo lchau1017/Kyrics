@@ -27,9 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kyrics.demo.presentation.viewmodel.ColorPickerTarget
+import com.kyrics.demo.presentation.model.ColorPickerTarget
+import com.kyrics.demo.presentation.model.DemoUiState
 import com.kyrics.demo.presentation.viewmodel.DemoIntent
-import com.kyrics.demo.presentation.viewmodel.DemoState
 import java.util.Locale
 
 /**
@@ -37,7 +37,7 @@ import java.util.Locale
  */
 @Composable
 fun SettingsPanel(
-    state: DemoState,
+    state: DemoUiState,
     onIntent: (DemoIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -51,9 +51,10 @@ fun SettingsPanel(
         ControlPanel(
             isPlaying = state.isPlaying,
             currentTimeMs = state.currentTimeMs,
-            onPlayPause = { onIntent(DemoIntent.TogglePlayPause) },
-            onReset = { onIntent(DemoIntent.Reset) },
-            onSeek = { onIntent(DemoIntent.Seek(it)) },
+            totalDurationMs = state.totalDurationMs,
+            onPlayPause = { onIntent(DemoIntent.Playback.TogglePlayPause) },
+            onReset = { onIntent(DemoIntent.Playback.Reset) },
+            onSeek = { onIntent(DemoIntent.Playback.Seek(it)) },
         )
 
         SectionDivider()
@@ -61,19 +62,20 @@ fun SettingsPanel(
         // Viewer Type
         SectionTitle("Viewer Type")
         ViewerTypeSelector(
-            selectedIndex = state.settings.viewerTypeIndex,
-            onSelectViewerType = { onIntent(DemoIntent.SelectViewerType(it)) },
+            viewerTypeOptions = state.viewerTypeOptions,
+            selectedIndex = state.viewerTypeIndex,
+            onSelectViewerType = { onIntent(DemoIntent.Selection.SelectViewerType(it)) },
         )
 
         SectionDivider()
 
         // Font settings
         FontSettingsSection(
-            fontSize = state.settings.fontSize,
-            fontWeight = state.settings.fontWeight,
-            fontFamily = state.settings.fontFamily,
-            textAlign = state.settings.textAlign,
-            lineSpacing = state.settings.lineSpacing,
+            fontSize = state.fontSize,
+            fontWeight = state.fontWeight,
+            fontFamily = state.fontFamily,
+            textAlign = state.textAlign,
+            lineSpacing = state.lineSpacing,
             onIntent = onIntent,
         )
 
@@ -81,10 +83,10 @@ fun SettingsPanel(
 
         // Colors
         ColorsSection(
-            sungColor = state.settings.sungColor,
-            unsungColor = state.settings.unsungColor,
-            activeColor = state.settings.activeColor,
-            backgroundColor = state.settings.backgroundColor,
+            sungColor = state.sungColor,
+            unsungColor = state.unsungColor,
+            activeColor = state.activeColor,
+            backgroundColor = state.backgroundColor,
             onIntent = onIntent,
         )
 
@@ -92,10 +94,10 @@ fun SettingsPanel(
 
         // Visual Effects
         VisualEffectsSection(
-            gradientEnabled = state.settings.gradientEnabled,
-            gradientAngle = state.settings.gradientAngle,
-            blurEnabled = state.settings.blurEnabled,
-            blurIntensity = state.settings.blurIntensity,
+            gradientEnabled = state.gradientEnabled,
+            gradientAngle = state.gradientAngle,
+            blurEnabled = state.blurEnabled,
+            blurIntensity = state.blurIntensity,
             onIntent = onIntent,
         )
 
@@ -103,15 +105,15 @@ fun SettingsPanel(
 
         // Animations
         AnimationsSection(
-            charAnimEnabled = state.settings.charAnimEnabled,
-            charMaxScale = state.settings.charMaxScale,
-            charFloatOffset = state.settings.charFloatOffset,
-            charRotationDegrees = state.settings.charRotationDegrees,
-            lineAnimEnabled = state.settings.lineAnimEnabled,
-            lineScaleOnPlay = state.settings.lineScaleOnPlay,
-            pulseEnabled = state.settings.pulseEnabled,
-            pulseMinScale = state.settings.pulseMinScale,
-            pulseMaxScale = state.settings.pulseMaxScale,
+            charAnimEnabled = state.charAnimEnabled,
+            charMaxScale = state.charMaxScale,
+            charFloatOffset = state.charFloatOffset,
+            charRotationDegrees = state.charRotationDegrees,
+            lineAnimEnabled = state.lineAnimEnabled,
+            lineScaleOnPlay = state.lineScaleOnPlay,
+            pulseEnabled = state.pulseEnabled,
+            pulseMinScale = state.pulseMinScale,
+            pulseMaxScale = state.pulseMaxScale,
             onIntent = onIntent,
         )
 
@@ -120,7 +122,7 @@ fun SettingsPanel(
         // Presets
         SectionTitle("Load Preset")
         PresetSelector(
-            onSelectPreset = { onIntent(DemoIntent.LoadPreset(it)) },
+            onSelectPreset = { onIntent(DemoIntent.LoadPreset(preset = it)) },
         )
     }
 }
@@ -149,7 +151,7 @@ private fun FontSettingsSection(
     Text("Size: ${fontSize.toInt()}sp")
     Slider(
         value = fontSize,
-        onValueChange = { onIntent(DemoIntent.UpdateFontSize(it)) },
+        onValueChange = { onIntent(DemoIntent.Font.UpdateSize(it)) },
         valueRange = 12f..60f,
     )
 
@@ -163,7 +165,7 @@ private fun FontSettingsSection(
         ).forEach { (weight, label) ->
             FilterChip(
                 selected = fontWeight == weight,
-                onClick = { onIntent(DemoIntent.UpdateFontWeight(weight)) },
+                onClick = { onIntent(DemoIntent.Font.UpdateWeight(weight)) },
                 label = { Text(label, fontSize = 10.sp) },
             )
         }
@@ -179,7 +181,7 @@ private fun FontSettingsSection(
         ).forEach { (family, label) ->
             FilterChip(
                 selected = fontFamily == family,
-                onClick = { onIntent(DemoIntent.UpdateFontFamily(family)) },
+                onClick = { onIntent(DemoIntent.Font.UpdateFamily(family)) },
                 label = { Text(label, fontSize = 10.sp) },
             )
         }
@@ -194,7 +196,7 @@ private fun FontSettingsSection(
         ).forEach { (align, label) ->
             FilterChip(
                 selected = textAlign == align,
-                onClick = { onIntent(DemoIntent.UpdateTextAlign(align)) },
+                onClick = { onIntent(DemoIntent.Font.UpdateAlign(align)) },
                 label = { Text(label, fontSize = 10.sp) },
             )
         }
@@ -203,7 +205,7 @@ private fun FontSettingsSection(
     Text("Line Spacing: ${lineSpacing.toInt()}dp")
     Slider(
         value = lineSpacing,
-        onValueChange = { onIntent(DemoIntent.UpdateLineSpacing(it)) },
+        onValueChange = { onIntent(DemoIntent.Layout.UpdateLineSpacing(it)) },
         valueRange = 0f..150f,
     )
 }
@@ -219,16 +221,16 @@ private fun ColorsSection(
     SectionTitle("Colors")
 
     ColorRow("Sung", sungColor) {
-        onIntent(DemoIntent.ShowColorPicker(ColorPickerTarget.SUNG_COLOR))
+        onIntent(DemoIntent.ColorPicker.Show(ColorPickerTarget.SUNG_COLOR))
     }
     ColorRow("Unsung", unsungColor) {
-        onIntent(DemoIntent.ShowColorPicker(ColorPickerTarget.UNSUNG_COLOR))
+        onIntent(DemoIntent.ColorPicker.Show(ColorPickerTarget.UNSUNG_COLOR))
     }
     ColorRow("Active", activeColor) {
-        onIntent(DemoIntent.ShowColorPicker(ColorPickerTarget.ACTIVE_COLOR))
+        onIntent(DemoIntent.ColorPicker.Show(ColorPickerTarget.ACTIVE_COLOR))
     }
     ColorRow("Background", backgroundColor) {
-        onIntent(DemoIntent.ShowColorPicker(ColorPickerTarget.BACKGROUND_COLOR))
+        onIntent(DemoIntent.ColorPicker.Show(ColorPickerTarget.BACKGROUND_COLOR))
     }
 }
 
@@ -271,7 +273,7 @@ private fun VisualEffectsSection(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Switch(
             checked = gradientEnabled,
-            onCheckedChange = { onIntent(DemoIntent.ToggleGradient(it)) },
+            onCheckedChange = { onIntent(DemoIntent.VisualEffect.ToggleGradient(it)) },
         )
         Text("Gradient", modifier = Modifier.padding(start = 8.dp))
     }
@@ -279,7 +281,7 @@ private fun VisualEffectsSection(
         Text("Angle: ${gradientAngle.toInt()}°", fontSize = 12.sp)
         Slider(
             value = gradientAngle,
-            onValueChange = { onIntent(DemoIntent.UpdateGradientAngle(it)) },
+            onValueChange = { onIntent(DemoIntent.VisualEffect.UpdateGradientAngle(it)) },
             valueRange = 0f..360f,
         )
     }
@@ -288,7 +290,7 @@ private fun VisualEffectsSection(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Switch(
             checked = blurEnabled,
-            onCheckedChange = { onIntent(DemoIntent.ToggleBlur(it)) },
+            onCheckedChange = { onIntent(DemoIntent.VisualEffect.ToggleBlur(it)) },
         )
         Text("Blur (for non-active lines)", modifier = Modifier.padding(start = 8.dp))
     }
@@ -296,7 +298,7 @@ private fun VisualEffectsSection(
         Text("Intensity: ${String.format(Locale.US, "%.1f", blurIntensity)}", fontSize = 12.sp)
         Slider(
             value = blurIntensity,
-            onValueChange = { onIntent(DemoIntent.UpdateBlurIntensity(it)) },
+            onValueChange = { onIntent(DemoIntent.VisualEffect.UpdateBlurIntensity(it)) },
             valueRange = 0.1f..3f,
         )
     }
@@ -321,7 +323,7 @@ private fun AnimationsSection(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Switch(
             checked = charAnimEnabled,
-            onCheckedChange = { onIntent(DemoIntent.ToggleCharAnimation(it)) },
+            onCheckedChange = { onIntent(DemoIntent.Animation.ToggleCharAnimation(it)) },
         )
         Text("Character Animation", modifier = Modifier.padding(start = 8.dp))
     }
@@ -329,19 +331,19 @@ private fun AnimationsSection(
         Text("Max Scale: ${String.format(Locale.US, "%.2f", charMaxScale)}", fontSize = 12.sp)
         Slider(
             value = charMaxScale,
-            onValueChange = { onIntent(DemoIntent.UpdateCharMaxScale(it)) },
+            onValueChange = { onIntent(DemoIntent.Animation.UpdateCharMaxScale(it)) },
             valueRange = 1f..2f,
         )
         Text("Float Offset: ${charFloatOffset.toInt()}", fontSize = 12.sp)
         Slider(
             value = charFloatOffset,
-            onValueChange = { onIntent(DemoIntent.UpdateCharFloatOffset(it)) },
+            onValueChange = { onIntent(DemoIntent.Animation.UpdateCharFloatOffset(it)) },
             valueRange = 0f..20f,
         )
         Text("Rotation: ${charRotationDegrees.toInt()}°", fontSize = 12.sp)
         Slider(
             value = charRotationDegrees,
-            onValueChange = { onIntent(DemoIntent.UpdateCharRotation(it)) },
+            onValueChange = { onIntent(DemoIntent.Animation.UpdateCharRotation(it)) },
             valueRange = 0f..15f,
         )
     }
@@ -350,7 +352,7 @@ private fun AnimationsSection(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Switch(
             checked = lineAnimEnabled,
-            onCheckedChange = { onIntent(DemoIntent.ToggleLineAnimation(it)) },
+            onCheckedChange = { onIntent(DemoIntent.Animation.ToggleLineAnimation(it)) },
         )
         Text("Line Animation", modifier = Modifier.padding(start = 8.dp))
     }
@@ -358,7 +360,7 @@ private fun AnimationsSection(
         Text("Scale on Play: ${String.format(Locale.US, "%.2f", lineScaleOnPlay)}", fontSize = 12.sp)
         Slider(
             value = lineScaleOnPlay,
-            onValueChange = { onIntent(DemoIntent.UpdateLineScaleOnPlay(it)) },
+            onValueChange = { onIntent(DemoIntent.Animation.UpdateLineScaleOnPlay(it)) },
             valueRange = 1f..1.5f,
         )
     }
@@ -367,7 +369,7 @@ private fun AnimationsSection(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Switch(
             checked = pulseEnabled,
-            onCheckedChange = { onIntent(DemoIntent.TogglePulse(it)) },
+            onCheckedChange = { onIntent(DemoIntent.Animation.TogglePulse(it)) },
         )
         Text("Pulse Effect", modifier = Modifier.padding(start = 8.dp))
     }
@@ -378,12 +380,12 @@ private fun AnimationsSection(
         )
         Slider(
             value = pulseMinScale,
-            onValueChange = { onIntent(DemoIntent.UpdatePulseMinScale(it)) },
+            onValueChange = { onIntent(DemoIntent.Animation.UpdatePulseMinScale(it)) },
             valueRange = 0.9f..1f,
         )
         Slider(
             value = pulseMaxScale,
-            onValueChange = { onIntent(DemoIntent.UpdatePulseMaxScale(it)) },
+            onValueChange = { onIntent(DemoIntent.Animation.UpdatePulseMaxScale(it)) },
             valueRange = 1f..1.1f,
         )
     }
