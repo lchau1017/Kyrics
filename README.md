@@ -1,23 +1,55 @@
 # Kyrics
 
+[![JitPack](https://jitpack.io/v/lchau1017/Kyrics.svg)](https://jitpack.io/#lchau1017/Kyrics)
+[![API](https://img.shields.io/badge/API-31%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=31)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 A Jetpack Compose library for displaying synchronized karaoke-style lyrics with customizable animations and visual effects.
+
+<p align="center">
+  <img src="media/demo_screenshot.png" alt="Kyrics Demo Screenshot" width="300"/>
+</p>
+
+<p align="center">
+  <a href="media/demo_video.webm">Watch Demo Video</a>
+</p>
+
+---
 
 ## Features
 
 - **Synchronized Lyrics Display** - Character-by-character and syllable-by-syllable highlighting
-- **Multiple Viewer Types** - 12 viewer styles including Smooth Scroll, Carousel 3D, Wave Flow, Spiral, and more
+- **12 Viewer Types** - Smooth Scroll, Carousel 3D, Wave Flow, Spiral, and more
 - **Rich Animations** - Character pop, float, rotation, and pulse effects
 - **Customizable Gradients** - Progress-based, multi-color, and preset gradient options
 - **Visual Effects** - Blur, shadows, and opacity transitions
-- **Full DSL Support** - Type-safe Kotlin DSL for configuration, lyrics creation, and inline configuration
-- **Extension Functions** - Rich collection utilities for working with synced lines
+- **Type-Safe DSL** - Kotlin DSL for configuration and lyrics creation
+- **Extension Functions** - Rich utilities for working with synced lines
 - **Compose-First** - Built entirely with Jetpack Compose
+
+---
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Creating Lyrics](#creating-lyrics)
+- [Configuration](#configuration)
+- [Viewer Types](#viewer-types)
+- [Extension Functions](#extension-functions)
+- [Data Models](#data-models)
+- [State Management](#state-management)
+- [Demo App](#demo-app)
+- [Requirements](#requirements)
+- [License](#license)
+
+---
 
 ## Installation
 
-### Option 1: JitPack (Recommended)
+### JitPack (Recommended)
 
-Add JitPack repository to your root `settings.gradle.kts`:
+**Step 1.** Add JitPack repository to your root `settings.gradle.kts`:
 
 ```kotlin
 dependencyResolutionManagement {
@@ -29,31 +61,27 @@ dependencyResolutionManagement {
 }
 ```
 
-Add the dependency to your module's `build.gradle.kts`:
+**Step 2.** Add the dependency to your module's `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.lchau1017:Kyrics:v1.0.0")
+    implementation("com.github.lchau1017:Kyrics:v1.1.0")
 }
 ```
 
-For the latest development version:
-```kotlin
-dependencies {
-    implementation("com.github.lchau1017:Kyrics:main-SNAPSHOT")
-}
-```
+### Alternative Installation Options
 
-### Option 2: Local Project Dependency
+<details>
+<summary>Local Project Dependency</summary>
 
-Clone the repository and include it in your project:
+Clone and include as a composite build:
 
-1. Clone the repo alongside your project:
 ```bash
 git clone https://github.com/lchau1017/Kyrics.git
 ```
 
-2. Add to your `settings.gradle.kts`:
+Add to `settings.gradle.kts`:
+
 ```kotlin
 includeBuild("../Kyrics") {
     dependencySubstitution {
@@ -62,27 +90,36 @@ includeBuild("../Kyrics") {
 }
 ```
 
-3. Add the dependency:
+Then add:
+
 ```kotlin
 dependencies {
     implementation("com.kyrics:kyrics")
 }
 ```
 
-### Option 3: Copy Module
+</details>
 
-Copy the `kyrics` module directly into your project and add to `settings.gradle.kts`:
+<details>
+<summary>Copy Module</summary>
+
+Copy the `kyrics` module into your project, add to `settings.gradle.kts`:
 
 ```kotlin
 include(":kyrics")
 ```
 
-Then add the dependency:
+Then add:
+
 ```kotlin
 dependencies {
     implementation(project(":kyrics"))
 }
 ```
+
+</details>
+
+---
 
 ## Quick Start
 
@@ -98,7 +135,7 @@ fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
 }
 ```
 
-### With Inline DSL Configuration
+### With Configuration DSL
 
 ```kotlin
 @Composable
@@ -123,7 +160,11 @@ fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
 }
 ```
 
-### Creating Lyrics with DSL
+---
+
+## Creating Lyrics
+
+### Using DSL Builder
 
 ```kotlin
 val lyrics = kyricsLyrics {
@@ -141,14 +182,14 @@ val lyrics = kyricsLyrics {
         syllable("come ", start = 2800, end = 3200)
         syllable("out", start = 3200, end = 4000)
     }
-    // Accompaniment/background vocals
+    // Background vocals
     accompaniment(start = 4000, end = 5000) {
         syllable("(ooh)", duration = 1000)
     }
 }
 ```
 
-### With Duration-Based Syllables
+### Duration-Based Syllables
 
 ```kotlin
 val lyrics = kyricsLyrics {
@@ -160,26 +201,28 @@ val lyrics = kyricsLyrics {
 }
 ```
 
-### Factory Functions for Quick Creation
+### Factory Functions
 
 ```kotlin
-// Simple line from text (single syllable)
+// Simple line (single syllable)
 val line1 = kyricsLineFromText("Hello World", start = 0, end = 1000)
 
-// Line from words (auto-split on whitespace)
+// Auto-split on whitespace
 val line2 = kyricsLineFromWords("Hello World", start = 0, end = 1000)
 
 // Accompaniment line
 val line3 = kyricsAccompaniment("(Background)", start = 0, end = 1000)
 ```
 
+---
+
 ## Configuration
 
-Kyrics uses a type-safe DSL for configuration:
+### Full Configuration Example
 
 ```kotlin
 val config = kyricsConfig {
-    // Color settings
+    // Colors
     colors {
         playing = Color.Yellow
         played = Color.Green
@@ -187,23 +230,21 @@ val config = kyricsConfig {
         background = Color.Black
     }
 
-    // Typography settings
+    // Typography
     typography {
         fontSize = 28.sp
         fontWeight = FontWeight.Bold
         textAlign = TextAlign.Center
     }
 
-    // Animation settings
+    // Animations
     animations {
         characterAnimations = true
         characterDuration = 800f
         characterScale = 1.15f
         characterFloat = 6f
-
         lineAnimations = true
         lineScale = 1.05f
-
         pulse = true
         pulseMin = 0.98f
         pulseMax = 1.02f
@@ -215,7 +256,7 @@ val config = kyricsConfig {
         blurIntensity = 1.0f
     }
 
-    // Gradient settings
+    // Gradient
     gradient {
         enabled = true
         angle = 45f
@@ -226,16 +267,16 @@ val config = kyricsConfig {
         type = ViewerType.SMOOTH_SCROLL
     }
 
-    // Layout settings
+    // Layout
     layout {
         lineSpacing = 16.dp
     }
 }
 ```
 
-## Viewer Types
+---
 
-Kyrics includes 12 different viewer types:
+## Viewer Types
 
 | Viewer | Description |
 |--------|-------------|
@@ -252,34 +293,45 @@ Kyrics includes 12 different viewer types:
 | `RADIAL_BURST` | Lines emerge from center in burst pattern |
 | `FLIP_CARD` | 3D card flip transitions |
 
+---
+
 ## Extension Functions
 
-Rich collection utilities for working with synced lines:
+### Finding Lines
 
 ```kotlin
-// Find line at a specific time
 val currentLine = lyrics.findLineAtTime(timeMs)
 val currentIndex = lyrics.findLineIndexAtTime(timeMs)
-
-// Navigation
 val nextLine = lyrics.findNextLine(timeMs)
 val prevLine = lyrics.findPreviousLine(timeMs)
+```
 
-// Progress calculations
+### Progress Calculations
+
+```kotlin
 val progress = line.progressAt(timeMs)  // 0.0 to 1.0
 val overallProgress = lyrics.calculateOverallProgress(timeMs)
+```
 
-// Time utilities
+### Time Utilities
+
+```kotlin
 val duration = line.duration
 val totalDuration = lyrics.getTotalDuration()
 val (start, end) = lyrics.getTimeRange()
+```
 
-// State checks
+### State Checks
+
+```kotlin
 val isPlaying = line.containsTime(timeMs)
 val hasPlayed = line.hasPlayedAt(timeMs)
 val isUpcoming = line.isUpcomingAt(timeMs)
+```
 
-// Filtering
+### Filtering
+
+```kotlin
 val playedLines = lyrics.getPlayedLines(timeMs)
 val upcomingLines = lyrics.getUpcomingLines(timeMs)
 val nearbyLines = lyrics.getLinesInRange(currentIndex, range = 3)
@@ -290,11 +342,11 @@ val accompaniment = kyricsLines.filterAccompaniment()
 val syllableCount = kyricsLines.getTotalSyllableCount()
 ```
 
+---
+
 ## Data Models
 
-### SyncedLine
-
-Interface for basic synced lyrics:
+### SyncedLine (Interface)
 
 ```kotlin
 interface SyncedLine {
@@ -304,9 +356,7 @@ interface SyncedLine {
 }
 ```
 
-### KyricsLine
-
-Full-featured line with syllable timing:
+### KyricsLine (Implementation)
 
 ```kotlin
 data class KyricsLine(
@@ -319,8 +369,6 @@ data class KyricsLine(
 
 ### KyricsSyllable
 
-Individual syllable with timing:
-
 ```kotlin
 data class KyricsSyllable(
     val content: String,
@@ -329,12 +377,12 @@ data class KyricsSyllable(
 )
 ```
 
+---
+
 ## State Management
 
-Use `rememberKyricsStateHolder` for advanced state management:
-
 ```kotlin
-// Basic usage
+// Basic
 val stateHolder = rememberKyricsStateHolder(config)
 
 // With initial lines
@@ -352,43 +400,54 @@ val stateHolder = rememberKyricsStateHolder(lyrics) {
 }
 ```
 
-## Architecture
-
-The library follows clean architecture principles:
-
-```
-kyrics/
-├── components/          # Composable UI components
-│   └── viewers/         # Different viewer implementations
-├── config/              # Configuration classes and DSL
-├── models/              # Data models (SyncedLine, KyricsLine, etc.)
-├── rendering/           # Text rendering and effects
-│   ├── character/       # Character-level rendering
-│   ├── layout/          # Text layout calculations
-│   └── syllable/        # Syllable-level rendering
-└── state/               # State management
-```
+---
 
 ## Demo App
 
-The `kyrics-demo` module provides a fully-featured demo application showcasing all library capabilities. It follows clean architecture with MVI pattern:
+The `kyrics-demo` module provides a complete demo showcasing all library features with clean architecture (MVI pattern).
 
-- **Data Layer** - `DemoLyricsDataSource` using DSL for lyrics
-- **Domain Layer** - Use cases and domain models
-- **Presentation Layer** - MVI with `DemoViewModel`, `DemoIntent`, and `DemoUiState`
+<p align="center">
+  <img src="media/demo_screenshot.png" alt="Demo App" width="280"/>
+</p>
 
-To run the demo:
+**Features:**
+- Playback controls (play/pause, seek)
+- All 12 viewer types
+- Font size, weight, and family customization
+- Real-time configuration changes
+
+**Run the demo:**
 
 ```bash
 ./gradlew :kyrics-demo:installDebug
 ```
 
+---
+
 ## Requirements
 
-- **Min SDK**: 31 (Android 12)
-- **Target SDK**: 35
-- **Kotlin**: 2.1.0+
-- **Jetpack Compose**: 2024.12.01 BOM
+| Requirement | Version |
+|-------------|---------|
+| Min SDK | 31 (Android 12) |
+| Target SDK | 35 |
+| Kotlin | 2.1.0+ |
+| Compose BOM | 2024.12.01 |
+
+---
+
+## Code Quality
+
+```bash
+./gradlew ktlintCheck detekt test
+```
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
 
 ## License
 
@@ -406,20 +465,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Code Quality
-
-This project enforces code quality with:
-- **ktlint** - Kotlin code style
-- **detekt** - Static code analysis
-- **Paparazzi** - Screenshot testing
-
-Run checks with:
-```bash
-./gradlew ktlintCheck detekt test
 ```
