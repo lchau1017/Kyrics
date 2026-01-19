@@ -9,7 +9,7 @@ import com.kyrics.config.KyricsConfig
 import com.kyrics.config.KyricsConfigBuilder
 import com.kyrics.config.ViewerType
 import com.kyrics.config.kyricsConfig
-import com.kyrics.models.ISyncedLine
+import com.kyrics.models.SyncedLine
 import com.kyrics.state.KyricsUiState
 import com.kyrics.state.rememberKyricsStateHolder
 
@@ -29,11 +29,11 @@ import com.kyrics.state.rememberKyricsStateHolder
  */
 @Composable
 fun KyricsViewer(
-    lines: List<ISyncedLine>,
+    lines: List<SyncedLine>,
     currentTimeMs: Int,
     config: KyricsConfig = KyricsConfig.Default,
     modifier: Modifier = Modifier,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
 ) {
     // Create and manage state holder internally
     val stateHolder = rememberKyricsStateHolder(config)
@@ -93,10 +93,10 @@ fun KyricsViewer(
  */
 @Composable
 fun KyricsViewer(
-    lines: List<ISyncedLine>,
+    lines: List<SyncedLine>,
     currentTimeMs: Int,
     modifier: Modifier = Modifier,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
     configBuilder: KyricsConfigBuilder.() -> Unit,
 ) {
     val config = kyricsConfig(configBuilder)
@@ -118,7 +118,7 @@ private fun KyricsViewerContent(
     uiState: KyricsUiState,
     config: KyricsConfig,
     modifier: Modifier = Modifier,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
 ) {
     Box(
         modifier =

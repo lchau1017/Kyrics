@@ -89,7 +89,7 @@ dependencies {
 
 ```kotlin
 @Composable
-fun KaraokeScreen(lyrics: List<ISyncedLine>, currentTimeMs: Long) {
+fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
     val config = kyricsConfig {
         visual {
             fontSize = 24.sp
@@ -246,12 +246,12 @@ Built-in gradient presets for quick styling:
 
 ## Data Models
 
-### ISyncedLine
+### SyncedLine
 
 Interface for basic synced lyrics:
 
 ```kotlin
-interface ISyncedLine {
+interface SyncedLine {
     val start: Int  // Start time in milliseconds
     val end: Int    // End time in milliseconds
     fun getContent(): String
@@ -268,7 +268,7 @@ data class KyricsLine(
     override val start: Int,
     override val end: Int,
     val metadata: Map<String, Any> = emptyMap()
-) : ISyncedLine
+) : SyncedLine
 ```
 
 ### KyricsSyllable
@@ -292,7 +292,7 @@ kyrics/
 ├── components/          # Composable UI components
 │   └── viewers/         # Different viewer implementations
 ├── config/              # Configuration classes and DSL
-├── models/              # Data models (ISyncedLine, KyricsLine, etc.)
+├── models/              # Data models (SyncedLine, KyricsLine, etc.)
 ├── rendering/           # Text rendering and effects
 │   ├── character/       # Character-level rendering
 │   ├── layout/          # Text layout calculations

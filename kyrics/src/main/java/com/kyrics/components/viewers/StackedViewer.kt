@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.zIndex
 import com.kyrics.components.KyricsSingleLine
 import com.kyrics.config.KyricsConfig
-import com.kyrics.models.ISyncedLine
+import com.kyrics.models.SyncedLine
 import com.kyrics.state.KyricsUiState
 
 /**
@@ -21,7 +21,7 @@ import com.kyrics.state.KyricsUiState
 internal fun StackedViewer(
     uiState: KyricsUiState,
     config: KyricsConfig,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
 ) {
     val currentLineIndex = uiState.currentLineIndex
 

@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gradient presets (Rainbow, Sunset, Ocean, Fire, Neon)
 - Animation effects (character pop, float, rotation, pulse)
 - Visual effects (blur, shadows, opacity transitions)
-- `ISyncedLine` interface for custom implementations
+- `SyncedLine` interface for custom implementations
 - `KyricsLine` and `KyricsSyllable` data classes
 - Comprehensive test suite with Paparazzi screenshot tests
 - Demo application

@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import com.kyrics.config.KyricsConfig
 import com.kyrics.config.KyricsConfigBuilder
 import com.kyrics.config.kyricsConfig
-import com.kyrics.models.ISyncedLine
+import com.kyrics.models.SyncedLine
 import com.kyrics.config.KyricsPresets as ConfigPresets
 
 /**
@@ -50,7 +50,7 @@ import com.kyrics.config.KyricsPresets as ConfigPresets
  * )
  * ```
  *
- * @param lines List of synchronized lines to display. Use [KyricsLine] or implement [ISyncedLine].
+ * @param lines List of synchronized lines to display. Use [KyricsLine] or implement [SyncedLine].
  * @param currentTimeMs Current playback time in milliseconds.
  * @param config Configuration for visual, animation, and behavior. Use [kyricsConfig] DSL or [KyricsPresets].
  * @param modifier Modifier for the composable.
@@ -61,11 +61,11 @@ import com.kyrics.config.KyricsPresets as ConfigPresets
  */
 @Composable
 fun KyricsViewer(
-    lines: List<ISyncedLine>,
+    lines: List<SyncedLine>,
     currentTimeMs: Int,
     config: KyricsConfig = KyricsConfig.Default,
     modifier: Modifier = Modifier,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
 ) {
     com.kyrics.components.KyricsViewer(
         lines = lines,
@@ -103,10 +103,10 @@ fun KyricsViewer(
  */
 @Composable
 fun KyricsViewer(
-    lines: List<ISyncedLine>,
+    lines: List<SyncedLine>,
     currentTimeMs: Int,
     modifier: Modifier = Modifier,
-    onLineClick: ((ISyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
     configBuilder: KyricsConfigBuilder.() -> Unit,
 ) {
     val config = kyricsConfig(configBuilder)

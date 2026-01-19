@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import com.kyrics.config.KyricsConfig
 import com.kyrics.config.KyricsConfigBuilder
 import com.kyrics.config.kyricsConfig
-import com.kyrics.models.ISyncedLine
+import com.kyrics.models.SyncedLine
 
 /**
  * State holder for karaoke viewer UI state.
@@ -76,7 +76,7 @@ class KyricsStateHolder(
      *
      * @param lines List of synchronized lines
      */
-    fun setLines(lines: List<ISyncedLine>) {
+    fun setLines(lines: List<SyncedLine>) {
         _uiState.value =
             calculator.calculateState(
                 lines = lines,
@@ -113,7 +113,7 @@ class KyricsStateHolder(
      * @param currentTimeMs Current playback time in milliseconds
      */
     fun update(
-        lines: List<ISyncedLine>,
+        lines: List<SyncedLine>,
         currentTimeMs: Int,
     ) {
         _uiState.value =
@@ -140,7 +140,7 @@ class KyricsStateHolder(
     /**
      * Get the currently playing line, if any.
      */
-    val currentLine: ISyncedLine?
+    val currentLine: SyncedLine?
         get() = _uiState.value.currentLine
 
     /**
@@ -181,7 +181,7 @@ fun rememberKyricsStateHolder(config: KyricsConfig = KyricsConfig.Default): Kyri
  */
 @Composable
 fun rememberKyricsStateHolder(
-    lines: List<ISyncedLine>,
+    lines: List<SyncedLine>,
     config: KyricsConfig = KyricsConfig.Default,
 ): KyricsStateHolder {
     val stateHolder =
@@ -234,7 +234,7 @@ fun rememberKyricsStateHolder(configBuilder: KyricsConfigBuilder.() -> Unit): Ky
  */
 @Composable
 fun rememberKyricsStateHolder(
-    lines: List<ISyncedLine>,
+    lines: List<SyncedLine>,
     configBuilder: KyricsConfigBuilder.() -> Unit,
 ): KyricsStateHolder {
     val config = kyricsConfig(configBuilder)
