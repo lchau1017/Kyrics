@@ -3,13 +3,8 @@ package com.kyrics.demo.presentation.mapper
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kyrics.config.AnimationConfig
-import com.kyrics.config.ColorConfig
-import com.kyrics.config.EffectsConfig
 import com.kyrics.config.KyricsConfig
-import com.kyrics.config.LayoutConfig
-import com.kyrics.config.ViewerConfig
-import com.kyrics.config.VisualConfig
+import com.kyrics.config.kyricsConfig
 import com.kyrics.demo.domain.model.DemoSettings
 import com.kyrics.demo.domain.model.LyricsData
 import com.kyrics.demo.domain.model.ViewerTypeOption
@@ -137,57 +132,58 @@ class DemoUiMapper
             }
 
         private fun buildLibraryConfig(settings: DemoSettings): KyricsConfig =
-            KyricsConfig(
-                visual =
-                    VisualConfig(
-                        fontSize = settings.fontSize.sp,
-                        fontWeight = settings.fontWeight,
-                        fontFamily = settings.fontFamily,
-                        textAlign = settings.textAlign,
-                        playingTextColor = settings.activeColor,
-                        playedTextColor = settings.sungColor,
-                        upcomingTextColor = settings.unsungColor,
-                        backgroundColor = settings.backgroundColor,
-                        gradientEnabled = settings.gradientEnabled,
-                        gradientAngle = settings.gradientAngle,
-                        colors =
-                            ColorConfig(
-                                sung = settings.sungColor,
-                                unsung = settings.unsungColor,
-                                active = settings.activeColor,
-                            ),
-                    ),
-                animation =
-                    AnimationConfig(
-                        enableCharacterAnimations = settings.charAnimEnabled,
-                        characterMaxScale = settings.charMaxScale,
-                        characterFloatOffset = settings.charFloatOffset,
-                        characterRotationDegrees = settings.charRotationDegrees,
-                        characterAnimationDuration = 800f,
-                        enableLineAnimations = settings.lineAnimEnabled,
-                        lineScaleOnPlay = settings.lineScaleOnPlay,
-                        lineAnimationDuration = 700f,
-                        enablePulse = settings.pulseEnabled,
-                        pulseMinScale = settings.pulseMinScale,
-                        pulseMaxScale = settings.pulseMaxScale,
-                    ),
-                effects =
-                    EffectsConfig(
-                        enableBlur = settings.blurEnabled,
-                        blurIntensity = settings.blurIntensity,
-                        upcomingLineBlur = (3 * settings.blurIntensity).dp,
-                        distantLineBlur = (6 * settings.blurIntensity).dp,
-                    ),
-                layout =
-                    LayoutConfig(
-                        viewerConfig =
-                            ViewerConfig(
-                                type =
-                                    ViewerTypeOption.all.getOrNull(settings.viewerTypeIndex)?.type
-                                        ?: com.kyrics.config.ViewerType.CENTER_FOCUSED,
-                            ),
-                        lineSpacing = settings.lineSpacing.dp,
-                        containerPadding = PaddingValues(8.dp),
-                    ),
-            )
+            kyricsConfig {
+                colors {
+                    playing = settings.activeColor
+                    played = settings.sungColor
+                    upcoming = settings.unsungColor
+                    background = settings.backgroundColor
+                    sung = settings.sungColor
+                    unsung = settings.unsungColor
+                    active = settings.activeColor
+                }
+
+                typography {
+                    fontSize = settings.fontSize.sp
+                    fontWeight = settings.fontWeight
+                    fontFamily = settings.fontFamily
+                    textAlign = settings.textAlign
+                }
+
+                animations {
+                    characterAnimations = settings.charAnimEnabled
+                    characterScale = settings.charMaxScale
+                    characterFloat = settings.charFloatOffset
+                    characterRotation = settings.charRotationDegrees
+                    characterDuration = 800f
+                    lineAnimations = settings.lineAnimEnabled
+                    lineScale = settings.lineScaleOnPlay
+                    lineDuration = 700f
+                    pulse = settings.pulseEnabled
+                    pulseMin = settings.pulseMinScale
+                    pulseMax = settings.pulseMaxScale
+                }
+
+                effects {
+                    blur = settings.blurEnabled
+                    blurIntensity = settings.blurIntensity
+                    upcomingBlur = (3 * settings.blurIntensity).dp
+                    distantBlur = (6 * settings.blurIntensity).dp
+                }
+
+                gradient {
+                    enabled = settings.gradientEnabled
+                    angle = settings.gradientAngle
+                }
+
+                viewer {
+                    type = ViewerTypeOption.all.getOrNull(settings.viewerTypeIndex)?.type
+                        ?: com.kyrics.config.ViewerType.CENTER_FOCUSED
+                }
+
+                layout {
+                    lineSpacing = settings.lineSpacing.dp
+                    containerPadding = PaddingValues(8.dp)
+                }
+            }
     }
