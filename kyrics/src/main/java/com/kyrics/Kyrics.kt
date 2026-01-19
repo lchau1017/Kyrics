@@ -8,6 +8,127 @@ import com.kyrics.config.kyricsConfig
 import com.kyrics.models.SyncedLine
 import com.kyrics.config.KyricsPresets as ConfigPresets
 
+// ============================================================================
+// Type aliases for convenient single-package imports
+// ============================================================================
+
+/**
+ * A synchronized lyrics line with timing information.
+ * @see com.kyrics.models.SyncedLine
+ */
+public typealias SyncedLine = com.kyrics.models.SyncedLine
+
+/**
+ * A lyrics line with syllable-level timing for karaoke highlighting.
+ * @see com.kyrics.models.KyricsLine
+ */
+public typealias KyricsLine = com.kyrics.models.KyricsLine
+
+/**
+ * A syllable within a [KyricsLine] with timing information.
+ * @see com.kyrics.models.KyricsSyllable
+ */
+public typealias KyricsSyllable = com.kyrics.models.KyricsSyllable
+
+/**
+ * DSL builder for creating [KyricsLine] instances.
+ * @see com.kyrics.models.KyricsLineBuilder
+ */
+public typealias KyricsLineBuilder = com.kyrics.models.KyricsLineBuilder
+
+/**
+ * DSL builder for creating lists of [KyricsLine] instances.
+ * @see com.kyrics.models.KyricsLyricsBuilder
+ */
+public typealias KyricsLyricsBuilder = com.kyrics.models.KyricsLyricsBuilder
+
+/**
+ * Factory object for creating [KyricsLine] instances.
+ * @see com.kyrics.models.KyricsLineFactory
+ */
+public typealias KyricsLineFactory = com.kyrics.models.KyricsLineFactory
+
+/**
+ * Configuration for the Kyrics viewer.
+ * @see com.kyrics.config.KyricsConfig
+ */
+public typealias KyricsConfig = com.kyrics.config.KyricsConfig
+
+/**
+ * DSL builder for creating [KyricsConfig] instances.
+ * @see com.kyrics.config.KyricsConfigBuilder
+ */
+public typealias KyricsConfigBuilder = com.kyrics.config.KyricsConfigBuilder
+
+/**
+ * Viewer type options for different display styles.
+ * @see com.kyrics.config.ViewerType
+ */
+public typealias ViewerType = com.kyrics.config.ViewerType
+
+// ============================================================================
+// Re-export DSL functions for convenient single-package imports
+// ============================================================================
+
+/**
+ * Creates a [KyricsConfig] using a type-safe DSL builder.
+ *
+ * @see com.kyrics.config.kyricsConfig for full documentation
+ */
+fun kyricsConfig(block: KyricsConfigBuilder.() -> Unit): KyricsConfig = com.kyrics.config.kyricsConfig(block)
+
+/**
+ * Creates a [KyricsLine][com.kyrics.models.KyricsLine] using a type-safe DSL builder.
+ *
+ * @see com.kyrics.models.kyricsLine for full documentation
+ */
+fun kyricsLine(
+    start: Int,
+    end: Int,
+    block: com.kyrics.models.KyricsLineBuilder.() -> Unit,
+): com.kyrics.models.KyricsLine = com.kyrics.models.kyricsLine(start, end, block)
+
+/**
+ * Creates a list of [KyricsLine][com.kyrics.models.KyricsLine] using a type-safe DSL builder.
+ *
+ * @see com.kyrics.models.kyricsLyrics for full documentation
+ */
+fun kyricsLyrics(block: com.kyrics.models.KyricsLyricsBuilder.() -> Unit): List<com.kyrics.models.KyricsLine> =
+    com.kyrics.models.kyricsLyrics(block)
+
+/**
+ * Creates a simple [KyricsLine][com.kyrics.models.KyricsLine] from plain text.
+ *
+ * @see com.kyrics.models.kyricsLineFromText for full documentation
+ */
+fun kyricsLineFromText(
+    content: String,
+    start: Int,
+    end: Int,
+): com.kyrics.models.KyricsLine = com.kyrics.models.kyricsLineFromText(content, start, end)
+
+/**
+ * Creates a [KyricsLine][com.kyrics.models.KyricsLine] by splitting text on whitespace.
+ *
+ * @see com.kyrics.models.kyricsLineFromWords for full documentation
+ */
+fun kyricsLineFromWords(
+    content: String,
+    start: Int,
+    end: Int,
+): com.kyrics.models.KyricsLine = com.kyrics.models.kyricsLineFromWords(content, start, end)
+
+/**
+ * Creates an accompaniment [KyricsLine][com.kyrics.models.KyricsLine].
+ *
+ * @see com.kyrics.models.kyricsAccompaniment for full documentation
+ */
+fun kyricsAccompaniment(
+    content: String,
+    start: Int,
+    end: Int,
+): com.kyrics.models.KyricsLine = com.kyrics.models.kyricsAccompaniment(content, start, end)
+
 /**
  * Complete lyrics viewer with automatic scrolling and synchronization.
  *
