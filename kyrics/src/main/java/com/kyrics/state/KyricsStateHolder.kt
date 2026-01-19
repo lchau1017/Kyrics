@@ -7,6 +7,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.kyrics.config.KyricsConfig
+import com.kyrics.config.KyricsConfigBuilder
+import com.kyrics.config.kyricsConfig
 import com.kyrics.models.ISyncedLine
 
 /**
@@ -193,4 +195,48 @@ fun rememberKyricsStateHolder(
         stateHolder.updateConfig(config)
     }
     return stateHolder
+}
+
+/**
+ * Creates and remembers a [KyricsStateHolder] instance with inline DSL configuration.
+ *
+ * Example usage:
+ * ```kotlin
+ * val stateHolder = rememberKyricsStateHolder {
+ *     colors { playing = Color.Yellow }
+ *     animations { characterScale = 1.2f }
+ * }
+ * ```
+ *
+ * @param configBuilder DSL builder for configuration
+ * @return A remembered state holder instance
+ */
+@Composable
+fun rememberKyricsStateHolder(configBuilder: KyricsConfigBuilder.() -> Unit): KyricsStateHolder {
+    val config = kyricsConfig(configBuilder)
+    return rememberKyricsStateHolder(config)
+}
+
+/**
+ * Creates and remembers a [KyricsStateHolder] instance with initial lines and inline DSL configuration.
+ *
+ * Example usage:
+ * ```kotlin
+ * val stateHolder = rememberKyricsStateHolder(lyrics) {
+ *     colors { playing = Color.Yellow }
+ *     animations { characterScale = 1.2f }
+ * }
+ * ```
+ *
+ * @param lines Initial lines to display
+ * @param configBuilder DSL builder for configuration
+ * @return A remembered state holder instance initialized with lines
+ */
+@Composable
+fun rememberKyricsStateHolder(
+    lines: List<ISyncedLine>,
+    configBuilder: KyricsConfigBuilder.() -> Unit,
+): KyricsStateHolder {
+    val config = kyricsConfig(configBuilder)
+    return rememberKyricsStateHolder(lines, config)
 }
