@@ -1,16 +1,24 @@
-package com.kyrics.demo.domain.model
+package com.kyrics.demo.presentation.model
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.kyrics.config.KyricsConfig
+import com.kyrics.models.KyricsLine
 
 /**
- * Domain model for demo settings.
- * Note: This is a domain model, so no Compose annotations here.
- * The presentation layer handles Compose-specific optimizations.
+ * Presentation layer UI state - completely flattened for UI consumption.
+ * This decouples the presentation layer from domain models.
  */
-data class DemoSettings(
+@Immutable
+data class DemoUiState(
+    // Playback state
+    val isPlaying: Boolean = false,
+    val currentTimeMs: Long = 0L,
+    val totalDurationMs: Long = 0L,
+    val selectedLineIndex: Int = 0,
     // Text settings
     val fontSize: Float = 32f,
     val fontWeight: FontWeight = FontWeight.Bold,
@@ -40,10 +48,35 @@ data class DemoSettings(
     val pulseMaxScale: Float = 1.05f,
     // Layout
     val lineSpacing: Float = 80f,
-    // Viewer type (12 types total)
     val viewerTypeIndex: Int = 0,
+    // UI-specific state
+    val showColorPicker: ColorPickerTarget? = null,
+    val viewerTypeOptions: List<ViewerTypeUiModel> = emptyList(),
+    // Data for display
+    val demoLines: List<KyricsLine> = emptyList(),
+    // Library config (derived from settings)
+    val libraryConfig: KyricsConfig = KyricsConfig.Default,
 ) {
     companion object {
-        val Default = DemoSettings()
+        val Initial = DemoUiState()
     }
+}
+
+/**
+ * UI model for viewer type options.
+ */
+@Immutable
+data class ViewerTypeUiModel(
+    val index: Int,
+    val displayName: String,
+)
+
+/**
+ * Represents the target color being edited in the color picker.
+ */
+enum class ColorPickerTarget {
+    SUNG_COLOR,
+    UNSUNG_COLOR,
+    ACTIVE_COLOR,
+    BACKGROUND_COLOR,
 }

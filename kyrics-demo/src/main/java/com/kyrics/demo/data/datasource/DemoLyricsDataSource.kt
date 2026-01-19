@@ -1,5 +1,6 @@
 package com.kyrics.demo.data.datasource
 
+import com.kyrics.demo.domain.datasource.LyricsDataSource
 import com.kyrics.models.KyricsLine
 import com.kyrics.models.KyricsSyllable
 import javax.inject.Inject
@@ -11,9 +12,9 @@ import javax.inject.Singleton
 @Singleton
 class DemoLyricsDataSource
     @Inject
-    constructor() {
+    constructor() : LyricsDataSource {
         @Suppress("LongMethod")
-        fun getDemoLyrics(): List<KyricsLine> =
+        override fun getLyrics(): List<KyricsLine> =
             listOf(
                 // First verse
                 KyricsLine(
@@ -131,6 +132,8 @@ class DemoLyricsDataSource
                     end = 20_000,
                 ),
             )
+
+        override fun getTotalDurationMs(): Long = TOTAL_DURATION_MS
 
         companion object {
             const val TOTAL_DURATION_MS = 20_000L

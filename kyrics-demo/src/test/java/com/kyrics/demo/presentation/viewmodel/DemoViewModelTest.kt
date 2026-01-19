@@ -8,8 +8,14 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.kyrics.demo.data.datasource.DemoLyricsDataSource
 import com.kyrics.demo.domain.model.DemoSettings
+import com.kyrics.demo.domain.model.LyricsData
+import com.kyrics.demo.domain.model.Preset
 import com.kyrics.demo.domain.usecase.GetDemoSettingsUseCase
+import com.kyrics.demo.domain.usecase.GetLyricsUseCase
 import com.kyrics.demo.domain.usecase.UpdateDemoSettingsUseCase
+import com.kyrics.demo.presentation.mapper.DemoUiMapper
+import com.kyrics.demo.presentation.model.ColorPickerTarget
+import com.kyrics.demo.testutil.TestDispatcherProvider
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -28,20 +34,29 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class DemoViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
+    private val testDispatcherProvider = TestDispatcherProvider(testDispatcher)
     private lateinit var getDemoSettingsUseCase: GetDemoSettingsUseCase
     private lateinit var updateDemoSettingsUseCase: UpdateDemoSettingsUseCase
-    private lateinit var demoLyricsDataSource: DemoLyricsDataSource
+    private lateinit var getLyricsUseCase: GetLyricsUseCase
+    private lateinit var uiMapper: DemoUiMapper
     private lateinit var viewModel: DemoViewModel
+
+    private val defaultLyricsData =
+        LyricsData(
+            lines = emptyList(),
+            totalDurationMs = DemoLyricsDataSource.TOTAL_DURATION_MS,
+        )
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         getDemoSettingsUseCase = mockk()
         updateDemoSettingsUseCase = mockk()
-        demoLyricsDataSource = mockk()
+        getLyricsUseCase = mockk()
+        uiMapper = DemoUiMapper()
 
         every { getDemoSettingsUseCase() } returns flowOf(DemoSettings.Default)
-        every { demoLyricsDataSource.getDemoLyrics() } returns emptyList()
+        every { getLyricsUseCase() } returns defaultLyricsData
         coEvery { updateDemoSettingsUseCase(any()) } returns Unit
     }
 
@@ -54,7 +69,9 @@ class DemoViewModelTest {
         DemoViewModel(
             getDemoSettingsUseCase,
             updateDemoSettingsUseCase,
-            demoLyricsDataSource,
+            getLyricsUseCase,
+            testDispatcherProvider,
+            uiMapper,
         )
 
     // ==================== Initial State Tests ====================
@@ -81,19 +98,21 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertThat(viewModel.state.value.settings.fontSize).isEqualTo(40f)
+            assertThat(viewModel.state.value.fontSize).isEqualTo(40f)
         }
 
     @Test
-    fun `initial state loads demo lyrics from data source`() =
+    fun `initial state loads demo lyrics from use case`() =
         runTest {
-            val demoLines = DemoLyricsDataSource().getDemoLyrics()
-            every { demoLyricsDataSource.getDemoLyrics() } returns demoLines
+            val demoLines = DemoLyricsDataSource().getLyrics()
+            val lyricsData = LyricsData(lines = demoLines, totalDurationMs = 20_000L)
+            every { getLyricsUseCase() } returns lyricsData
 
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
             assertThat(viewModel.state.value.demoLines).isEqualTo(demoLines)
+            assertThat(viewModel.state.value.totalDurationMs).isEqualTo(20_000L)
         }
 
     // ==================== Playback Tests ====================
@@ -104,11 +123,11 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.TogglePlayPause)
+            viewModel.onIntent(DemoIntent.Playback.TogglePlayPause)
             assertThat(viewModel.state.value.isPlaying).isTrue()
 
             // Stop playback to cancel the timer coroutine
-            viewModel.onIntent(DemoIntent.TogglePlayPause)
+            viewModel.onIntent(DemoIntent.Playback.TogglePlayPause)
         }
 
     @Test
@@ -117,10 +136,10 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.TogglePlayPause) // Start
+            viewModel.onIntent(DemoIntent.Playback.TogglePlayPause) // Start
             assertThat(viewModel.state.value.isPlaying).isTrue()
 
-            viewModel.onIntent(DemoIntent.TogglePlayPause) // Pause
+            viewModel.onIntent(DemoIntent.Playback.TogglePlayPause) // Pause
             assertThat(viewModel.state.value.isPlaying).isFalse()
         }
 
@@ -130,9 +149,9 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.TogglePlayPause)
-            viewModel.onIntent(DemoIntent.UpdateTime(5000))
-            viewModel.onIntent(DemoIntent.Reset)
+            viewModel.onIntent(DemoIntent.Playback.TogglePlayPause)
+            viewModel.onIntent(DemoIntent.Playback.UpdateTime(5000))
+            viewModel.onIntent(DemoIntent.Playback.Reset)
 
             assertThat(viewModel.state.value.isPlaying).isFalse()
             assertThat(viewModel.state.value.currentTimeMs).isEqualTo(0L)
@@ -145,7 +164,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.Seek(10_000))
+            viewModel.onIntent(DemoIntent.Playback.Seek(10_000))
 
             assertThat(viewModel.state.value.currentTimeMs).isEqualTo(10_000)
         }
@@ -156,7 +175,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateTime(DemoLyricsDataSource.TOTAL_DURATION_MS + 100))
+            viewModel.onIntent(DemoIntent.Playback.UpdateTime(DemoLyricsDataSource.TOTAL_DURATION_MS + 100))
 
             assertThat(viewModel.state.value.currentTimeMs).isEqualTo(0L)
         }
@@ -169,7 +188,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.ShowColorPicker(ColorPickerTarget.SUNG_COLOR))
+            viewModel.onIntent(DemoIntent.ColorPicker.Show(ColorPickerTarget.SUNG_COLOR))
 
             assertThat(viewModel.state.value.showColorPicker).isEqualTo(ColorPickerTarget.SUNG_COLOR)
         }
@@ -180,8 +199,8 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.ShowColorPicker(ColorPickerTarget.SUNG_COLOR))
-            viewModel.onIntent(DemoIntent.DismissColorPicker)
+            viewModel.onIntent(DemoIntent.ColorPicker.Show(ColorPickerTarget.SUNG_COLOR))
+            viewModel.onIntent(DemoIntent.ColorPicker.Dismiss)
 
             assertThat(viewModel.state.value.showColorPicker).isNull()
         }
@@ -192,7 +211,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateColor(ColorPickerTarget.SUNG_COLOR, Color.Red))
+            viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.SUNG_COLOR, Color.Red))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.sungColor == Color.Red }) }
@@ -204,7 +223,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateColor(ColorPickerTarget.UNSUNG_COLOR, Color.Blue))
+            viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.UNSUNG_COLOR, Color.Blue))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.unsungColor == Color.Blue }) }
@@ -216,7 +235,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateColor(ColorPickerTarget.ACTIVE_COLOR, Color.Yellow))
+            viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.ACTIVE_COLOR, Color.Yellow))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.activeColor == Color.Yellow }) }
@@ -228,7 +247,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateColor(ColorPickerTarget.BACKGROUND_COLOR, Color.Gray))
+            viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.BACKGROUND_COLOR, Color.Gray))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.backgroundColor == Color.Gray }) }
@@ -242,7 +261,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateFontSize(50f))
+            viewModel.onIntent(DemoIntent.Font.UpdateSize(50f))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.fontSize == 50f }) }
@@ -254,7 +273,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateFontWeight(FontWeight.Light))
+            viewModel.onIntent(DemoIntent.Font.UpdateWeight(FontWeight.Light))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.fontWeight == FontWeight.Light }) }
@@ -266,7 +285,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateFontFamily(FontFamily.Monospace))
+            viewModel.onIntent(DemoIntent.Font.UpdateFamily(FontFamily.Monospace))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.fontFamily == FontFamily.Monospace }) }
@@ -278,7 +297,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateTextAlign(TextAlign.Start))
+            viewModel.onIntent(DemoIntent.Font.UpdateAlign(TextAlign.Start))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.textAlign == TextAlign.Start }) }
@@ -292,7 +311,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.SelectViewerType(5))
+            viewModel.onIntent(DemoIntent.Selection.SelectViewerType(5))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.viewerTypeIndex == 5 }) }
@@ -306,7 +325,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.ToggleGradient(true))
+            viewModel.onIntent(DemoIntent.VisualEffect.ToggleGradient(true))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.gradientEnabled }) }
@@ -318,7 +337,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateGradientAngle(180f))
+            viewModel.onIntent(DemoIntent.VisualEffect.UpdateGradientAngle(180f))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.gradientAngle == 180f }) }
@@ -330,7 +349,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.ToggleBlur(true))
+            viewModel.onIntent(DemoIntent.VisualEffect.ToggleBlur(true))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.blurEnabled }) }
@@ -342,7 +361,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateBlurIntensity(2.5f))
+            viewModel.onIntent(DemoIntent.VisualEffect.UpdateBlurIntensity(2.5f))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.blurIntensity == 2.5f }) }
@@ -356,7 +375,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.ToggleCharAnimation(true))
+            viewModel.onIntent(DemoIntent.Animation.ToggleCharAnimation(true))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.charAnimEnabled }) }
@@ -368,7 +387,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateCharMaxScale(1.5f))
+            viewModel.onIntent(DemoIntent.Animation.UpdateCharMaxScale(1.5f))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.charMaxScale == 1.5f }) }
@@ -380,7 +399,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.ToggleLineAnimation(true))
+            viewModel.onIntent(DemoIntent.Animation.ToggleLineAnimation(true))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.lineAnimEnabled }) }
@@ -392,7 +411,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.TogglePulse(true))
+            viewModel.onIntent(DemoIntent.Animation.TogglePulse(true))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.pulseEnabled }) }
@@ -406,7 +425,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.LoadPreset("Classic"))
+            viewModel.onIntent(DemoIntent.LoadPreset(Preset.Classic))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(any()) }
@@ -418,7 +437,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.LoadPreset("Neon"))
+            viewModel.onIntent(DemoIntent.LoadPreset(Preset.Neon))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(any()) }
@@ -431,25 +450,12 @@ class DemoViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             viewModel.effect.test {
-                viewModel.onIntent(DemoIntent.LoadPreset("Classic"))
+                viewModel.onIntent(DemoIntent.LoadPreset(Preset.Classic))
                 testDispatcher.scheduler.advanceUntilIdle()
 
                 val effect = awaitItem()
                 assertThat(effect).isEqualTo(DemoEffect.PresetLoaded)
             }
-        }
-
-    @Test
-    fun `LoadPreset invalid name does not update`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.onIntent(DemoIntent.LoadPreset("InvalidPreset"))
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            // Should only have been called once during initial setup
-            coVerify(exactly = 0) { updateDemoSettingsUseCase(any()) }
         }
 
     // ==================== Line Selection Tests ====================
@@ -460,7 +466,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.SelectLine(3))
+            viewModel.onIntent(DemoIntent.Selection.SelectLine(3))
 
             assertThat(viewModel.state.value.selectedLineIndex).isEqualTo(3)
         }
@@ -473,7 +479,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.UpdateLineSpacing(100f))
+            viewModel.onIntent(DemoIntent.Layout.UpdateLineSpacing(100f))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(match { it.lineSpacing == 100f }) }

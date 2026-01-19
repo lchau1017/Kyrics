@@ -18,11 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kyrics.KyricsViewer
+import com.kyrics.demo.presentation.model.ColorPickerTarget
+import com.kyrics.demo.presentation.model.DemoUiState
 import com.kyrics.demo.presentation.screen.components.ColorPickerDialog
 import com.kyrics.demo.presentation.screen.components.SettingsPanel
-import com.kyrics.demo.presentation.viewmodel.ColorPickerTarget
 import com.kyrics.demo.presentation.viewmodel.DemoIntent
-import com.kyrics.demo.presentation.viewmodel.DemoState
 import com.kyrics.models.ISyncedLine
 
 /**
@@ -32,7 +32,7 @@ import com.kyrics.models.ISyncedLine
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DemoScreen(
-    state: DemoState,
+    state: DemoUiState,
     onIntent: (DemoIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -60,7 +60,7 @@ fun DemoScreen(
                     Modifier
                         .fillMaxWidth()
                         .weight(0.33f)
-                        .background(state.settings.backgroundColor),
+                        .background(state.backgroundColor),
             ) {
                 KyricsViewer(
                     lines = state.demoLines,
@@ -68,7 +68,7 @@ fun DemoScreen(
                     config = state.libraryConfig,
                     modifier = Modifier.fillMaxSize(),
                     onLineClick = { _: ISyncedLine, index: Int ->
-                        onIntent(DemoIntent.SelectLine(index))
+                        onIntent(DemoIntent.Selection.SelectLine(index))
                     },
                 )
             }
@@ -98,18 +98,18 @@ fun DemoScreen(
     state.showColorPicker?.let { target ->
         val currentColor =
             when (target) {
-                ColorPickerTarget.SUNG_COLOR -> state.settings.sungColor
-                ColorPickerTarget.UNSUNG_COLOR -> state.settings.unsungColor
-                ColorPickerTarget.ACTIVE_COLOR -> state.settings.activeColor
-                ColorPickerTarget.BACKGROUND_COLOR -> state.settings.backgroundColor
+                ColorPickerTarget.SUNG_COLOR -> state.sungColor
+                ColorPickerTarget.UNSUNG_COLOR -> state.unsungColor
+                ColorPickerTarget.ACTIVE_COLOR -> state.activeColor
+                ColorPickerTarget.BACKGROUND_COLOR -> state.backgroundColor
             }
 
         ColorPickerDialog(
             currentColor = currentColor,
             onColorSelected = { color ->
-                onIntent(DemoIntent.UpdateColor(target, color))
+                onIntent(DemoIntent.ColorPicker.UpdateColor(target, color))
             },
-            onDismiss = { onIntent(DemoIntent.DismissColorPicker) },
+            onDismiss = { onIntent(DemoIntent.ColorPicker.Dismiss) },
         )
     }
 }
