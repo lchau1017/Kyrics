@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kyrics.demo.domain.dispatcher.DispatcherProvider
 import com.kyrics.demo.domain.model.DemoSettings
+import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.demo.domain.model.Preset
 import com.kyrics.demo.domain.usecase.GetDemoSettingsUseCase
 import com.kyrics.demo.domain.usecase.GetLyricsUseCase
@@ -56,9 +57,24 @@ class DemoViewModel
             )
 
         private fun loadInitialData() {
-            val lyricsData = getLyricsUseCase()
-            _state.update { currentState ->
-                uiMapper.mapLyricsToUiState(lyricsData, currentState)
+            viewModelScope.launch(dispatcherProvider.io) {
+                val lyricsData = getLyricsUseCase(LyricsSource.TTML)
+                _state.update { currentState ->
+                    uiMapper.mapLyricsToUiState(lyricsData, currentState)
+                }
+            }
+        }
+
+        private fun loadLyrics(source: LyricsSource) {
+            viewModelScope.launch(dispatcherProvider.io) {
+                val lyricsData = getLyricsUseCase(source)
+                _state.update { currentState ->
+                    uiMapper.mapLyricsToUiState(lyricsData, currentState).copy(
+                        lyricsSource = source,
+                        currentTimeMs = 0L,
+                        selectedLineIndex = 0,
+                    )
+                }
             }
         }
 
@@ -82,7 +98,14 @@ class DemoViewModel
                 is DemoIntent.VisualEffect -> handleVisualEffect(intent)
                 is DemoIntent.Animation -> handleAnimation(intent)
                 is DemoIntent.LoadPreset -> loadPreset(intent.preset)
+                is DemoIntent.SelectLyricsSource -> selectLyricsSource(intent.source)
             }
+        }
+
+        private fun selectLyricsSource(source: LyricsSource) {
+            stopPlaybackTimer()
+            _state.update { it.copy(isPlaying = false) }
+            loadLyrics(source)
         }
 
         // ==================== Intent Handlers ====================

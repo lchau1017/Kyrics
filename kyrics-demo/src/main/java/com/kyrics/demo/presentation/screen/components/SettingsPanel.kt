@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.demo.presentation.model.ColorPickerTarget
 import com.kyrics.demo.presentation.model.DemoUiState
 import com.kyrics.demo.presentation.viewmodel.DemoIntent
@@ -47,6 +48,14 @@ fun SettingsPanel(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
     ) {
+        // Lyrics Source
+        LyricsSourceSection(
+            selectedSource = state.lyricsSource,
+            onIntent = onIntent,
+        )
+
+        SectionDivider()
+
         // Playback controls
         ControlPanel(
             isPlaying = state.isPlaying,
@@ -388,5 +397,22 @@ private fun AnimationsSection(
             onValueChange = { onIntent(DemoIntent.Animation.UpdatePulseMaxScale(it)) },
             valueRange = 1f..1.1f,
         )
+    }
+}
+
+@Composable
+private fun LyricsSourceSection(
+    selectedSource: LyricsSource,
+    onIntent: (DemoIntent) -> Unit,
+) {
+    SectionTitle("Lyrics Source")
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        LyricsSource.entries.forEach { source ->
+            FilterChip(
+                selected = selectedSource == source,
+                onClick = { onIntent(DemoIntent.SelectLyricsSource(source)) },
+                label = { Text(source.displayName, fontSize = 10.sp) },
+            )
+        }
     }
 }

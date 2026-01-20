@@ -6,11 +6,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 
 /**
+ * Lyrics source format for demo.
+ */
+enum class LyricsSource(val extension: String, val displayName: String) {
+    TTML("ttml", "TTML"),
+    ENHANCED_LRC("elrc", "Enhanced LRC"),
+    LRC("lrc", "LRC")
+}
+
+/**
  * Domain model for demo settings.
  * Note: This is a domain model, so no Compose annotations here.
  * The presentation layer handles Compose-specific optimizations.
  */
 data class DemoSettings(
+    // Lyrics source
+    val lyricsSource: LyricsSource = LyricsSource.TTML,
     // Text settings
     val fontSize: Float = 32f,
     val fontWeight: FontWeight = FontWeight.Bold,

@@ -67,6 +67,34 @@ public typealias KyricsConfigBuilder = com.kyrics.config.KyricsConfigBuilder
 public typealias ViewerType = com.kyrics.config.ViewerType
 
 // ============================================================================
+// Parser type aliases
+// ============================================================================
+
+/**
+ * Interface for parsing lyrics files.
+ * @see com.kyrics.parser.LyricsParser
+ */
+public typealias LyricsParser = com.kyrics.parser.LyricsParser
+
+/**
+ * Supported lyrics file formats.
+ * @see com.kyrics.parser.LyricsFormat
+ */
+public typealias LyricsFormat = com.kyrics.parser.LyricsFormat
+
+/**
+ * Result of parsing a lyrics file.
+ * @see com.kyrics.parser.ParseResult
+ */
+public typealias ParseResult = com.kyrics.parser.ParseResult
+
+/**
+ * Metadata extracted from lyrics files.
+ * @see com.kyrics.parser.LyricsMetadata
+ */
+public typealias LyricsMetadata = com.kyrics.parser.LyricsMetadata
+
+// ============================================================================
 // Re-export DSL functions for convenient single-package imports
 // ============================================================================
 
@@ -128,6 +156,63 @@ fun kyricsAccompaniment(
     start: Int,
     end: Int,
 ): com.kyrics.models.KyricsLine = com.kyrics.models.kyricsAccompaniment(content, start, end)
+
+// ============================================================================
+// Parser functions
+// ============================================================================
+
+/**
+ * Parses lyrics content with automatic format detection.
+ *
+ * Supports TTML, LRC, and Enhanced LRC formats.
+ *
+ * Example:
+ * ```kotlin
+ * val result = parseLyrics(fileContent)
+ * when (result) {
+ *     is ParseResult.Success -> {
+ *         KyricsViewer(lines = result.lines, currentTimeMs = position)
+ *     }
+ *     is ParseResult.Failure -> {
+ *         println("Parse error: ${result.error}")
+ *     }
+ * }
+ * ```
+ *
+ * @param content The raw lyrics file content
+ * @return [ParseResult.Success] with parsed lines or [ParseResult.Failure] with error
+ */
+fun parseLyrics(content: String): ParseResult =
+    com.kyrics.parser.LyricsParserFactory.parse(content)
+
+/**
+ * Parses lyrics content with a specified format.
+ *
+ * @param content The raw lyrics file content
+ * @param format The format to use for parsing
+ * @return [ParseResult.Success] with parsed lines or [ParseResult.Failure] with error
+ */
+fun parseLyrics(content: String, format: LyricsFormat): ParseResult =
+    com.kyrics.parser.LyricsParserFactory.parse(content, format)
+
+/**
+ * Parses lyrics content using filename extension as a hint.
+ *
+ * @param content The raw lyrics file content
+ * @param filename The filename (used for format detection)
+ * @return [ParseResult.Success] with parsed lines or [ParseResult.Failure] with error
+ */
+fun parseLyricsFile(content: String, filename: String): ParseResult =
+    com.kyrics.parser.LyricsParserFactory.parseFile(content, filename)
+
+/**
+ * Detects the lyrics format from content.
+ *
+ * @param content The file content to analyze
+ * @return The detected [LyricsFormat]
+ */
+fun detectLyricsFormat(content: String): LyricsFormat =
+    com.kyrics.parser.LyricsParserFactory.detectFormat(content)
 
 /**
  * Complete lyrics viewer with automatic scrolling and synchronization.

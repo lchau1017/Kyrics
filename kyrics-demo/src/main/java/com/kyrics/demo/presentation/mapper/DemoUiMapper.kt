@@ -59,6 +59,8 @@ class DemoUiMapper
                 // Layout
                 lineSpacing = settings.lineSpacing,
                 viewerTypeIndex = settings.viewerTypeIndex,
+                // Lyrics source
+                lyricsSource = settings.lyricsSource,
                 // Derived config
                 libraryConfig = buildLibraryConfig(settings),
             )
@@ -91,6 +93,7 @@ class DemoUiMapper
          */
         fun mapUiStateToSettings(uiState: DemoUiState): DemoSettings =
             DemoSettings(
+                lyricsSource = uiState.lyricsSource,
                 fontSize = uiState.fontSize,
                 fontWeight = uiState.fontWeight,
                 fontFamily = uiState.fontFamily,

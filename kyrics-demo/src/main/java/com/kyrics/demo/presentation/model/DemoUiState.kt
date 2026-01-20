@@ -6,6 +6,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.kyrics.config.KyricsConfig
+import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.models.KyricsLine
 
 /**
@@ -49,6 +50,8 @@ data class DemoUiState(
     // Layout
     val lineSpacing: Float = 80f,
     val viewerTypeIndex: Int = 0,
+    // Lyrics source
+    val lyricsSource: LyricsSource = LyricsSource.TTML,
     // UI-specific state
     val showColorPicker: ColorPickerTarget? = null,
     val viewerTypeOptions: List<ViewerTypeUiModel> = emptyList(),

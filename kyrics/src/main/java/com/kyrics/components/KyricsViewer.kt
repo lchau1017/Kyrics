@@ -60,56 +60,6 @@ fun KyricsViewer(
 }
 
 /**
- * Complete karaoke lyrics viewer with inline DSL configuration.
- *
- * This overload allows configuring the viewer using a trailing lambda DSL,
- * following standard Compose conventions like LazyColumn, Scaffold, etc.
- *
- * Example usage:
- * ```kotlin
- * KyricsViewer(
- *     lines = lyrics,
- *     currentTimeMs = playerPosition
- * ) {
- *     colors {
- *         playing = Color.Yellow
- *         sung = Color.Green
- *     }
- *     animations {
- *         characterAnimations = true
- *         characterScale = 1.2f
- *     }
- *     viewer {
- *         type = ViewerType.CAROUSEL_3D
- *     }
- * }
- * ```
- *
- * @param lines List of synchronized lines to display
- * @param currentTimeMs Current playback time in milliseconds
- * @param modifier Modifier for the composable
- * @param onLineClick Optional callback when a line is clicked
- * @param configBuilder DSL builder for configuration
- */
-@Composable
-fun KyricsViewer(
-    lines: List<SyncedLine>,
-    currentTimeMs: Int,
-    modifier: Modifier = Modifier,
-    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
-    configBuilder: KyricsConfigBuilder.() -> Unit,
-) {
-    val config = kyricsConfig(configBuilder)
-    KyricsViewer(
-        lines = lines,
-        currentTimeMs = currentTimeMs,
-        config = config,
-        modifier = modifier,
-        onLineClick = onLineClick,
-    )
-}
-
-/**
  * Internal content renderer that uses KyricsUiState.
  * This separates state management from rendering.
  */

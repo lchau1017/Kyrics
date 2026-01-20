@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.demo.domain.model.Preset
 import com.kyrics.demo.presentation.model.ColorPickerTarget
 
@@ -159,5 +160,11 @@ sealed interface DemoIntent {
 
     data class LoadPreset(
         val preset: Preset,
+    ) : DemoIntent
+
+    // ==================== Lyrics Source ====================
+
+    data class SelectLyricsSource(
+        val source: LyricsSource,
     ) : DemoIntent
 }
