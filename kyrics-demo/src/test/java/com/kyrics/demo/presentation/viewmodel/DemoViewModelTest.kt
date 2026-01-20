@@ -1,6 +1,7 @@
 package com.kyrics.demo.presentation.viewmodel
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -9,7 +10,7 @@ import com.google.common.truth.Truth.assertThat
 import com.kyrics.demo.data.datasource.DemoLyricsDataSource
 import com.kyrics.demo.domain.model.DemoSettings
 import com.kyrics.demo.domain.model.LyricsData
-import com.kyrics.demo.domain.model.Preset
+import com.kyrics.demo.domain.model.PresetType
 import com.kyrics.demo.domain.usecase.GetDemoSettingsUseCase
 import com.kyrics.demo.domain.usecase.GetLyricsUseCase
 import com.kyrics.demo.domain.usecase.UpdateDemoSettingsUseCase
@@ -56,7 +57,7 @@ class DemoViewModelTest {
         uiMapper = DemoUiMapper()
 
         every { getDemoSettingsUseCase() } returns flowOf(DemoSettings.Default)
-        every { getLyricsUseCase() } returns defaultLyricsData
+        coEvery { getLyricsUseCase(any()) } returns defaultLyricsData
         coEvery { updateDemoSettingsUseCase(any()) } returns Unit
     }
 
@@ -104,14 +105,14 @@ class DemoViewModelTest {
     @Test
     fun `initial state loads demo lyrics from use case`() =
         runTest {
-            val demoLines = DemoLyricsDataSource().getLyrics()
-            val lyricsData = LyricsData(lines = demoLines, totalDurationMs = 20_000L)
-            every { getLyricsUseCase() } returns lyricsData
+            val mockLines = listOf(mockk<com.kyrics.models.KyricsLine>())
+            val lyricsData = LyricsData(lines = mockLines, totalDurationMs = 20_000L)
+            coEvery { getLyricsUseCase(any()) } returns lyricsData
 
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            assertThat(viewModel.state.value.demoLines).isEqualTo(demoLines)
+            assertThat(viewModel.state.value.demoLines).isEqualTo(mockLines)
             assertThat(viewModel.state.value.totalDurationMs).isEqualTo(20_000L)
         }
 
@@ -214,7 +215,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.SUNG_COLOR, Color.Red))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.sungColor == Color.Red }) }
+            coVerify { updateDemoSettingsUseCase(match { it.sungColorArgb == Color.Red.toArgb().toLong() }) }
         }
 
     @Test
@@ -226,7 +227,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.UNSUNG_COLOR, Color.Blue))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.unsungColor == Color.Blue }) }
+            coVerify { updateDemoSettingsUseCase(match { it.unsungColorArgb == Color.Blue.toArgb().toLong() }) }
         }
 
     @Test
@@ -238,7 +239,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.ACTIVE_COLOR, Color.Yellow))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.activeColor == Color.Yellow }) }
+            coVerify { updateDemoSettingsUseCase(match { it.activeColorArgb == Color.Yellow.toArgb().toLong() }) }
         }
 
     @Test
@@ -250,7 +251,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.BACKGROUND_COLOR, Color.Gray))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.backgroundColor == Color.Gray }) }
+            coVerify { updateDemoSettingsUseCase(match { it.backgroundColorArgb == Color.Gray.toArgb().toLong() }) }
         }
 
     // ==================== Font Settings Tests ====================
@@ -276,7 +277,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.Font.UpdateWeight(FontWeight.Light))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.fontWeight == FontWeight.Light }) }
+            coVerify { updateDemoSettingsUseCase(match { it.fontWeightValue == FontWeight.Light.weight }) }
         }
 
     @Test
@@ -288,7 +289,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.Font.UpdateFamily(FontFamily.Monospace))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.fontFamily == FontFamily.Monospace }) }
+            coVerify { updateDemoSettingsUseCase(match { it.fontFamilyName == "monospace" }) }
         }
 
     @Test
@@ -300,7 +301,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.Font.UpdateAlign(TextAlign.Start))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.textAlign == TextAlign.Start }) }
+            coVerify { updateDemoSettingsUseCase(match { it.textAlignName == "start" }) }
         }
 
     // ==================== Viewer Type Tests ====================
@@ -425,7 +426,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.LoadPreset(Preset.Classic))
+            viewModel.onIntent(DemoIntent.LoadPreset(PresetType.CLASSIC))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(any()) }
@@ -437,7 +438,7 @@ class DemoViewModelTest {
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
 
-            viewModel.onIntent(DemoIntent.LoadPreset(Preset.Neon))
+            viewModel.onIntent(DemoIntent.LoadPreset(PresetType.NEON))
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(any()) }
@@ -450,7 +451,7 @@ class DemoViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             viewModel.effect.test {
-                viewModel.onIntent(DemoIntent.LoadPreset(Preset.Classic))
+                viewModel.onIntent(DemoIntent.LoadPreset(PresetType.CLASSIC))
                 testDispatcher.scheduler.advanceUntilIdle()
 
                 val effect = awaitItem()

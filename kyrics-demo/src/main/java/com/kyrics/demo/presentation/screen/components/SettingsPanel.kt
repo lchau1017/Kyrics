@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kyrics.demo.presentation.model.ColorPickerTarget
 import com.kyrics.demo.presentation.model.DemoUiState
+import com.kyrics.demo.presentation.model.LyricsSourceUiModel
 import com.kyrics.demo.presentation.viewmodel.DemoIntent
 import java.util.Locale
 
@@ -47,6 +48,15 @@ fun SettingsPanel(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
     ) {
+        // Lyrics Source
+        LyricsSourceSection(
+            selectedIndex = state.lyricsSourceIndex,
+            lyricsSourceOptions = state.lyricsSourceOptions,
+            onIntent = onIntent,
+        )
+
+        SectionDivider()
+
         // Playback controls
         ControlPanel(
             isPlaying = state.isPlaying,
@@ -122,7 +132,7 @@ fun SettingsPanel(
         // Presets
         SectionTitle("Load Preset")
         PresetSelector(
-            onSelectPreset = { onIntent(DemoIntent.LoadPreset(preset = it)) },
+            onSelectPreset = { onIntent(DemoIntent.LoadPreset(presetType = it)) },
         )
     }
 }
@@ -388,5 +398,23 @@ private fun AnimationsSection(
             onValueChange = { onIntent(DemoIntent.Animation.UpdatePulseMaxScale(it)) },
             valueRange = 1f..1.1f,
         )
+    }
+}
+
+@Composable
+private fun LyricsSourceSection(
+    selectedIndex: Int,
+    lyricsSourceOptions: List<LyricsSourceUiModel>,
+    onIntent: (DemoIntent) -> Unit,
+) {
+    SectionTitle("Lyrics Source")
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        lyricsSourceOptions.forEach { option ->
+            FilterChip(
+                selected = selectedIndex == option.index,
+                onClick = { onIntent(DemoIntent.SelectLyricsSource(option.index)) },
+                label = { Text(option.displayName, fontSize = 10.sp) },
+            )
+        }
     }
 }

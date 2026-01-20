@@ -5,6 +5,50 @@ All notable changes to Kyrics will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-01-20
+
+### Added
+- **Multi-Format Lyrics Parser** - Parse lyrics from multiple file formats with automatic format detection
+  - **TTML Parser** - Full support for Timed Text Markup Language (W3C standard)
+    - Syllable-level timing with `<span>` elements
+    - Word-level timing with iTunes-style `itunes:timing="Word"` attribute
+    - Accompaniment/background vocal detection via `ttm:role="x-bg"`
+    - Metadata extraction (title, artist, album, duration)
+  - **LRC Parser** - Standard LRC lyrics format
+    - Line-level timestamp parsing `[mm:ss.xx]`
+    - Metadata tags support (`[ti:`, `[ar:`, `[al:`, etc.)
+  - **Enhanced LRC Parser** - Extended LRC with word-level timing
+    - Inline word timestamps `<mm:ss.xx>`
+    - Compatible with karaoke software formats
+  - **Automatic Format Detection** - `parseLyrics()` auto-detects format from content
+  - **Factory Pattern** - `LyricsParserFactory` for explicit format selection
+  - **ParseResult** - Sealed class with `Success` and `Failure` states
+
+- **Preview Composables** - Android Studio preview support for visual testing
+  - `PresetPreviews.kt` - Individual previews for all 10 presets with names
+  - `ViewerTypePreviews.kt` - Individual previews for all 12 viewer types with names
+  - Grid previews for easy comparison
+
+### Fixed
+- **Color Conversion Bug** - Fixed dark colors when applying presets
+  - Changed `Color.value.toLong()` to `Color.toArgb().toLong()` for proper ARGB conversion
+  - Affects `DemoViewModel`, `DemoUiMapper`, and related tests
+
+### Changed
+- **Demo App Architecture** - Refactored to strict Clean Architecture with MVI pattern
+  - Domain layer now uses pure Kotlin types (no Compose dependencies)
+  - `Preset` sealed class replaced with `PresetType` enum
+  - `ViewerTypeOption` replaced with `ViewerTypeId` enum
+  - `DemoSettings` uses primitive types (Long for colors, Int for font weight, String for font family)
+  - `DemoUiMapper` handles all Compose type conversions
+  - Added `LyricsRepository` interface with `LyricsRepositoryImpl`
+  - Supports multiple lyrics sources (TTML, LRC, Enhanced LRC)
+
+### Improved
+- Demo app now loads lyrics from asset files using the new parser
+- Added comprehensive unit tests for parser components
+- Better separation of concerns in demo app
+
 ## [1.1.1] - 2025-01-19
 
 ### Fixed

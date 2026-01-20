@@ -73,7 +73,7 @@ mavenPublishing {
     coordinates(
         groupId = "com.kyrics",
         artifactId = "kyrics",
-        version = "1.1.1",
+        version = "1.2.0",
     )
 
     pom {
@@ -83,7 +83,7 @@ mavenPublishing {
                 "with customizable animations and visual effects.",
         )
         url.set("https://github.com/lchau1017/Kyrics")
-        inceptionYear.set("2024")
+        inceptionYear.set("2026")
 
         licenses {
             license {
