@@ -1,6 +1,7 @@
 package com.kyrics.demo.presentation.viewmodel
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -285,7 +286,7 @@ class DemoViewModel
             target: ColorPickerTarget,
             color: Color,
         ) {
-            val colorArgb = color.value.toLong()
+            val colorArgb = color.toArgb().toLong()
             updateSettings { settings ->
                 when (target) {
                     ColorPickerTarget.SUNG_COLOR -> settings.copy(sungColorArgb = colorArgb)
@@ -396,21 +397,26 @@ class DemoViewModel
             viewModelScope.launch(dispatcherProvider.main) {
                 val config = uiMapper.mapPresetToConfig(presetType)
                 val currentSettings = uiMapper.mapUiStateToSettings(_state.value)
+                // Use colors from config.visual.colors (the primary color source for presets)
                 val newSettings =
                     currentSettings.copy(
                         fontSize = config.visual.fontSize.value,
                         fontWeightValue = config.visual.fontWeight.weight,
                         sungColorArgb =
-                            config.visual.playedTextColor.value
+                            config.visual.colors.sung
+                                .toArgb()
                                 .toLong(),
                         unsungColorArgb =
-                            config.visual.upcomingTextColor.value
+                            config.visual.colors.unsung
+                                .toArgb()
                                 .toLong(),
                         activeColorArgb =
-                            config.visual.playingTextColor.value
+                            config.visual.colors.active
+                                .toArgb()
                                 .toLong(),
                         backgroundColorArgb =
-                            config.visual.backgroundColor.value
+                            config.visual.backgroundColor
+                                .toArgb()
                                 .toLong(),
                         charAnimEnabled = config.animation.enableCharacterAnimations,
                         lineAnimEnabled = config.animation.enableLineAnimations,

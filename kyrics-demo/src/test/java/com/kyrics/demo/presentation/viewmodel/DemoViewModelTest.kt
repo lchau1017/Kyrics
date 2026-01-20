@@ -1,6 +1,7 @@
 package com.kyrics.demo.presentation.viewmodel
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -214,7 +215,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.SUNG_COLOR, Color.Red))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.sungColorArgb == Color.Red.value.toLong() }) }
+            coVerify { updateDemoSettingsUseCase(match { it.sungColorArgb == Color.Red.toArgb().toLong() }) }
         }
 
     @Test
@@ -226,7 +227,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.UNSUNG_COLOR, Color.Blue))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.unsungColorArgb == Color.Blue.value.toLong() }) }
+            coVerify { updateDemoSettingsUseCase(match { it.unsungColorArgb == Color.Blue.toArgb().toLong() }) }
         }
 
     @Test
@@ -238,7 +239,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.ACTIVE_COLOR, Color.Yellow))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.activeColorArgb == Color.Yellow.value.toLong() }) }
+            coVerify { updateDemoSettingsUseCase(match { it.activeColorArgb == Color.Yellow.toArgb().toLong() }) }
         }
 
     @Test
@@ -250,7 +251,7 @@ class DemoViewModelTest {
             viewModel.onIntent(DemoIntent.ColorPicker.UpdateColor(ColorPickerTarget.BACKGROUND_COLOR, Color.Gray))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            coVerify { updateDemoSettingsUseCase(match { it.backgroundColorArgb == Color.Gray.value.toLong() }) }
+            coVerify { updateDemoSettingsUseCase(match { it.backgroundColorArgb == Color.Gray.toArgb().toLong() }) }
         }
 
     // ==================== Font Settings Tests ====================

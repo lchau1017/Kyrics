@@ -2,6 +2,7 @@ package com.kyrics.demo.presentation.mapper
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -119,10 +120,10 @@ class DemoUiMapper
                 fontWeightValue = mapFontWeightToValue(uiState.fontWeight),
                 fontFamilyName = mapFontFamilyToName(uiState.fontFamily),
                 textAlignName = mapTextAlignToName(uiState.textAlign),
-                sungColorArgb = uiState.sungColor.value.toLong(),
-                unsungColorArgb = uiState.unsungColor.value.toLong(),
-                activeColorArgb = uiState.activeColor.value.toLong(),
-                backgroundColorArgb = uiState.backgroundColor.value.toLong(),
+                sungColorArgb = uiState.sungColor.toArgb().toLong(),
+                unsungColorArgb = uiState.unsungColor.toArgb().toLong(),
+                activeColorArgb = uiState.activeColor.toArgb().toLong(),
+                backgroundColorArgb = uiState.backgroundColor.toArgb().toLong(),
                 gradientEnabled = uiState.gradientEnabled,
                 gradientAngle = uiState.gradientAngle,
                 blurEnabled = uiState.blurEnabled,
