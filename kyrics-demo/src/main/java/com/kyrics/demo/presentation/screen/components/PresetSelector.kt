@@ -9,14 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kyrics.demo.domain.model.Preset
+import com.kyrics.demo.domain.model.PresetType
 
 /**
- * Stateless preset selector composable using type-safe [Preset] sealed class.
+ * Stateless preset selector composable using type-safe [PresetType] enum.
  */
 @Composable
 fun PresetSelector(
-    onSelectPreset: (Preset) -> Unit,
+    onSelectPreset: (PresetType) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -26,18 +26,18 @@ fun PresetSelector(
         // First row
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             PresetButton(
-                preset = Preset.Classic,
-                onClick = { onSelectPreset(Preset.Classic) },
+                presetType = PresetType.CLASSIC,
+                onClick = { onSelectPreset(PresetType.CLASSIC) },
                 modifier = Modifier.weight(1f),
             )
             PresetButton(
-                preset = Preset.Neon,
-                onClick = { onSelectPreset(Preset.Neon) },
+                presetType = PresetType.NEON,
+                onClick = { onSelectPreset(PresetType.NEON) },
                 modifier = Modifier.weight(1f),
             )
             PresetButton(
-                preset = Preset.Minimal,
-                onClick = { onSelectPreset(Preset.Minimal) },
+                presetType = PresetType.MINIMAL,
+                onClick = { onSelectPreset(PresetType.MINIMAL) },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -45,18 +45,18 @@ fun PresetSelector(
         // Second row
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             PresetButton(
-                preset = Preset.Rainbow,
-                onClick = { onSelectPreset(Preset.Rainbow) },
+                presetType = PresetType.RAINBOW,
+                onClick = { onSelectPreset(PresetType.RAINBOW) },
                 modifier = Modifier.weight(1f),
             )
             PresetButton(
-                preset = Preset.Fire,
-                onClick = { onSelectPreset(Preset.Fire) },
+                presetType = PresetType.FIRE,
+                onClick = { onSelectPreset(PresetType.FIRE) },
                 modifier = Modifier.weight(1f),
             )
             PresetButton(
-                preset = Preset.Ocean,
-                onClick = { onSelectPreset(Preset.Ocean) },
+                presetType = PresetType.OCEAN,
+                onClick = { onSelectPreset(PresetType.OCEAN) },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -64,18 +64,18 @@ fun PresetSelector(
         // Third row
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             PresetButton(
-                preset = Preset.Retro,
-                onClick = { onSelectPreset(Preset.Retro) },
+                presetType = PresetType.RETRO,
+                onClick = { onSelectPreset(PresetType.RETRO) },
                 modifier = Modifier.weight(1f),
             )
             PresetButton(
-                preset = Preset.Elegant,
-                onClick = { onSelectPreset(Preset.Elegant) },
+                presetType = PresetType.ELEGANT,
+                onClick = { onSelectPreset(PresetType.ELEGANT) },
                 modifier = Modifier.weight(1f),
             )
             PresetButton(
-                preset = Preset.Party,
-                onClick = { onSelectPreset(Preset.Party) },
+                presetType = PresetType.PARTY,
+                onClick = { onSelectPreset(PresetType.PARTY) },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -83,8 +83,8 @@ fun PresetSelector(
         // Fourth row
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             PresetButton(
-                preset = Preset.Matrix,
-                onClick = { onSelectPreset(Preset.Matrix) },
+                presetType = PresetType.MATRIX,
+                onClick = { onSelectPreset(PresetType.MATRIX) },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -93,7 +93,7 @@ fun PresetSelector(
 
 @Composable
 private fun PresetButton(
-    preset: Preset,
+    presetType: PresetType,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -101,6 +101,6 @@ private fun PresetButton(
         onClick = onClick,
         modifier = modifier,
     ) {
-        Text(preset.displayName, fontSize = 10.sp)
+        Text(presetType.displayName, fontSize = 10.sp)
     }
 }

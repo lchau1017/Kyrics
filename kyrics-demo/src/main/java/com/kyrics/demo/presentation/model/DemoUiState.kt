@@ -10,7 +10,10 @@ import com.kyrics.models.KyricsLine
 
 /**
  * Presentation layer UI state - completely flattened for UI consumption.
- * This decouples the presentation layer from domain models.
+ * Uses Compose types directly (appropriate for presentation layer).
+ *
+ * Note: KyricsLine and KyricsConfig are library types used directly since
+ * the presentation layer needs to pass them to KyricsViewer composable.
  */
 @Immutable
 data class DemoUiState(
@@ -19,12 +22,12 @@ data class DemoUiState(
     val currentTimeMs: Long = 0L,
     val totalDurationMs: Long = 0L,
     val selectedLineIndex: Int = 0,
-    // Text settings
+    // Text settings (Compose types - appropriate for presentation)
     val fontSize: Float = 32f,
     val fontWeight: FontWeight = FontWeight.Bold,
     val fontFamily: FontFamily = FontFamily.Default,
     val textAlign: TextAlign = TextAlign.Center,
-    // Colors
+    // Colors (Compose Color - appropriate for presentation)
     val sungColor: Color = Color.Green,
     val unsungColor: Color = Color.White,
     val activeColor: Color = Color.Yellow,
@@ -49,12 +52,15 @@ data class DemoUiState(
     // Layout
     val lineSpacing: Float = 80f,
     val viewerTypeIndex: Int = 0,
+    // Lyrics source (presentation-specific, maps from domain)
+    val lyricsSourceIndex: Int = 0,
     // UI-specific state
     val showColorPicker: ColorPickerTarget? = null,
     val viewerTypeOptions: List<ViewerTypeUiModel> = emptyList(),
-    // Data for display
+    val lyricsSourceOptions: List<LyricsSourceUiModel> = emptyList(),
+    // Data for display (library types needed for KyricsViewer)
     val demoLines: List<KyricsLine> = emptyList(),
-    // Library config (derived from settings)
+    // Library config (derived in mapper, needed for KyricsViewer)
     val libraryConfig: KyricsConfig = KyricsConfig.Default,
 ) {
     companion object {
@@ -67,6 +73,15 @@ data class DemoUiState(
  */
 @Immutable
 data class ViewerTypeUiModel(
+    val index: Int,
+    val displayName: String,
+)
+
+/**
+ * UI model for lyrics source options.
+ */
+@Immutable
+data class LyricsSourceUiModel(
     val index: Int,
     val displayName: String,
 )

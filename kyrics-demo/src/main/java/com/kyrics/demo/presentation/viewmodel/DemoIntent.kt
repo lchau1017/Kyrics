@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import com.kyrics.demo.domain.model.Preset
+import com.kyrics.demo.domain.model.PresetType
 import com.kyrics.demo.presentation.model.ColorPickerTarget
 
 /**
@@ -14,11 +14,8 @@ import com.kyrics.demo.presentation.model.ColorPickerTarget
  * - Use verbs for actions: Toggle, Update, Select, Load
  * - Group related intents with sealed interfaces
  *
- * Note: While intents ideally should be pure Kotlin, we use Compose types here
- * because:
- * 1. These types (Color, FontWeight, etc.) are stable and won't change
- * 2. Creating wrapper types would add unnecessary complexity for a demo app
- * 3. The domain layer (DemoSettings) already uses these types
+ * Note: Intents use Compose types (Color, FontWeight, etc.) since they
+ * originate from UI interactions. The mapper converts these to domain types.
  */
 sealed interface DemoIntent {
     // ==================== Playback ====================
@@ -158,6 +155,12 @@ sealed interface DemoIntent {
     // ==================== Presets ====================
 
     data class LoadPreset(
-        val preset: Preset,
+        val presetType: PresetType,
+    ) : DemoIntent
+
+    // ==================== Lyrics Source ====================
+
+    data class SelectLyricsSource(
+        val index: Int,
     ) : DemoIntent
 }

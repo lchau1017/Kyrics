@@ -1,10 +1,10 @@
 package com.kyrics.demo.di
 
-import com.kyrics.demo.data.datasource.DemoLyricsDataSource
 import com.kyrics.demo.data.repository.DemoSettingsRepositoryImpl
-import com.kyrics.demo.domain.datasource.LyricsDataSource
+import com.kyrics.demo.data.repository.LyricsRepositoryImpl
 import com.kyrics.demo.domain.dispatcher.DispatcherProvider
 import com.kyrics.demo.domain.repository.DemoSettingsRepository
+import com.kyrics.demo.domain.repository.LyricsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -20,7 +20,7 @@ abstract class DemoModule {
 
     @Binds
     @Singleton
-    abstract fun bindLyricsDataSource(impl: DemoLyricsDataSource): LyricsDataSource
+    abstract fun bindLyricsRepository(impl: LyricsRepositoryImpl): LyricsRepository
 
     @Binds
     @Singleton
