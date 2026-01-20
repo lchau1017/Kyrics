@@ -18,6 +18,7 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 
 ## Features
 
+- **Multi-Format Lyrics Parser** - Parse TTML, LRC, and Enhanced LRC formats with automatic detection
 - **Synchronized Lyrics Display** - Character-by-character and syllable-by-syllable highlighting
 - **12 Viewer Types** - Smooth Scroll, Carousel 3D, Wave Flow, Spiral, and more
 - **Rich Animations** - Character pop, float, rotation, and pulse effects
@@ -34,6 +35,7 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Parsing Lyrics](#parsing-lyrics)
 - [Creating Lyrics](#creating-lyrics)
 - [Configuration](#configuration)
 - [Viewer Types](#viewer-types)
@@ -66,7 +68,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.lchau1017:Kyrics:v1.1.1")
+    implementation("com.github.lchau1017:Kyrics:v1.2.0")
 }
 ```
 
@@ -165,6 +167,95 @@ fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
         }
     }
 }
+```
+
+---
+
+## Parsing Lyrics
+
+Kyrics includes a multi-format lyrics parser that can parse TTML, LRC, and Enhanced LRC files with automatic format detection.
+
+### Automatic Format Detection
+
+```kotlin
+import com.kyrics.*
+
+// Parse lyrics content - format is auto-detected
+val content = loadLyricsFile() // Your lyrics file content as String
+
+when (val result = parseLyrics(content)) {
+    is ParseResult.Success -> {
+        val lines = result.lines        // List<KyricsLine>
+        val metadata = result.metadata  // LyricsMetadata (title, artist, album, duration)
+
+        // Use with KyricsViewer
+        KyricsViewer(
+            lines = lines,
+            currentTimeMs = currentTime
+        )
+    }
+    is ParseResult.Failure -> {
+        Log.e("Lyrics", "Parse error: ${result.error}")
+    }
+}
+```
+
+### Supported Formats
+
+| Format | Extension | Features |
+|--------|-----------|----------|
+| **TTML** | `.ttml` | W3C standard, syllable-level timing, Apple Music compatible |
+| **LRC** | `.lrc` | Standard format, line-level timing, metadata tags |
+| **Enhanced LRC** | `.elrc` | Extended LRC with word-level timing (`<mm:ss.xx>`) |
+
+### Explicit Format Selection
+
+```kotlin
+import com.kyrics.*
+
+// Parse with specific format
+val ttmlResult = parseLyrics(content, LyricsFormat.TTML)
+val lrcResult = parseLyrics(content, LyricsFormat.LRC)
+val elrcResult = parseLyrics(content, LyricsFormat.ENHANCED_LRC)
+
+// Detect format without parsing
+val format = detectLyricsFormat(content) // Returns LyricsFormat enum
+```
+
+### Using the Parser Factory
+
+```kotlin
+import com.kyrics.*
+
+// Get a specific parser
+val ttmlParser = LyricsParserFactory.createParser(LyricsFormat.TTML)
+val result = ttmlParser.parse(content)
+
+// Check if content can be parsed by a format
+val canParse = ttmlParser.canParse(content)
+```
+
+### ParseResult
+
+```kotlin
+sealed class ParseResult {
+    data class Success(
+        val lines: List<KyricsLine>,
+        val metadata: LyricsMetadata = LyricsMetadata()
+    ) : ParseResult()
+
+    data class Failure(
+        val error: String,
+        val lineNumber: Int? = null
+    ) : ParseResult()
+}
+
+data class LyricsMetadata(
+    val title: String? = null,
+    val artist: String? = null,
+    val album: String? = null,
+    val duration: Int? = null
+)
 ```
 
 ---
@@ -471,7 +562,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 ```
-Copyright 2024 Lung Chau
+Copyright 2026 Lung Chau
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

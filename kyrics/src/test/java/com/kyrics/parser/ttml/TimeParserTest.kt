@@ -20,7 +20,7 @@ class TimeParserTest {
         assertThat(parseTime("1s")).isEqualTo(1000)
         assertThat(parseTime("1.5s")).isEqualTo(1500)
         assertThat(parseTime("0.5s")).isEqualTo(500)
-        assertThat(parseTime("10.25s")).isEqualTo(10250)
+        assertThat(parseTime("10.25s")).isEqualTo(10_250)
     }
 
     @Test
@@ -28,18 +28,18 @@ class TimeParserTest {
         assertThat(parseTime("00:00.000")).isEqualTo(0)
         assertThat(parseTime("00:01.000")).isEqualTo(1000)
         assertThat(parseTime("00:01.500")).isEqualTo(1500)
-        assertThat(parseTime("01:30.500")).isEqualTo(90500)
-        assertThat(parseTime("02:00.000")).isEqualTo(120000)
+        assertThat(parseTime("01:30.500")).isEqualTo(90_500)
+        assertThat(parseTime("02:00.000")).isEqualTo(120_000)
     }
 
     @Test
     fun `parseTime handles hh colon mm colon ss dot xxx format`() {
         assertThat(parseTime("00:00:00.000")).isEqualTo(0)
         assertThat(parseTime("00:00:01.000")).isEqualTo(1000)
-        assertThat(parseTime("00:01:00.000")).isEqualTo(60000)
-        assertThat(parseTime("01:00:00.000")).isEqualTo(3600000)
-        assertThat(parseTime("00:01:30.500")).isEqualTo(90500)
-        assertThat(parseTime("01:30:45.250")).isEqualTo(5445250)
+        assertThat(parseTime("00:01:00.000")).isEqualTo(60_000)
+        assertThat(parseTime("01:00:00.000")).isEqualTo(3_600_000)
+        assertThat(parseTime("00:01:30.500")).isEqualTo(90_500)
+        assertThat(parseTime("01:30:45.250")).isEqualTo(5_445_250)
     }
 
     @Test
@@ -76,7 +76,7 @@ class TimeParserTest {
 
     @Test
     fun `parseTime handles edge cases`() {
-        assertThat(parseTime("59:59.999")).isEqualTo(3599999)
+        assertThat(parseTime("59:59.999")).isEqualTo(3_599_999)
         assertThat(parseTime("00:00.001")).isEqualTo(1)
     }
 }

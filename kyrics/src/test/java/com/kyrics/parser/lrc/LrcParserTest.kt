@@ -91,7 +91,7 @@ class LrcParserTest {
         val result = parser.parse(lrcContent) as ParseResult.Success
 
         assertThat(result.lines).hasSize(1)
-        assertThat(result.lines[0].start).isEqualTo(90500) // 1*60*1000 + 30*1000 + 500
+        assertThat(result.lines[0].start).isEqualTo(90_500) // 1*60*1000 + 30*1000 + 500
     }
 
     @Test
@@ -100,7 +100,7 @@ class LrcParserTest {
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
-        assertThat(result.lines[0].start).isEqualTo(90500)
+        assertThat(result.lines[0].start).isEqualTo(90_500)
     }
 
     @Test
@@ -212,7 +212,7 @@ class LrcParserTest {
         val result = parser.parse(lrcContent) as ParseResult.Success
 
         // 10 seconds + 1 second offset = 11000ms
-        assertThat(result.lines[0].start).isEqualTo(11000)
+        assertThat(result.lines[0].start).isEqualTo(11_000)
     }
 
     @Test
@@ -263,9 +263,9 @@ class LrcParserTest {
 
         val syllables = result.lines[0].syllables
         assertThat(syllables[0].content).isEqualTo("First ")
-        assertThat(syllables[0].start).isEqualTo(12000)
+        assertThat(syllables[0].start).isEqualTo(12_000)
         assertThat(syllables[1].content).isEqualTo("second")
-        assertThat(syllables[1].start).isEqualTo(13500)
+        assertThat(syllables[1].start).isEqualTo(13_500)
     }
 
     @Test
@@ -276,7 +276,7 @@ class LrcParserTest {
 
         val syllables = result.lines[0].syllables
         // First word ends when second begins
-        assertThat(syllables[0].end).isEqualTo(13500)
+        assertThat(syllables[0].end).isEqualTo(13_500)
     }
 
     // ==================== Edge Cases ====================
@@ -325,7 +325,7 @@ class LrcParserTest {
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
-        assertThat(result.lines[0].start).isEqualTo(12000)
+        assertThat(result.lines[0].start).isEqualTo(12_000)
     }
 
     // ==================== Warnings Tests ====================
