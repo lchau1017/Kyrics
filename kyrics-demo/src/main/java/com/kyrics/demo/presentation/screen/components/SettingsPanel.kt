@@ -27,9 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.demo.presentation.model.ColorPickerTarget
 import com.kyrics.demo.presentation.model.DemoUiState
+import com.kyrics.demo.presentation.model.LyricsSourceUiModel
 import com.kyrics.demo.presentation.viewmodel.DemoIntent
 import java.util.Locale
 
@@ -50,7 +50,8 @@ fun SettingsPanel(
     ) {
         // Lyrics Source
         LyricsSourceSection(
-            selectedSource = state.lyricsSource,
+            selectedIndex = state.lyricsSourceIndex,
+            lyricsSourceOptions = state.lyricsSourceOptions,
             onIntent = onIntent,
         )
 
@@ -131,7 +132,7 @@ fun SettingsPanel(
         // Presets
         SectionTitle("Load Preset")
         PresetSelector(
-            onSelectPreset = { onIntent(DemoIntent.LoadPreset(preset = it)) },
+            onSelectPreset = { onIntent(DemoIntent.LoadPreset(presetType = it)) },
         )
     }
 }
@@ -402,16 +403,17 @@ private fun AnimationsSection(
 
 @Composable
 private fun LyricsSourceSection(
-    selectedSource: LyricsSource,
+    selectedIndex: Int,
+    lyricsSourceOptions: List<LyricsSourceUiModel>,
     onIntent: (DemoIntent) -> Unit,
 ) {
     SectionTitle("Lyrics Source")
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        LyricsSource.entries.forEach { source ->
+        lyricsSourceOptions.forEach { option ->
             FilterChip(
-                selected = selectedSource == source,
-                onClick = { onIntent(DemoIntent.SelectLyricsSource(source)) },
-                label = { Text(source.displayName, fontSize = 10.sp) },
+                selected = selectedIndex == option.index,
+                onClick = { onIntent(DemoIntent.SelectLyricsSource(option.index)) },
+                label = { Text(option.displayName, fontSize = 10.sp) },
             )
         }
     }

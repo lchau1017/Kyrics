@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.kyrics.demo.domain.dispatcher.DispatcherProvider
 import com.kyrics.demo.domain.model.DemoSettings
 import com.kyrics.demo.domain.model.LyricsSource
-import com.kyrics.demo.domain.model.Preset
+import com.kyrics.demo.domain.model.PresetType
 import com.kyrics.demo.domain.usecase.GetDemoSettingsUseCase
 import com.kyrics.demo.domain.usecase.GetLyricsUseCase
 import com.kyrics.demo.domain.usecase.UpdateDemoSettingsUseCase
@@ -54,6 +54,7 @@ class DemoViewModel
         private fun createInitialState(): DemoUiState =
             DemoUiState.Initial.copy(
                 viewerTypeOptions = uiMapper.mapViewerTypeOptions(),
+                lyricsSourceOptions = uiMapper.mapLyricsSourceOptions(),
             )
 
         private fun loadInitialData() {
@@ -65,12 +66,13 @@ class DemoViewModel
             }
         }
 
-        private fun loadLyrics(source: LyricsSource) {
+        private fun loadLyrics(sourceIndex: Int) {
+            val source = uiMapper.mapIndexToLyricsSource(sourceIndex)
             viewModelScope.launch(dispatcherProvider.io) {
                 val lyricsData = getLyricsUseCase(source)
                 _state.update { currentState ->
                     uiMapper.mapLyricsToUiState(lyricsData, currentState).copy(
-                        lyricsSource = source,
+                        lyricsSourceIndex = sourceIndex,
                         currentTimeMs = 0L,
                         selectedLineIndex = 0,
                     )
@@ -97,15 +99,15 @@ class DemoViewModel
                 is DemoIntent.Layout -> handleLayout(intent)
                 is DemoIntent.VisualEffect -> handleVisualEffect(intent)
                 is DemoIntent.Animation -> handleAnimation(intent)
-                is DemoIntent.LoadPreset -> loadPreset(intent.preset)
-                is DemoIntent.SelectLyricsSource -> selectLyricsSource(intent.source)
+                is DemoIntent.LoadPreset -> loadPreset(intent.presetType)
+                is DemoIntent.SelectLyricsSource -> selectLyricsSource(intent.index)
             }
         }
 
-        private fun selectLyricsSource(source: LyricsSource) {
+        private fun selectLyricsSource(index: Int) {
             stopPlaybackTimer()
             _state.update { it.copy(isPlaying = false) }
-            loadLyrics(source)
+            loadLyrics(index)
         }
 
         // ==================== Intent Handlers ====================
@@ -191,13 +193,13 @@ class DemoViewModel
                 viewModelScope.launch(dispatcherProvider.main) {
                     val totalDuration = _state.value.totalDurationMs
                     while (_state.value.isPlaying) {
-                        delay(100)
+                        delay(PLAYBACK_TICK_MS)
                         val currentTime = _state.value.currentTimeMs
                         val newTime =
-                            if (currentTime + 100 > totalDuration) {
+                            if (currentTime + PLAYBACK_TICK_MS > totalDuration) {
                                 0L
                             } else {
-                                currentTime + 100
+                                currentTime + PLAYBACK_TICK_MS
                             }
                         _state.update { it.copy(currentTimeMs = newTime) }
                         if (newTime == 0L) {
@@ -283,12 +285,13 @@ class DemoViewModel
             target: ColorPickerTarget,
             color: Color,
         ) {
+            val colorArgb = color.value.toLong()
             updateSettings { settings ->
                 when (target) {
-                    ColorPickerTarget.SUNG_COLOR -> settings.copy(sungColor = color)
-                    ColorPickerTarget.UNSUNG_COLOR -> settings.copy(unsungColor = color)
-                    ColorPickerTarget.ACTIVE_COLOR -> settings.copy(activeColor = color)
-                    ColorPickerTarget.BACKGROUND_COLOR -> settings.copy(backgroundColor = color)
+                    ColorPickerTarget.SUNG_COLOR -> settings.copy(sungColorArgb = colorArgb)
+                    ColorPickerTarget.UNSUNG_COLOR -> settings.copy(unsungColorArgb = colorArgb)
+                    ColorPickerTarget.ACTIVE_COLOR -> settings.copy(activeColorArgb = colorArgb)
+                    ColorPickerTarget.BACKGROUND_COLOR -> settings.copy(backgroundColorArgb = colorArgb)
                 }
             }
             _state.update { it.copy(showColorPicker = null) }
@@ -300,15 +303,31 @@ class DemoViewModel
         }
 
         private fun updateFontWeight(weight: FontWeight) {
-            updateSettings { it.copy(fontWeight = weight) }
+            updateSettings { it.copy(fontWeightValue = weight.weight) }
         }
 
         private fun updateFontFamily(family: FontFamily) {
-            updateSettings { it.copy(fontFamily = family) }
+            val name =
+                when (family) {
+                    FontFamily.Serif -> "serif"
+                    FontFamily.SansSerif -> "sans-serif"
+                    FontFamily.Monospace -> "monospace"
+                    FontFamily.Cursive -> "cursive"
+                    else -> "default"
+                }
+            updateSettings { it.copy(fontFamilyName = name) }
         }
 
         private fun updateTextAlign(align: TextAlign) {
-            updateSettings { it.copy(textAlign = align) }
+            val name =
+                when (align) {
+                    TextAlign.Start, TextAlign.Left -> "start"
+                    TextAlign.End, TextAlign.Right -> "end"
+                    TextAlign.Center -> "center"
+                    TextAlign.Justify -> "justify"
+                    else -> "center"
+                }
+            updateSettings { it.copy(textAlignName = name) }
         }
 
         // Layout
@@ -373,18 +392,26 @@ class DemoViewModel
         }
 
         // Presets
-        private fun loadPreset(preset: Preset) {
+        private fun loadPreset(presetType: PresetType) {
             viewModelScope.launch(dispatcherProvider.main) {
-                val config = preset.config
+                val config = uiMapper.mapPresetToConfig(presetType)
                 val currentSettings = uiMapper.mapUiStateToSettings(_state.value)
                 val newSettings =
                     currentSettings.copy(
                         fontSize = config.visual.fontSize.value,
-                        fontWeight = config.visual.fontWeight,
-                        sungColor = config.visual.playedTextColor,
-                        unsungColor = config.visual.upcomingTextColor,
-                        activeColor = config.visual.playingTextColor,
-                        backgroundColor = config.visual.backgroundColor,
+                        fontWeightValue = config.visual.fontWeight.weight,
+                        sungColorArgb =
+                            config.visual.playedTextColor.value
+                                .toLong(),
+                        unsungColorArgb =
+                            config.visual.upcomingTextColor.value
+                                .toLong(),
+                        activeColorArgb =
+                            config.visual.playingTextColor.value
+                                .toLong(),
+                        backgroundColorArgb =
+                            config.visual.backgroundColor.value
+                                .toLong(),
                         charAnimEnabled = config.animation.enableCharacterAnimations,
                         lineAnimEnabled = config.animation.enableLineAnimations,
                         pulseEnabled = config.animation.enablePulse,
@@ -397,5 +424,9 @@ class DemoViewModel
                 updateDemoSettingsUseCase(newSettings)
                 _effect.send(DemoEffect.PresetLoaded)
             }
+        }
+
+        companion object {
+            private const val PLAYBACK_TICK_MS = 100L
         }
     }

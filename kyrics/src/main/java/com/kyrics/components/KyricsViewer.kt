@@ -6,9 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.kyrics.components.viewers.*
 import com.kyrics.config.KyricsConfig
-import com.kyrics.config.KyricsConfigBuilder
 import com.kyrics.config.ViewerType
-import com.kyrics.config.kyricsConfig
 import com.kyrics.models.SyncedLine
 import com.kyrics.state.KyricsUiState
 import com.kyrics.state.rememberKyricsStateHolder

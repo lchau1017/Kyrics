@@ -1,13 +1,14 @@
-package com.kyrics.demo.domain.datasource
+package com.kyrics.demo.domain.repository
 
 import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.models.KyricsLine
 
 /**
- * Interface for providing lyrics data.
- * This abstraction allows for easy testing and swapping implementations.
+ * Repository interface for providing lyrics data.
+ * This abstraction allows the domain layer to access lyrics data
+ * without knowing about the data source implementation details.
  */
-interface LyricsDataSource {
+interface LyricsRepository {
     /**
      * Get the lyrics to display for the given source.
      */

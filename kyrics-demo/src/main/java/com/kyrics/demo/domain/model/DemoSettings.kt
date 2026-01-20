@@ -1,37 +1,34 @@
 package com.kyrics.demo.domain.model
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-
 /**
  * Lyrics source format for demo.
  */
-enum class LyricsSource(val extension: String, val displayName: String) {
+enum class LyricsSource(
+    val extension: String,
+    val displayName: String,
+) {
     TTML("ttml", "TTML"),
     ENHANCED_LRC("elrc", "Enhanced LRC"),
-    LRC("lrc", "LRC")
+    LRC("lrc", "LRC"),
 }
 
 /**
- * Domain model for demo settings.
- * Note: This is a domain model, so no Compose annotations here.
- * The presentation layer handles Compose-specific optimizations.
+ * Pure domain model for demo settings.
+ * No framework dependencies - uses primitive types only.
  */
 data class DemoSettings(
     // Lyrics source
     val lyricsSource: LyricsSource = LyricsSource.TTML,
     // Text settings
     val fontSize: Float = 32f,
-    val fontWeight: FontWeight = FontWeight.Bold,
-    val fontFamily: FontFamily = FontFamily.Default,
-    val textAlign: TextAlign = TextAlign.Center,
-    // Colors
-    val sungColor: Color = Color.Green,
-    val unsungColor: Color = Color.White,
-    val activeColor: Color = Color.Yellow,
-    val backgroundColor: Color = Color.Black,
+    val fontWeightValue: Int = 700, // Bold = 700
+    val fontFamilyName: String = "default",
+    val textAlignName: String = "center",
+    // Colors (stored as ARGB Long values)
+    val sungColorArgb: Long = 0xFF00FF00, // Green
+    val unsungColorArgb: Long = 0xFFFFFFFF, // White
+    val activeColorArgb: Long = 0xFFFFFF00, // Yellow
+    val backgroundColorArgb: Long = 0xFF000000, // Black
     // Visual effects
     val gradientEnabled: Boolean = false,
     val gradientAngle: Float = 45f,

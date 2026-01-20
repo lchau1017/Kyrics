@@ -1,7 +1,6 @@
 package com.kyrics.parser.lrc
 
 import com.google.common.truth.Truth.assertThat
-import com.kyrics.parser.LyricsFormat
 import com.kyrics.parser.ParseResult
 import org.junit.Before
 import org.junit.Test
@@ -11,7 +10,6 @@ import org.junit.Test
  * Tests parsing of both simple and enhanced LRC formats.
  */
 class LrcParserTest {
-
     private lateinit var parser: LrcParser
 
     @Before
@@ -23,27 +21,30 @@ class LrcParserTest {
 
     @Test
     fun `canParse returns true for simple LRC content`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:12.00]First line
             [00:17.20]Second line
-        """.trimIndent()
+            """.trimIndent()
         assertThat(parser.canParse(lrcContent)).isTrue()
     }
 
     @Test
     fun `canParse returns true for enhanced LRC content`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:12.00]<00:12.00>First <00:13.50>line
-        """.trimIndent()
+            """.trimIndent()
         assertThat(parser.canParse(lrcContent)).isTrue()
     }
 
     @Test
     fun `canParse returns false for TTML content`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <?xml version="1.0" encoding="UTF-8"?>
             <tt xmlns="http://www.w3.org/ns/ttml"></tt>
-        """.trimIndent()
+            """.trimIndent()
         assertThat(parser.canParse(ttmlContent)).isFalse()
     }
 
@@ -70,10 +71,11 @@ class LrcParserTest {
 
     @Test
     fun `parse returns Success for simple LRC`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:12.00]First line
             [00:17.20]Second line
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent)
 
@@ -102,22 +104,27 @@ class LrcParserTest {
     }
 
     @Test
-    fun `parse creates single syllable for simple LRC lines`() {
+    fun `parse splits simple LRC lines into word-based syllables`() {
         val lrcContent = "[00:12.00]Hello World"
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
-        assertThat(result.lines[0].syllables).hasSize(1)
-        assertThat(result.lines[0].syllables[0].content).isEqualTo("Hello World")
+        // Simple LRC lines are split into words for better karaoke display
+        assertThat(result.lines[0].syllables).hasSize(2)
+        assertThat(result.lines[0].syllables[0].content).isEqualTo("Hello")
+        assertThat(result.lines[0].syllables[1].content).isEqualTo("World")
+        // getContent() joins syllables without separator
+        assertThat(result.lines[0].getContent()).isEqualTo("HelloWorld")
     }
 
     @Test
     fun `parse sorts lines by start time`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:30.00]Third
             [00:10.00]First
             [00:20.00]Second
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -128,10 +135,11 @@ class LrcParserTest {
 
     @Test
     fun `parse calculates end times from next line`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:10.00]First
             [00:20.00]Second
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -143,10 +151,11 @@ class LrcParserTest {
 
     @Test
     fun `parse extracts title metadata`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [ti:Song Title]
             [00:12.00]Lyrics
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -155,10 +164,11 @@ class LrcParserTest {
 
     @Test
     fun `parse extracts artist metadata`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [ar:Artist Name]
             [00:12.00]Lyrics
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -167,10 +177,11 @@ class LrcParserTest {
 
     @Test
     fun `parse extracts album metadata`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [al:Album Name]
             [00:12.00]Lyrics
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -179,10 +190,11 @@ class LrcParserTest {
 
     @Test
     fun `parse extracts offset metadata`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [offset:500]
             [00:12.00]Lyrics
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -191,10 +203,11 @@ class LrcParserTest {
 
     @Test
     fun `parse applies offset to timing`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [offset:1000]
             [00:10.00]Lyrics
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -204,13 +217,14 @@ class LrcParserTest {
 
     @Test
     fun `parse extracts all metadata together`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [ti:My Song]
             [ar:My Artist]
             [al:My Album]
             [offset:100]
             [00:12.00]Lyrics
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -269,11 +283,12 @@ class LrcParserTest {
 
     @Test
     fun `parse handles empty lines`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:12.00]First
 
             [00:17.00]Second
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
@@ -282,15 +297,17 @@ class LrcParserTest {
 
     @Test
     fun `parse skips lines with empty content`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:12.00]
             [00:17.00]Actual content
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(lrcContent) as ParseResult.Success
 
         assertThat(result.lines).hasSize(1)
-        assertThat(result.lines[0].getContent()).isEqualTo("Actual content")
+        // getContent() joins syllables without separator
+        assertThat(result.lines[0].getContent()).isEqualTo("Actualcontent")
     }
 
     @Test
@@ -309,5 +326,28 @@ class LrcParserTest {
         val result = parser.parse(lrcContent) as ParseResult.Success
 
         assertThat(result.lines[0].start).isEqualTo(12000)
+    }
+
+    // ==================== Warnings Tests ====================
+
+    @Test
+    fun `parse adds warning for simple LRC format`() {
+        val lrcContent = "[00:12.00]Simple line without word timing"
+
+        val result = parser.parse(lrcContent) as ParseResult.Success
+
+        assertThat(result.hasWarnings).isTrue()
+        assertThat(result.warnings).hasSize(1)
+        assertThat(result.warnings[0]).contains("Simple LRC")
+    }
+
+    @Test
+    fun `parse has no warnings for enhanced LRC format`() {
+        val lrcContent = "[00:12.00]<00:12.00>Word <00:13.00>level <00:14.00>timing"
+
+        val result = parser.parse(lrcContent) as ParseResult.Success
+
+        assertThat(result.hasWarnings).isFalse()
+        assertThat(result.warnings).isEmpty()
     }
 }

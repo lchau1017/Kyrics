@@ -1,8 +1,8 @@
 package com.kyrics.demo.domain.usecase
 
-import com.kyrics.demo.domain.datasource.LyricsDataSource
 import com.kyrics.demo.domain.model.LyricsData
 import com.kyrics.demo.domain.model.LyricsSource
+import com.kyrics.demo.domain.repository.LyricsRepository
 import javax.inject.Inject
 
 /**
@@ -11,11 +11,11 @@ import javax.inject.Inject
 class GetLyricsUseCase
     @Inject
     constructor(
-        private val lyricsDataSource: LyricsDataSource,
+        private val lyricsRepository: LyricsRepository,
     ) {
         suspend operator fun invoke(source: LyricsSource): LyricsData =
             LyricsData(
-                lines = lyricsDataSource.getLyrics(source),
-                totalDurationMs = lyricsDataSource.getTotalDurationMs(),
+                lines = lyricsRepository.getLyrics(source),
+                totalDurationMs = lyricsRepository.getTotalDurationMs(),
             )
     }

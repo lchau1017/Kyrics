@@ -29,7 +29,6 @@ import com.kyrics.parser.ParseResult
  * Time format: [mm:ss.xx] or [mm:ss:xx] where xx is hundredths of a second
  */
 class LrcParser : LyricsParser {
-
     override val supportedFormat: LyricsFormat
         get() = if (isEnhanced) LyricsFormat.ENHANCED_LRC else LyricsFormat.LRC
 
@@ -40,8 +39,9 @@ class LrcParser : LyricsParser {
         return LRC_LINE_PATTERN.containsMatchIn(content)
     }
 
-    override fun parse(content: String): ParseResult {
-        return try {
+    @Suppress("TooGenericExceptionCaught")
+    override fun parse(content: String): ParseResult =
+        try {
             val lines = content.lines()
             val metadata = parseMetadata(lines)
             val lyricsLines = mutableListOf<KyricsLine>()
@@ -60,24 +60,24 @@ class LrcParser : LyricsParser {
             val linesWithEnds = calculateEndTimes(sortedLines)
 
             // Add warning for simple LRC format
-            val warnings = if (!isEnhanced) {
-                listOf(SIMPLE_LRC_WARNING)
-            } else {
-                emptyList()
-            }
+            val warnings =
+                if (!isEnhanced) {
+                    listOf(SIMPLE_LRC_WARNING)
+                } else {
+                    emptyList()
+                }
 
             ParseResult.Success(
                 lines = linesWithEnds,
                 metadata = metadata,
-                warnings = warnings
+                warnings = warnings,
             )
         } catch (e: Exception) {
             ParseResult.Failure(
                 error = "Failed to parse LRC: ${e.message}",
-                lineNumber = null
+                lineNumber = null,
             )
         }
-    }
 
     /**
      * Parses metadata tags from LRC content.
@@ -108,14 +108,17 @@ class LrcParser : LyricsParser {
             artist = artist,
             album = album,
             offset = offset,
-            duration = duration
+            duration = duration,
         )
     }
 
     /**
      * Parses a single lyrics line (with timestamp).
      */
-    private fun parseLyricsLine(line: String, offset: Int): KyricsLine? {
+    private fun parseLyricsLine(
+        line: String,
+        offset: Int,
+    ): KyricsLine? {
         val match = LRC_LINE_PATTERN.find(line) ?: return null
         val timeStr = match.groupValues[1]
         val content = match.groupValues[2]
@@ -136,39 +139,44 @@ class LrcParser : LyricsParser {
      * Splits content into word-based syllables for proper text wrapping.
      * All words share the same timing (line start to line end).
      */
-    private fun parseSimpleLine(lineStart: Int, content: String): KyricsLine {
+    private fun parseSimpleLine(
+        lineStart: Int,
+        content: String,
+    ): KyricsLine {
         // Split content into words, preserving spaces
         // This allows TextLayoutCalculator to wrap text properly
         val words = splitIntoWords(content)
 
         if (words.isEmpty()) {
             // Fallback for empty content
-            val syllable = KyricsSyllable(
-                content = content,
-                start = lineStart,
-                end = lineStart
-            )
+            val syllable =
+                KyricsSyllable(
+                    content = content,
+                    start = lineStart,
+                    end = lineStart,
+                )
             return KyricsLine(
                 syllables = listOf(syllable),
                 start = lineStart,
-                end = lineStart
+                end = lineStart,
             )
         }
 
         // Create syllables for each word
         // End times will be calculated later based on next line
-        val syllables = words.map { word ->
-            KyricsSyllable(
-                content = word,
-                start = lineStart,
-                end = lineStart // Will be adjusted later
-            )
-        }
+        val syllables =
+            words.map { word ->
+                KyricsSyllable(
+                    content = word,
+                    start = lineStart,
+                    end = lineStart, // Will be adjusted later
+                )
+            }
 
         return KyricsLine(
             syllables = syllables,
             start = lineStart,
-            end = lineStart // Will be adjusted later
+            end = lineStart, // Will be adjusted later
         )
     }
 
@@ -188,7 +196,11 @@ class LrcParser : LyricsParser {
      * Parses an enhanced LRC line with word-level timestamps.
      * Format: <mm:ss.xx>word <mm:ss.xx>word ...
      */
-    private fun parseEnhancedLine(lineStart: Int, content: String, offset: Int): KyricsLine {
+    private fun parseEnhancedLine(
+        lineStart: Int,
+        content: String,
+        offset: Int,
+    ): KyricsLine {
         val syllables = mutableListOf<KyricsSyllable>()
         var lastEnd = lineStart
 
@@ -201,20 +213,21 @@ class LrcParser : LyricsParser {
             val wordText = match.groupValues[2]
 
             // Determine end time
-            val wordEnd = if (i < matches.size - 1) {
-                parseTimeToMs(matches[i + 1].groupValues[1]) + offset
-            } else {
-                // Last word - use start + estimated duration
-                wordStart + estimateWordDuration(wordText)
-            }
+            val wordEnd =
+                if (i < matches.size - 1) {
+                    parseTimeToMs(matches[i + 1].groupValues[1]) + offset
+                } else {
+                    // Last word - use start + estimated duration
+                    wordStart + estimateWordDuration(wordText)
+                }
 
             if (wordText.isNotEmpty()) {
                 syllables.add(
                     KyricsSyllable(
                         content = wordText,
                         start = wordStart,
-                        end = wordEnd
-                    )
+                        end = wordEnd,
+                    ),
                 )
                 lastEnd = wordEnd
             }
@@ -228,7 +241,7 @@ class LrcParser : LyricsParser {
         return KyricsLine(
             syllables = syllables,
             start = syllables.first().start,
-            end = lastEnd
+            end = lastEnd,
         )
     }
 
@@ -240,16 +253,18 @@ class LrcParser : LyricsParser {
      * rather than stretching to fill the entire gap to the next line.
      * This handles musical breaks and pauses naturally.
      */
+    @Suppress("CognitiveComplexMethod")
     private fun calculateEndTimes(lines: List<KyricsLine>): List<KyricsLine> {
         if (lines.isEmpty()) return lines
 
         return lines.mapIndexed { index, line ->
-            val nextLineStart = if (index < lines.size - 1) {
-                lines[index + 1].start
-            } else {
-                // Last line - add a default duration
-                line.start + DEFAULT_LINE_DURATION
-            }
+            val nextLineStart =
+                if (index < lines.size - 1) {
+                    lines[index + 1].start
+                } else {
+                    // Last line - add a default duration
+                    line.start + DEFAULT_LINE_DURATION
+                }
 
             val lineStart = line.start
             val gapToNextLine = nextLineStart - lineStart
@@ -258,40 +273,43 @@ class LrcParser : LyricsParser {
             // Check if this is a simple LRC line (all syllables have same start time)
             val isSimpleLrc = line.syllables.all { it.start == lineStart && it.end <= it.start }
 
-            val updatedSyllables = if (isSimpleLrc && syllableCount > 0) {
-                // For simple LRC: estimate actual singing duration based on content
-                val estimatedDuration = estimateLineDuration(line.syllables)
+            val updatedSyllables =
+                if (isSimpleLrc && syllableCount > 0) {
+                    // For simple LRC: estimate actual singing duration based on content
+                    val estimatedDuration = estimateLineDuration(line.syllables)
 
-                // Use the shorter of: estimated duration or gap to next line
-                // But ensure minimum duration for very short gaps
-                val actualDuration = when {
-                    // If gap is very short, use it (lines are close together)
-                    gapToNextLine <= estimatedDuration -> gapToNextLine
-                    // If there's a big gap (musical break), use estimated duration
-                    else -> estimatedDuration
-                }
-
-                distributeTimingByWordLength(line.syllables, lineStart, actualDuration)
-            } else {
-                // For enhanced LRC: update end times if they weren't set
-                line.syllables.mapIndexed { syllableIndex, syllable ->
-                    if (syllable.end <= syllable.start) {
-                        val syllableEnd = if (syllableIndex < syllableCount - 1) {
-                            line.syllables[syllableIndex + 1].start
-                        } else {
-                            nextLineStart
+                    // Use the shorter of: estimated duration or gap to next line
+                    // But ensure minimum duration for very short gaps
+                    val actualDuration =
+                        when {
+                            // If gap is very short, use it (lines are close together)
+                            gapToNextLine <= estimatedDuration -> gapToNextLine
+                            // If there's a big gap (musical break), use estimated duration
+                            else -> estimatedDuration
                         }
-                        syllable.copy(end = syllableEnd)
-                    } else {
-                        syllable
+
+                    distributeTimingByWordLength(line.syllables, lineStart, actualDuration)
+                } else {
+                    // For enhanced LRC: update end times if they weren't set
+                    line.syllables.mapIndexed { syllableIndex, syllable ->
+                        if (syllable.end <= syllable.start) {
+                            val syllableEnd =
+                                if (syllableIndex < syllableCount - 1) {
+                                    line.syllables[syllableIndex + 1].start
+                                } else {
+                                    nextLineStart
+                                }
+                            syllable.copy(end = syllableEnd)
+                        } else {
+                            syllable
+                        }
                     }
                 }
-            }
 
             val lineEnd = updatedSyllables.lastOrNull()?.end ?: lineStart
             line.copy(
                 syllables = updatedSyllables,
-                end = lineEnd
+                end = lineEnd,
             )
         }
     }
@@ -322,17 +340,18 @@ class LrcParser : LyricsParser {
     private fun distributeTimingByWordLength(
         syllables: List<KyricsSyllable>,
         lineStart: Int,
-        lineDuration: Int
+        lineDuration: Int,
     ): List<KyricsSyllable> {
         if (syllables.isEmpty()) return syllables
 
         // Calculate weight for each syllable based on character count
         // Use sqrt to prevent very long words from dominating
         // Add minimum weight (1.0) so even single-char words get reasonable time
-        val weights = syllables.map { syllable ->
-            val charCount = syllable.content.length.coerceAtLeast(1)
-            MIN_WORD_WEIGHT + kotlin.math.sqrt(charCount.toFloat())
-        }
+        val weights =
+            syllables.map { syllable ->
+                val charCount = syllable.content.length.coerceAtLeast(1)
+                MIN_WORD_WEIGHT + kotlin.math.sqrt(charCount.toFloat())
+            }
 
         val totalWeight = weights.sum()
 
@@ -340,7 +359,7 @@ class LrcParser : LyricsParser {
         var currentTime = lineStart
         return syllables.mapIndexed { index, syllable ->
             val weight = weights[index]
-            val duration = ((weight / totalWeight) * lineDuration).toInt()
+            val duration = (weight / totalWeight * lineDuration).toInt()
             val syllableStart = currentTime
             val syllableEnd = currentTime + duration
             currentTime = syllableEnd
@@ -372,17 +391,18 @@ class LrcParser : LyricsParser {
                 val centiseconds = parseFraction(parts[2])
                 minutes * 60_000 + seconds * 1_000 + centiseconds
             }
-            else -> 0
+            else -> {
+                0
+            }
         }
     }
 
-    private fun parseFraction(fraction: String): Int {
-        return when (fraction.length) {
+    private fun parseFraction(fraction: String): Int =
+        when (fraction.length) {
             1 -> (fraction.toIntOrNull() ?: 0) * 100
             2 -> (fraction.toIntOrNull() ?: 0) * 10
             else -> fraction.take(3).toIntOrNull() ?: 0
         }
-    }
 
     private fun estimateWordDuration(word: String): Int {
         // Rough estimate: ~100ms per character, minimum 200ms
@@ -414,21 +434,17 @@ class LrcParser : LyricsParser {
         // Warning message for simple LRC format
         private const val SIMPLE_LRC_WARNING =
             "Simple LRC format detected (line-level timing only). " +
-            "Word synchronization is estimated and may not be accurate. " +
-            "For better karaoke experience, use Enhanced LRC or TTML format."
+                "Word synchronization is estimated and may not be accurate. " +
+                "For better karaoke experience, use Enhanced LRC or TTML format."
 
         /**
          * Checks if the content appears to be LRC format.
          */
-        fun isLrc(content: String): Boolean {
-            return LRC_LINE_PATTERN.containsMatchIn(content)
-        }
+        fun isLrc(content: String): Boolean = LRC_LINE_PATTERN.containsMatchIn(content)
 
         /**
          * Checks if the content is enhanced LRC (has word-level timestamps).
          */
-        fun isEnhancedLrc(content: String): Boolean {
-            return isLrc(content) && ENHANCED_WORD_PATTERN.containsMatchIn(content)
-        }
+        fun isEnhancedLrc(content: String): Boolean = isLrc(content) && ENHANCED_WORD_PATTERN.containsMatchIn(content)
     }
 }

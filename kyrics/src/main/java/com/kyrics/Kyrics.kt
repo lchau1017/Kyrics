@@ -183,7 +183,8 @@ fun kyricsAccompaniment(
  * @return [ParseResult.Success] with parsed lines or [ParseResult.Failure] with error
  */
 fun parseLyrics(content: String): ParseResult =
-    com.kyrics.parser.LyricsParserFactory.parse(content)
+    com.kyrics.parser.LyricsParserFactory
+        .parse(content)
 
 /**
  * Parses lyrics content with a specified format.
@@ -192,8 +193,12 @@ fun parseLyrics(content: String): ParseResult =
  * @param format The format to use for parsing
  * @return [ParseResult.Success] with parsed lines or [ParseResult.Failure] with error
  */
-fun parseLyrics(content: String, format: LyricsFormat): ParseResult =
-    com.kyrics.parser.LyricsParserFactory.parse(content, format)
+fun parseLyrics(
+    content: String,
+    format: LyricsFormat,
+): ParseResult =
+    com.kyrics.parser.LyricsParserFactory
+        .parse(content, format)
 
 /**
  * Parses lyrics content using filename extension as a hint.
@@ -202,8 +207,12 @@ fun parseLyrics(content: String, format: LyricsFormat): ParseResult =
  * @param filename The filename (used for format detection)
  * @return [ParseResult.Success] with parsed lines or [ParseResult.Failure] with error
  */
-fun parseLyricsFile(content: String, filename: String): ParseResult =
-    com.kyrics.parser.LyricsParserFactory.parseFile(content, filename)
+fun parseLyricsFile(
+    content: String,
+    filename: String,
+): ParseResult =
+    com.kyrics.parser.LyricsParserFactory
+        .parseFile(content, filename)
 
 /**
  * Detects the lyrics format from content.
@@ -212,7 +221,8 @@ fun parseLyricsFile(content: String, filename: String): ParseResult =
  * @return The detected [LyricsFormat]
  */
 fun detectLyricsFormat(content: String): LyricsFormat =
-    com.kyrics.parser.LyricsParserFactory.detectFormat(content)
+    com.kyrics.parser.LyricsParserFactory
+        .detectFormat(content)
 
 /**
  * Complete lyrics viewer with automatic scrolling and synchronization.

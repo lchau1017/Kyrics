@@ -13,12 +13,13 @@ package com.kyrics.parser.ttml
  * @param timeString The time string to parse
  * @return Time in milliseconds, or 0 if parsing fails
  */
-fun parseTime(timeString: String): Int = when {
-    timeString.endsWith("ms") -> timeString.removeSuffix("ms").toIntOrNull() ?: 0
-    timeString.endsWith("s") -> ((timeString.removeSuffix("s").toDoubleOrNull() ?: 0.0) * 1000).toInt()
-    ":" in timeString -> parseColonTime(timeString)
-    else -> timeString.toIntOrNull() ?: 0
-}
+fun parseTime(timeString: String): Int =
+    when {
+        timeString.endsWith("ms") -> timeString.removeSuffix("ms").toIntOrNull() ?: 0
+        timeString.endsWith("s") -> ((timeString.removeSuffix("s").toDoubleOrNull() ?: 0.0) * 1000).toInt()
+        ":" in timeString -> parseColonTime(timeString)
+        else -> timeString.toIntOrNull() ?: 0
+    }
 
 private fun parseColonTime(timeString: String): Int {
     val parts = timeString.split(":")
@@ -29,16 +30,23 @@ private fun parseColonTime(timeString: String): Int {
     }
 }
 
-private fun parseMmSs(minutes: String, seconds: String): Int {
+private fun parseMmSs(
+    minutes: String,
+    seconds: String,
+): Int {
     val (sec, ms) = parseSecMs(seconds)
     return (minutes.toIntOrNull() ?: 0) * 60_000 + sec * 1_000 + ms
 }
 
-private fun parseHhMmSs(hours: String, minutes: String, seconds: String): Int {
+private fun parseHhMmSs(
+    hours: String,
+    minutes: String,
+    seconds: String,
+): Int {
     val (sec, ms) = parseSecMs(seconds)
     return (hours.toIntOrNull() ?: 0) * 3_600_000 +
-            (minutes.toIntOrNull() ?: 0) * 60_000 +
-            sec * 1_000 + ms
+        (minutes.toIntOrNull() ?: 0) * 60_000 +
+        sec * 1_000 + ms
 }
 
 private fun parseSecMs(seconds: String): Pair<Int, Int> {
@@ -48,8 +56,9 @@ private fun parseSecMs(seconds: String): Pair<Int, Int> {
     return sec to ms
 }
 
-private fun parseFraction(fraction: String): Int = when (fraction.length) {
-    1 -> fraction.toIntOrNull()?.times(100) ?: 0
-    2 -> fraction.toIntOrNull()?.times(10) ?: 0
-    else -> fraction.take(3).toIntOrNull() ?: 0
-}
+private fun parseFraction(fraction: String): Int =
+    when (fraction.length) {
+        1 -> fraction.toIntOrNull()?.times(100) ?: 0
+        2 -> fraction.toIntOrNull()?.times(10) ?: 0
+        else -> fraction.take(3).toIntOrNull() ?: 0
+    }

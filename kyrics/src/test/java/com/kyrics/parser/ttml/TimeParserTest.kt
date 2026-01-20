@@ -8,7 +8,6 @@ import org.junit.Test
  * Tests parsing of various TTML time format strings.
  */
 class TimeParserTest {
-
     @Test
     fun `parseTime handles milliseconds format`() {
         assertThat(parseTime("100ms")).isEqualTo(100)

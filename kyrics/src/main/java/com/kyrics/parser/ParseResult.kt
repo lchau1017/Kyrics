@@ -16,7 +16,7 @@ sealed class ParseResult {
     data class Success(
         val lines: List<KyricsLine>,
         val metadata: LyricsMetadata = LyricsMetadata(),
-        val warnings: List<String> = emptyList()
+        val warnings: List<String> = emptyList(),
     ) : ParseResult() {
         /** Returns true if there are any warnings */
         val hasWarnings: Boolean get() = warnings.isNotEmpty()
@@ -30,7 +30,7 @@ sealed class ParseResult {
      */
     data class Failure(
         val error: String,
-        val lineNumber: Int? = null
+        val lineNumber: Int? = null,
     ) : ParseResult()
 }
 
@@ -48,5 +48,5 @@ data class LyricsMetadata(
     val artist: String? = null,
     val album: String? = null,
     val duration: Int? = null,
-    val offset: Int? = null
+    val offset: Int? = null,
 )

@@ -10,7 +10,6 @@ import org.junit.Test
  * Unit tests for TtmlParser.
  */
 class TtmlParserTest {
-
     private lateinit var parser: TtmlParser
 
     @Before
@@ -25,11 +24,12 @@ class TtmlParserTest {
 
     @Test
     fun `canParse returns true for TTML content`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <?xml version="1.0" encoding="UTF-8"?>
             <tt xmlns="http://www.w3.org/ns/ttml">
             </tt>
-        """.trimIndent()
+            """.trimIndent()
         assertThat(parser.canParse(ttmlContent)).isTrue()
     }
 
@@ -41,16 +41,18 @@ class TtmlParserTest {
 
     @Test
     fun `canParse returns false for LRC content`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:12.00]First line
             [00:17.20]Second line
-        """.trimIndent()
+            """.trimIndent()
         assertThat(parser.canParse(lrcContent)).isFalse()
     }
 
     @Test
     fun `parse returns Success for valid TTML`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <?xml version="1.0" encoding="UTF-8"?>
             <tt xmlns="http://www.w3.org/ns/ttml">
               <body>
@@ -62,7 +64,7 @@ class TtmlParserTest {
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(ttmlContent)
 
@@ -76,7 +78,8 @@ class TtmlParserTest {
 
     @Test
     fun `parse extracts timing correctly`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <tt xmlns="http://www.w3.org/ns/ttml">
               <body>
                 <div>
@@ -86,7 +89,7 @@ class TtmlParserTest {
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(ttmlContent) as ParseResult.Success
 
@@ -98,7 +101,8 @@ class TtmlParserTest {
 
     @Test
     fun `parse handles clock time format`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <tt xmlns="http://www.w3.org/ns/ttml">
               <body>
                 <div>
@@ -108,7 +112,7 @@ class TtmlParserTest {
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(ttmlContent) as ParseResult.Success
 
@@ -118,7 +122,8 @@ class TtmlParserTest {
 
     @Test
     fun `parse handles multiple paragraphs`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <tt xmlns="http://www.w3.org/ns/ttml">
               <body>
                 <div>
@@ -131,7 +136,7 @@ class TtmlParserTest {
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(ttmlContent) as ParseResult.Success
 
@@ -142,7 +147,8 @@ class TtmlParserTest {
 
     @Test
     fun `parse sorts lines by start time`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <tt xmlns="http://www.w3.org/ns/ttml">
               <body>
                 <div>
@@ -155,7 +161,7 @@ class TtmlParserTest {
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(ttmlContent) as ParseResult.Success
 
@@ -165,7 +171,8 @@ class TtmlParserTest {
 
     @Test
     fun `parse handles background vocals`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <tt xmlns="http://www.w3.org/ns/ttml" xmlns:ttm="http://www.w3.org/ns/ttml#metadata">
               <body>
                 <div>
@@ -179,7 +186,7 @@ class TtmlParserTest {
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(ttmlContent) as ParseResult.Success
 
@@ -198,14 +205,15 @@ class TtmlParserTest {
 
     @Test
     fun `parse returns empty lines for empty body`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <tt xmlns="http://www.w3.org/ns/ttml">
               <body>
                 <div>
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(ttmlContent) as ParseResult.Success
 
@@ -214,7 +222,8 @@ class TtmlParserTest {
 
     @Test
     fun `parse skips paragraphs without timing`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <tt xmlns="http://www.w3.org/ns/ttml">
               <body>
                 <div>
@@ -227,7 +236,7 @@ class TtmlParserTest {
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = parser.parse(ttmlContent) as ParseResult.Success
 

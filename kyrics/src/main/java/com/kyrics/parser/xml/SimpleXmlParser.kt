@@ -11,8 +11,9 @@ package com.kyrics.parser.xml
  *
  * Uses regex-based parsing for simplicity and zero dependencies.
  */
-class SimpleXmlParser(private val content: String) {
-
+class SimpleXmlParser(
+    private val content: String,
+) {
     /**
      * Finds all elements with the given tag name.
      *
@@ -44,14 +45,13 @@ class SimpleXmlParser(private val content: String) {
     fun findElementsByAttribute(
         tagName: String,
         attrName: String,
-        attrValue: String
-    ): List<XmlElement> {
-        return findElements(tagName).filter { element ->
+        attrValue: String,
+    ): List<XmlElement> =
+        findElements(tagName).filter { element ->
             element.attributes.any { (key, value) ->
                 (key == attrName || key.endsWith(":$attrName")) && value == attrValue
             }
         }
-    }
 
     /**
      * Extracts child elements of a specific type from within an element's inner XML.
@@ -60,7 +60,10 @@ class SimpleXmlParser(private val content: String) {
      * @param tagName The child tag to find
      * @return List of child [XmlElement]s
      */
-    fun findChildElements(innerXml: String, tagName: String): List<XmlElement> {
+    fun findChildElements(
+        innerXml: String,
+        tagName: String,
+    ): List<XmlElement> {
         val parser = SimpleXmlParser(innerXml)
         return parser.findElements(tagName)
     }
@@ -74,10 +77,11 @@ class SimpleXmlParser(private val content: String) {
      */
     fun extractTextContent(xml: String): String {
         // Replace tags with empty string, then normalize
-        return xml.replace(TAG_PATTERN, "")
+        return xml
+            .replace(TAG_PATTERN, "")
             .replace(Regex("""\s*\n+\s*"""), "") // Remove newlines and surrounding whitespace
             .trimStart() // Trim leading whitespace (from XML indentation)
-            // Note: trailing spaces are preserved (important for lyrics)
+        // Note: trailing spaces are preserved (important for lyrics)
     }
 
     /**
@@ -103,11 +107,14 @@ class SimpleXmlParser(private val content: String) {
         // Group 1: attributes, Group 2: inner content (if not self-closing)
         return Regex(
             """<$tagName(\s+[^>]*)?>([^<]*(?:<(?!/$tagName>)[^<]*)*)</$tagName>|<$tagName(\s+[^>]*)?/>""",
-            RegexOption.DOT_MATCHES_ALL
+            RegexOption.DOT_MATCHES_ALL,
         )
     }
 
-    private fun parseElement(tagName: String, match: MatchResult): XmlElement? {
+    private fun parseElement(
+        tagName: String,
+        match: MatchResult,
+    ): XmlElement? {
         val fullMatch = match.value
 
         // Check if self-closing
@@ -117,7 +124,7 @@ class SimpleXmlParser(private val content: String) {
                 tag = tagName,
                 attributes = parseAttributes(attrString),
                 innerXml = "",
-                textContent = ""
+                textContent = "",
             )
         }
 
@@ -128,7 +135,7 @@ class SimpleXmlParser(private val content: String) {
             tag = tagName,
             attributes = parseAttributes(attrString),
             innerXml = innerXml,
-            textContent = extractTextContent(innerXml)
+            textContent = extractTextContent(innerXml),
         )
     }
 
@@ -145,8 +152,8 @@ class SimpleXmlParser(private val content: String) {
         fun isTtml(content: String): Boolean {
             val trimmed = content.trimStart()
             return trimmed.startsWith("<?xml") ||
-                    trimmed.startsWith("<tt") ||
-                    trimmed.contains("<tt ")
+                trimmed.startsWith("<tt") ||
+                trimmed.contains("<tt ")
         }
     }
 }

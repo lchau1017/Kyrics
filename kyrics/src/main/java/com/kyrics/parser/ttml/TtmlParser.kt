@@ -35,13 +35,13 @@ import com.kyrics.parser.xml.XmlElement
  * ```
  */
 class TtmlParser : LyricsParser {
-
     override val supportedFormat: LyricsFormat = LyricsFormat.TTML
 
     override fun canParse(content: String): Boolean = SimpleXmlParser.isTtml(content)
 
-    override fun parse(content: String): ParseResult {
-        return try {
+    @Suppress("TooGenericExceptionCaught")
+    override fun parse(content: String): ParseResult =
+        try {
             val xmlParser = SimpleXmlParser(content)
             val lines = mutableListOf<KyricsLine>()
 
@@ -56,23 +56,23 @@ class TtmlParser : LyricsParser {
 
             ParseResult.Success(
                 lines = lines.sortedBy { it.start },
-                metadata = LyricsMetadata()
+                metadata = LyricsMetadata(),
             )
         } catch (e: Exception) {
             ParseResult.Failure(
                 error = "Failed to parse TTML: ${e.message}",
-                lineNumber = null
+                lineNumber = null,
             )
         }
-    }
 
     /**
      * Parses a single <p> element into one or more KyricsLines.
      * Returns multiple lines if there are both main vocals and background vocals.
      */
+    @Suppress("CyclomaticComplexMethod")
     private fun parseParagraph(
         paragraph: XmlElement,
-        xmlParser: SimpleXmlParser
+        xmlParser: SimpleXmlParser,
     ): List<KyricsLine>? {
         val timing = paragraph.getTiming() ?: return null
 
@@ -123,10 +123,9 @@ class TtmlParser : LyricsParser {
         return results.takeIf { it.isNotEmpty() }
     }
 
-    private fun XmlElement.isBackgroundVocal(): Boolean {
-        return getAttributeWithNamespace("ttm", "role") == "x-bg" ||
-                getAttribute("role") == "x-bg"
-    }
+    private fun XmlElement.isBackgroundVocal(): Boolean =
+        getAttributeWithNamespace("ttm", "role") == "x-bg" ||
+            getAttribute("role") == "x-bg"
 
     private fun XmlElement.getTiming(): Timing? {
         val begin = getAttribute("begin") ?: return null
@@ -143,7 +142,7 @@ class TtmlParser : LyricsParser {
     private fun List<Syllable>.toLine(
         start: Int,
         end: Int,
-        isAccompaniment: Boolean
+        isAccompaniment: Boolean,
     ): KyricsLine? {
         if (isEmpty()) return null
         return kyricsLine(start = start, end = end) {
@@ -157,6 +156,13 @@ class TtmlParser : LyricsParser {
     }
 }
 
-internal data class Timing(val start: Int, val end: Int)
+internal data class Timing(
+    val start: Int,
+    val end: Int,
+)
 
-internal data class Syllable(val text: String, val start: Int, val end: Int)
+internal data class Syllable(
+    val text: String,
+    val start: Int,
+    val end: Int,
+)

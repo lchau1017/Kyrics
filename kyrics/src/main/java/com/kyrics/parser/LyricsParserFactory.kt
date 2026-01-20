@@ -22,11 +22,11 @@ import com.kyrics.parser.xml.SimpleXmlParser
  * ```
  */
 object LyricsParserFactory {
-
-    private val parsers: List<LyricsParser> = listOf(
-        TtmlParser(),
-        LrcParser()
-    )
+    private val parsers: List<LyricsParser> =
+        listOf(
+            TtmlParser(),
+            LrcParser(),
+        )
 
     /**
      * Detects the lyrics format from content.
@@ -34,14 +34,13 @@ object LyricsParserFactory {
      * @param content The file content to analyze
      * @return The detected [LyricsFormat] or [LyricsFormat.UNKNOWN]
      */
-    fun detectFormat(content: String): LyricsFormat {
-        return when {
+    fun detectFormat(content: String): LyricsFormat =
+        when {
             SimpleXmlParser.isTtml(content) -> LyricsFormat.TTML
             LrcParser.isEnhancedLrc(content) -> LyricsFormat.ENHANCED_LRC
             LrcParser.isLrc(content) -> LyricsFormat.LRC
             else -> LyricsFormat.UNKNOWN
         }
-    }
 
     /**
      * Detects the format from file extension.
@@ -65,13 +64,12 @@ object LyricsParserFactory {
      * @return A [LyricsParser] for the format
      * @throws IllegalArgumentException if format is [LyricsFormat.UNKNOWN]
      */
-    fun createParser(format: LyricsFormat): LyricsParser {
-        return when (format) {
+    fun createParser(format: LyricsFormat): LyricsParser =
+        when (format) {
             LyricsFormat.TTML -> TtmlParser()
             LyricsFormat.LRC, LyricsFormat.ENHANCED_LRC -> LrcParser()
             LyricsFormat.UNKNOWN -> throw IllegalArgumentException("Cannot create parser for unknown format")
         }
-    }
 
     /**
      * Parses content with automatic format detection.
@@ -94,7 +92,10 @@ object LyricsParserFactory {
      * @param format The format to use
      * @return [ParseResult.Success] with parsed lyrics or [ParseResult.Failure] with error
      */
-    fun parse(content: String, format: LyricsFormat): ParseResult {
+    fun parse(
+        content: String,
+        format: LyricsFormat,
+    ): ParseResult {
         if (format == LyricsFormat.UNKNOWN) {
             return parse(content) // Fall back to auto-detection
         }
@@ -109,7 +110,10 @@ object LyricsParserFactory {
      * @param filename The filename (used for extension hint)
      * @return [ParseResult.Success] with parsed lyrics or [ParseResult.Failure] with error
      */
-    fun parseFile(content: String, filename: String): ParseResult {
+    fun parseFile(
+        content: String,
+        filename: String,
+    ): ParseResult {
         val formatFromExtension = detectFormatFromExtension(filename)
         return if (formatFromExtension != null) {
             parse(content, formatFromExtension)

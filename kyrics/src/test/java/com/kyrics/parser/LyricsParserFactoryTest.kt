@@ -7,15 +7,15 @@ import org.junit.Test
  * Unit tests for LyricsParserFactory.
  */
 class LyricsParserFactoryTest {
-
     // ==================== Format Detection Tests ====================
 
     @Test
     fun `detectFormat returns TTML for XML content`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <?xml version="1.0" encoding="UTF-8"?>
             <tt xmlns="http://www.w3.org/ns/ttml"></tt>
-        """.trimIndent()
+            """.trimIndent()
 
         assertThat(LyricsParserFactory.detectFormat(ttmlContent)).isEqualTo(LyricsFormat.TTML)
     }
@@ -29,10 +29,11 @@ class LyricsParserFactoryTest {
 
     @Test
     fun `detectFormat returns LRC for simple LRC content`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:12.00]First line
             [00:17.20]Second line
-        """.trimIndent()
+            """.trimIndent()
 
         assertThat(LyricsParserFactory.detectFormat(lrcContent)).isEqualTo(LyricsFormat.LRC)
     }
@@ -110,7 +111,8 @@ class LyricsParserFactoryTest {
 
     @Test
     fun `parse auto-detects and parses TTML`() {
-        val ttmlContent = """
+        val ttmlContent =
+            """
             <tt xmlns="http://www.w3.org/ns/ttml">
               <body>
                 <div>
@@ -120,7 +122,7 @@ class LyricsParserFactoryTest {
                 </div>
               </body>
             </tt>
-        """.trimIndent()
+            """.trimIndent()
 
         val result = LyricsParserFactory.parse(ttmlContent)
 
@@ -131,10 +133,11 @@ class LyricsParserFactoryTest {
 
     @Test
     fun `parse auto-detects and parses LRC`() {
-        val lrcContent = """
+        val lrcContent =
+            """
             [00:12.00]First line
             [00:17.20]Second line
-        """.trimIndent()
+            """.trimIndent()
 
         val result = LyricsParserFactory.parse(lrcContent)
 

@@ -14,5 +14,5 @@ enum class LyricsFormat {
     ENHANCED_LRC,
 
     /** Unknown or unsupported format */
-    UNKNOWN
+    UNKNOWN,
 }
