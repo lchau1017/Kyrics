@@ -1,4 +1,4 @@
-package com.kyrics.rendering.layout
+package com.kyrics.rendering
 
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -7,10 +7,10 @@ import com.kyrics.models.KyricsLine
 import com.kyrics.models.KyricsSyllable
 
 /**
- * Calculates text layout information for karaoke lines.
- * Handles word wrapping, alignment, and positioning.
+ * Word wrapping and text alignment for karaoke lines.
+ * Measures syllables, wraps them into lines that fit maxWidth, and applies alignment.
  */
-object TextLayoutCalculator {
+object KaraokeLayout {
     /**
      * Calculate complete layout information for a karaoke line
      */

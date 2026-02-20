@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.kyrics.config.KyricsConfig
 import com.kyrics.models.KyricsLine
 import com.kyrics.models.SyncedLine
-import com.kyrics.rendering.RenderingCalculations
-import com.kyrics.rendering.syllable.SyllableRenderer
+import com.kyrics.rendering.KaraokeCanvas
+import com.kyrics.rendering.KaraokeMath
 import com.kyrics.state.LineUiState
 
 /**
@@ -72,7 +72,7 @@ internal fun KyricsSingleLine(
 
     val pulseScale =
         if (config.animation.enablePulse && lineUiState.isPlaying) {
-            RenderingCalculations.calculatePulseScale(
+            KaraokeMath.calculatePulseScale(
                 currentTimeMs = currentTimeMs,
                 minScale = config.animation.pulseMinScale,
                 maxScale = config.animation.pulseMaxScale,
@@ -109,7 +109,7 @@ internal fun KyricsSingleLine(
     ) {
         when (line) {
             is KyricsLine -> {
-                SyllableRenderer(
+                KaraokeCanvas(
                     line = line,
                     currentTimeMs = currentTimeMs,
                     config = config,

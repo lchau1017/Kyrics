@@ -7,12 +7,12 @@ import kotlin.math.PI
 import kotlin.math.sin
 
 /**
- * Pure calculation functions for rendering karaoke effects.
- * Consolidates all time-based and state-based calculations.
+ * Pure calculation functions for karaoke rendering.
+ * Color interpolation, animation curves, and timing progress.
  *
  * All functions are pure (no side effects) and can be easily unit tested.
  */
-object RenderingCalculations {
+object KaraokeMath {
     // ==================== Animation Calculations ====================
 
     /**
@@ -43,31 +43,25 @@ object RenderingCalculations {
         floatOffset: Float = 6f,
         rotationDegrees: Float = 3f,
     ): CharacterAnimationState {
-        // Not yet playing
         if (currentTime < characterStartTime) {
             return CharacterAnimationState.Default
         }
 
-        // Already played
         if (currentTime > characterEndTime) {
             return CharacterAnimationState.Default
         }
 
-        // Character is playing - calculate animation
         val elapsed = (currentTime - characterStartTime).toFloat()
         val progress = (elapsed / animationDuration).coerceIn(0f, 1f)
         val easedProgress = easeInOutCubic(progress)
 
-        // Scale with subtle pulse
         val pulseProgress = elapsed % PULSE_DURATION / PULSE_DURATION
         val pulseScale = 1f + (0.05f * sin(pulseProgress * 2 * PI).toFloat())
         val scale = lerp(1f, maxScale, easedProgress) * pulseScale
 
-        // Floating offset with wave motion
         val floatProgress = elapsed % FLOAT_DURATION / FLOAT_DURATION
         val yOffset = floatOffset * sin(floatProgress * 2 * PI).toFloat()
 
-        // Subtle rotation
         val rotationProgress = elapsed % ROTATION_DURATION / ROTATION_DURATION
         val rotation = rotationDegrees * sin(rotationProgress * 2 * PI).toFloat()
 

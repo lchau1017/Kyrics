@@ -11,10 +11,10 @@ import com.kyrics.config.VisualConfig
 import org.junit.Test
 
 /**
- * Unit tests for GradientFactory.
+ * Unit tests for KaraokeDrawing gradient functions.
  * Tests gradient brush creation for karaoke text rendering.
  */
-class GradientFactoryTest {
+class KaraokeDrawingTest {
     // ==================== createLinearGradient Tests ====================
 
     @Test
@@ -22,7 +22,7 @@ class GradientFactoryTest {
         val colors = listOf(Color.Red, Color.Blue)
 
         val result =
-            GradientFactory.createLinearGradient(
+            KaraokeDrawing.createLinearGradient(
                 colors = colors,
                 angle = 45f,
                 width = 100f,
@@ -38,7 +38,7 @@ class GradientFactoryTest {
         val colors = listOf(Color.Red, Color.Blue)
 
         val result =
-            GradientFactory.createLinearGradient(
+            KaraokeDrawing.createLinearGradient(
                 colors = colors,
                 angle = 0f,
                 width = 100f,
@@ -53,7 +53,7 @@ class GradientFactoryTest {
         val colors = listOf(Color.Red, Color.Blue)
 
         val result =
-            GradientFactory.createLinearGradient(
+            KaraokeDrawing.createLinearGradient(
                 colors = colors,
                 angle = 90f,
                 width = 100f,
@@ -68,7 +68,7 @@ class GradientFactoryTest {
         val colors = listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow)
 
         val result =
-            GradientFactory.createLinearGradient(
+            KaraokeDrawing.createLinearGradient(
                 colors = colors,
                 angle = 45f,
                 width = 100f,
@@ -83,7 +83,7 @@ class GradientFactoryTest {
     @Test
     fun `createProgressGradient with zero progress returns base color gradient`() {
         val result =
-            GradientFactory.createProgressGradient(
+            KaraokeDrawing.createProgressGradient(
                 progress = 0f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -96,7 +96,7 @@ class GradientFactoryTest {
     @Test
     fun `createProgressGradient with full progress returns highlight color gradient`() {
         val result =
-            GradientFactory.createProgressGradient(
+            KaraokeDrawing.createProgressGradient(
                 progress = 1f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -109,7 +109,7 @@ class GradientFactoryTest {
     @Test
     fun `createProgressGradient with partial progress creates split gradient`() {
         val result =
-            GradientFactory.createProgressGradient(
+            KaraokeDrawing.createProgressGradient(
                 progress = 0.5f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -122,7 +122,7 @@ class GradientFactoryTest {
     @Test
     fun `createProgressGradient clamps negative progress to zero`() {
         val result =
-            GradientFactory.createProgressGradient(
+            KaraokeDrawing.createProgressGradient(
                 progress = -0.5f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -135,7 +135,7 @@ class GradientFactoryTest {
     @Test
     fun `createProgressGradient clamps progress over 1 to 1`() {
         val result =
-            GradientFactory.createProgressGradient(
+            KaraokeDrawing.createProgressGradient(
                 progress = 1.5f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -150,7 +150,7 @@ class GradientFactoryTest {
     @Test
     fun `createMultiColorGradient with single color returns solid gradient`() {
         val result =
-            GradientFactory.createMultiColorGradient(
+            KaraokeDrawing.createMultiColorGradient(
                 colors = listOf(Color.Red),
                 angle = 45f,
                 width = 100f,
@@ -163,7 +163,7 @@ class GradientFactoryTest {
     @Test
     fun `createMultiColorGradient with empty list returns white gradient`() {
         val result =
-            GradientFactory.createMultiColorGradient(
+            KaraokeDrawing.createMultiColorGradient(
                 colors = emptyList(),
                 angle = 45f,
                 width = 100f,
@@ -178,7 +178,7 @@ class GradientFactoryTest {
         val colors = listOf(Color.Red, Color.Green, Color.Blue)
 
         val result =
-            GradientFactory.createMultiColorGradient(
+            KaraokeDrawing.createMultiColorGradient(
                 colors = colors,
                 angle = 0f,
                 width = 100f,
@@ -192,7 +192,7 @@ class GradientFactoryTest {
 
     @Test
     fun `getPresetColors returns rainbow colors for RAINBOW preset`() {
-        val result = GradientFactory.getPresetColors(GradientPreset.RAINBOW)
+        val result = KaraokeDrawing.getPresetColors(GradientPreset.RAINBOW)
 
         assertThat(result).isNotNull()
         assertThat(result).hasSize(7) // ROYGBIV
@@ -200,7 +200,7 @@ class GradientFactoryTest {
 
     @Test
     fun `getPresetColors returns sunset colors for SUNSET preset`() {
-        val result = GradientFactory.getPresetColors(GradientPreset.SUNSET)
+        val result = KaraokeDrawing.getPresetColors(GradientPreset.SUNSET)
 
         assertThat(result).isNotNull()
         assertThat(result).hasSize(3)
@@ -208,7 +208,7 @@ class GradientFactoryTest {
 
     @Test
     fun `getPresetColors returns ocean colors for OCEAN preset`() {
-        val result = GradientFactory.getPresetColors(GradientPreset.OCEAN)
+        val result = KaraokeDrawing.getPresetColors(GradientPreset.OCEAN)
 
         assertThat(result).isNotNull()
         assertThat(result).hasSize(3)
@@ -216,7 +216,7 @@ class GradientFactoryTest {
 
     @Test
     fun `getPresetColors returns fire colors for FIRE preset`() {
-        val result = GradientFactory.getPresetColors(GradientPreset.FIRE)
+        val result = KaraokeDrawing.getPresetColors(GradientPreset.FIRE)
 
         assertThat(result).isNotNull()
         assertThat(result).hasSize(3)
@@ -224,7 +224,7 @@ class GradientFactoryTest {
 
     @Test
     fun `getPresetColors returns neon colors for NEON preset`() {
-        val result = GradientFactory.getPresetColors(GradientPreset.NEON)
+        val result = KaraokeDrawing.getPresetColors(GradientPreset.NEON)
 
         assertThat(result).isNotNull()
         assertThat(result).hasSize(3)
@@ -232,7 +232,7 @@ class GradientFactoryTest {
 
     @Test
     fun `getPresetColors returns null for null preset`() {
-        val result = GradientFactory.getPresetColors(null)
+        val result = KaraokeDrawing.getPresetColors(null)
 
         assertThat(result).isNull()
     }
@@ -256,7 +256,7 @@ class GradientFactoryTest {
             )
 
         val result =
-            GradientFactory.createCharacterGradient(
+            KaraokeDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -281,7 +281,7 @@ class GradientFactoryTest {
             )
 
         val result =
-            GradientFactory.createCharacterGradient(
+            KaraokeDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -306,7 +306,7 @@ class GradientFactoryTest {
             )
 
         val result =
-            GradientFactory.createCharacterGradient(
+            KaraokeDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -335,7 +335,7 @@ class GradientFactoryTest {
             )
 
         val result =
-            GradientFactory.createCharacterGradient(
+            KaraokeDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -364,7 +364,7 @@ class GradientFactoryTest {
             )
 
         val result =
-            GradientFactory.createCharacterGradient(
+            KaraokeDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -393,7 +393,7 @@ class GradientFactoryTest {
             )
 
         val result =
-            GradientFactory.createCharacterGradient(
+            KaraokeDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -409,7 +409,7 @@ class GradientFactoryTest {
     @Test
     fun `gradient handles 180 degree angle`() {
         val result =
-            GradientFactory.createLinearGradient(
+            KaraokeDrawing.createLinearGradient(
                 colors = listOf(Color.Red, Color.Blue),
                 angle = 180f,
                 width = 100f,
@@ -422,7 +422,7 @@ class GradientFactoryTest {
     @Test
     fun `gradient handles 270 degree angle`() {
         val result =
-            GradientFactory.createLinearGradient(
+            KaraokeDrawing.createLinearGradient(
                 colors = listOf(Color.Red, Color.Blue),
                 angle = 270f,
                 width = 100f,
@@ -435,7 +435,7 @@ class GradientFactoryTest {
     @Test
     fun `gradient handles 360 degree angle (same as 0)`() {
         val result =
-            GradientFactory.createLinearGradient(
+            KaraokeDrawing.createLinearGradient(
                 colors = listOf(Color.Red, Color.Blue),
                 angle = 360f,
                 width = 100f,
@@ -448,7 +448,7 @@ class GradientFactoryTest {
     @Test
     fun `gradient handles negative angle`() {
         val result =
-            GradientFactory.createLinearGradient(
+            KaraokeDrawing.createLinearGradient(
                 colors = listOf(Color.Red, Color.Blue),
                 angle = -45f,
                 width = 100f,

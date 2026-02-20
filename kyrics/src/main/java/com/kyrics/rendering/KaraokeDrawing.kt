@@ -3,6 +3,12 @@ package com.kyrics.rendering
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.drawText
 import com.kyrics.config.GradientPreset
 import com.kyrics.config.GradientType
 import com.kyrics.config.KyricsConfig
@@ -11,10 +17,100 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Factory for creating gradient brushes used in karaoke text rendering.
- * All methods are pure functions with no side effects.
+ * Per-character rendering state passed to drawing functions.
  */
-object GradientFactory {
+data class CharacterDrawInfo(
+    val layout: TextLayoutResult,
+    val x: Float,
+    val y: Float,
+    val color: Color,
+    val progress: Float,
+    val animationState: KaraokeMath.CharacterAnimationState? = null,
+)
+
+/**
+ * Canvas drawing functions for karaoke text.
+ * Handles drawing text with gradients, scale, and rotation transforms.
+ */
+object KaraokeDrawing {
+    // ==================== Character Drawing ====================
+
+    /**
+     * Draw a character with all configured effects (animation, gradient).
+     */
+    fun drawCharacterWithEffects(
+        drawScope: DrawScope,
+        charInfo: CharacterDrawInfo,
+        config: KyricsConfig,
+    ) {
+        val animationState = charInfo.animationState
+        with(drawScope) {
+            if (animationState != null &&
+                (animationState.scale != 1f || animationState.rotation != 0f)
+            ) {
+                val pivotX = charInfo.x + charInfo.layout.size.width / 2f
+                val pivotY = charInfo.y + charInfo.layout.size.height / 2f
+
+                drawIntoCanvas {
+                    scale(
+                        scale = animationState.scale,
+                        pivot = Offset(pivotX, pivotY),
+                    ) {
+                        rotate(
+                            degrees = animationState.rotation,
+                            pivot = Offset(pivotX, pivotY),
+                        ) {
+                            val offsetInfo =
+                                charInfo.copy(
+                                    x = charInfo.x + animationState.offset.x,
+                                    y = charInfo.y + animationState.offset.y,
+                                )
+                            drawCharacter(this, offsetInfo, config)
+                        }
+                    }
+                }
+            } else {
+                drawCharacter(this, charInfo, config)
+            }
+        }
+    }
+
+    /**
+     * Draw a single character with gradient or solid color.
+     */
+    private fun drawCharacter(
+        drawScope: DrawScope,
+        charInfo: CharacterDrawInfo,
+        config: KyricsConfig,
+    ) {
+        with(drawScope) {
+            if (config.visual.gradientEnabled && charInfo.progress > 0f) {
+                val charSize = charInfo.layout.size
+                val gradient =
+                    createCharacterGradient(
+                        charWidth = charSize.width.toFloat(),
+                        charHeight = charSize.height.toFloat(),
+                        charProgress = charInfo.progress,
+                        config = config,
+                        baseColor = charInfo.color,
+                    )
+                drawText(
+                    textLayoutResult = charInfo.layout,
+                    brush = gradient,
+                    topLeft = Offset(charInfo.x, charInfo.y),
+                )
+            } else {
+                drawText(
+                    textLayoutResult = charInfo.layout,
+                    color = charInfo.color,
+                    topLeft = Offset(charInfo.x, charInfo.y),
+                )
+            }
+        }
+    }
+
+    // ==================== Gradient Creation ====================
+
     /**
      * Create a gradient brush for a character based on configuration.
      */
@@ -36,8 +132,12 @@ object GradientFactory {
             }
             GradientType.MULTI_COLOR -> {
                 val colors =
-                    config.visual.playingGradientColors.takeIf { it.size > 1 }
-                        ?: listOf(config.visual.colors.active, config.visual.colors.sung)
+                    config.visual.playingGradientColors
+                        .takeIf { it.size > 1 }
+                        ?: listOf(
+                            config.visual.colors.active,
+                            config.visual.colors.sung,
+                        )
                 createMultiColorGradient(
                     colors = colors,
                     angle = config.visual.gradientAngle,
@@ -48,7 +148,10 @@ object GradientFactory {
             GradientType.PRESET -> {
                 val presetColors =
                     getPresetColors(config.visual.gradientPreset)
-                        ?: listOf(config.visual.colors.active, config.visual.colors.sung)
+                        ?: listOf(
+                            config.visual.colors.active,
+                            config.visual.colors.sung,
+                        )
                 createMultiColorGradient(
                     colors = presetColors,
                     angle = config.visual.gradientAngle,
@@ -58,7 +161,11 @@ object GradientFactory {
             }
             else -> {
                 createLinearGradient(
-                    colors = listOf(config.visual.colors.active, config.visual.colors.sung),
+                    colors =
+                        listOf(
+                            config.visual.colors.active,
+                            config.visual.colors.sung,
+                        ),
                     angle = config.visual.gradientAngle,
                     width = charWidth,
                     height = charHeight,
