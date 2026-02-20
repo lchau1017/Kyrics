@@ -185,40 +185,4 @@ class KyricsPresetsScreenshotTest {
         }
     }
 
-    @Test
-    fun preset_minimal_allStates() {
-        val config = KyricsPresets.Minimal
-        paparazzi.snapshot {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color.White)
-                        .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                KyricsSingleLine(
-                    line = testLine,
-                    lineUiState = upcomingState.copy(opacity = 0.4f),
-                    currentTimeMs = -100,
-                    config = config,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                KyricsSingleLine(
-                    line = testLine,
-                    lineUiState = playingState.copy(scale = 1f),
-                    currentTimeMs = 1000,
-                    config = config,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                KyricsSingleLine(
-                    line = testLine,
-                    lineUiState = playedState,
-                    currentTimeMs = 2500,
-                    config = config,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        }
-    }
 }

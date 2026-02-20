@@ -9,5 +9,4 @@ enum class PresetType(
 ) {
     CLASSIC("Classic"),
     NEON("Neon"),
-    MINIMAL("Minimal"),
 }

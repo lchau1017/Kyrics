@@ -26,21 +26,13 @@ class KyricsPresetsTest {
         assertThat(preset.visual.gradientEnabled).isTrue()
     }
 
-    @Test
-    fun `Minimal preset exists and is valid`() {
-        val preset = KyricsPresets.Minimal
-
-        assertThat(preset).isNotNull()
-        assertThat(preset.visual.gradientEnabled).isFalse()
-    }
-
     // ==================== allPresets Tests ====================
 
     @Test
-    fun `allPresets contains all 3 presets`() {
+    fun `allPresets contains all 2 presets`() {
         val presets = KyricsPresets.allPresets
 
-        assertThat(presets).hasSize(3)
+        assertThat(presets).hasSize(2)
     }
 
     @Test
@@ -50,7 +42,6 @@ class KyricsPresetsTest {
         assertThat(names).containsExactly(
             "Classic",
             "Neon",
-            "Minimal",
         )
     }
 
@@ -60,7 +51,6 @@ class KyricsPresetsTest {
 
         assertThat(presetsMap["Classic"]).isEqualTo(KyricsPresets.Classic)
         assertThat(presetsMap["Neon"]).isEqualTo(KyricsPresets.Neon)
-        assertThat(presetsMap["Minimal"]).isEqualTo(KyricsPresets.Minimal)
     }
 
     // ==================== Preset Properties Tests ====================

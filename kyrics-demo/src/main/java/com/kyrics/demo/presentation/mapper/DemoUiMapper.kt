@@ -122,7 +122,6 @@ class DemoUiMapper
             when (presetType) {
                 PresetType.CLASSIC -> KyricsPresets.Classic
                 PresetType.NEON -> KyricsPresets.Neon
-                PresetType.MINIMAL -> KyricsPresets.Minimal
             }
 
         // ==================== Type Conversion Helpers ====================
@@ -180,9 +179,8 @@ class DemoUiMapper
             }
 
         private fun mapViewerTypeIdToLibraryType(index: Int): ViewerType {
-            val viewerTypeId = ViewerTypeId.entries.getOrElse(index) { ViewerTypeId.CENTER_FOCUSED }
+            val viewerTypeId = ViewerTypeId.entries.getOrElse(index) { ViewerTypeId.SMOOTH_SCROLL }
             return when (viewerTypeId) {
-                ViewerTypeId.CENTER_FOCUSED -> ViewerType.CENTER_FOCUSED
                 ViewerTypeId.SMOOTH_SCROLL -> ViewerType.SMOOTH_SCROLL
                 ViewerTypeId.FADE_THROUGH -> ViewerType.FADE_THROUGH
             }

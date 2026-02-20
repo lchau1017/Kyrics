@@ -7,7 +7,6 @@ package com.kyrics.demo.domain.model
 enum class ViewerTypeId(
     val displayName: String,
 ) {
-    CENTER_FOCUSED("Center"),
     SMOOTH_SCROLL("Smooth"),
     FADE_THROUGH("Fade"),
 }

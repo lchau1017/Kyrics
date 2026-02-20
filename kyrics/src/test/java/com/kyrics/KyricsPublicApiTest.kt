@@ -194,20 +194,18 @@ class KyricsPublicApiTest {
     fun `KyricsPresets are accessible`() {
         assertThat(KyricsPresets.Classic).isNotNull()
         assertThat(KyricsPresets.Neon).isNotNull()
-        assertThat(KyricsPresets.Minimal).isNotNull()
-        assertThat(KyricsPresets.all).hasSize(3)
+        assertThat(KyricsPresets.all).hasSize(2)
     }
 
     @Test
     fun `all ViewerType values are accessible`() {
         val viewerTypes =
             listOf(
-                ViewerType.CENTER_FOCUSED,
                 ViewerType.SMOOTH_SCROLL,
                 ViewerType.FADE_THROUGH,
             )
 
-        assertThat(viewerTypes).hasSize(3)
+        assertThat(viewerTypes).hasSize(2)
         viewerTypes.forEach { type ->
             assertThat(type).isNotNull()
         }

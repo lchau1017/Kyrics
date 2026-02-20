@@ -231,20 +231,6 @@ class KyricsStateCalculatorTest {
         assertThat(result).isEqualTo(1f)
     }
 
-    // ==================== calculateBlurRadius Tests ====================
-
-    @Test
-    fun `calculateBlurRadius always returns 0`() {
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = true,
-                distance = 5,
-                config = defaultConfig,
-            )
-        assertThat(result).isEqualTo(0f)
-    }
-
     // ==================== calculateLineState Tests ====================
 
     @Test

@@ -78,6 +78,5 @@ fun KyricsViewer(
 object KyricsPresets {
     val Classic = ConfigPresets.Classic
     val Neon = ConfigPresets.Neon
-    val Minimal = ConfigPresets.Minimal
     val all = ConfigPresets.allPresets
 }

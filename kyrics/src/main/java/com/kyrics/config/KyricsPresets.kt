@@ -20,6 +20,7 @@ object KyricsPresets {
                     upcomingTextColor = Color.White,
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
+                    backgroundColor = Color.Black,
                     gradientEnabled = false,
                 ),
         )
@@ -37,6 +38,7 @@ object KyricsPresets {
                     fontSize = 34.sp,
                     fontWeight = FontWeight.ExtraBold,
                     gradientEnabled = true,
+                    backgroundColor = Color.Black,
                     gradientAngle = 45f,
                     colors =
                         ColorConfig(
@@ -48,29 +50,11 @@ object KyricsPresets {
         )
 
     /**
-     * Minimal style - clean and simple
-     */
-    val Minimal =
-        KyricsConfig(
-            visual =
-                VisualConfig(
-                    playingTextColor = Color.Black,
-                    playedTextColor = Color.Gray,
-                    upcomingTextColor = Color.LightGray,
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Normal,
-                    gradientEnabled = false,
-                    backgroundColor = Color.White,
-                ),
-        )
-
-    /**
      * Get all presets as a list
      */
     val allPresets =
         listOf(
             "Classic" to Classic,
             "Neon" to Neon,
-            "Minimal" to Minimal,
         )
 }

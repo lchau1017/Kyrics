@@ -32,11 +32,6 @@ fun PresetSelector(
             onClick = { onSelectPreset(PresetType.NEON) },
             modifier = Modifier.weight(1f),
         )
-        PresetButton(
-            presetType = PresetType.MINIMAL,
-            onClick = { onSelectPreset(PresetType.MINIMAL) },
-            modifier = Modifier.weight(1f),
-        )
     }
 }
 

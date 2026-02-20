@@ -343,14 +343,6 @@ internal object KyricsStateCalculator {
                 config = config,
             )
 
-        val blurRadius =
-            calculateBlurRadius(
-                isPlaying = isPlaying,
-                hasPlayed = hasPlayed,
-                distance = distanceFromCurrent,
-                config = config,
-            )
-
         return LineUiState(
             isPlaying = isPlaying,
             hasPlayed = hasPlayed,
@@ -358,7 +350,6 @@ internal object KyricsStateCalculator {
             distanceFromCurrent = distanceFromCurrent,
             opacity = opacity,
             scale = scale,
-            blurRadius = blurRadius,
         )
     }
 
@@ -399,18 +390,6 @@ internal object KyricsStateCalculator {
         isPlaying: Boolean,
         @Suppress("UNUSED_PARAMETER") config: KyricsConfig,
     ): Float = if (isPlaying) 1.05f else 1f
-
-    /**
-     * Calculate blur radius based on line state and distance.
-     * Blur is disabled — always returns 0.
-     */
-    @Suppress("FunctionOnlyReturningConstant")
-    fun calculateBlurRadius(
-        @Suppress("UNUSED_PARAMETER") isPlaying: Boolean,
-        @Suppress("UNUSED_PARAMETER") hasPlayed: Boolean,
-        @Suppress("UNUSED_PARAMETER") distance: Int,
-        @Suppress("UNUSED_PARAMETER") config: KyricsConfig,
-    ): Float = 0f
 
     /**
      * Determine the appropriate line state category.

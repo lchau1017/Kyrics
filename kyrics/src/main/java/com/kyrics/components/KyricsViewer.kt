@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.kyrics.components.viewers.CenterFocusedViewer
 import com.kyrics.components.viewers.FadeThroughViewer
 import com.kyrics.components.viewers.SmoothScrollViewer
 import com.kyrics.config.KyricsConfig
@@ -77,13 +76,6 @@ private fun KyricsViewerContent(
                 .padding(config.layout.containerPadding),
     ) {
         when (config.layout.viewerConfig.type) {
-            ViewerType.CENTER_FOCUSED -> {
-                CenterFocusedViewer(
-                    uiState = uiState,
-                    config = config,
-                    onLineClick = onLineClick,
-                )
-            }
             ViewerType.SMOOTH_SCROLL -> {
                 SmoothScrollViewer(
                     uiState = uiState,
