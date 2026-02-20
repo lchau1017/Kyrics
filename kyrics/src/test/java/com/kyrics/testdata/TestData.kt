@@ -108,7 +108,7 @@ object TestData {
                 ),
             start = 0,
             end = 500,
-            metadata = mapOf("type" to "accompaniment"),
+            isAccompaniment = true,
         )
 
     /**

@@ -21,7 +21,8 @@ class KyricsLineBuilder(
 ) {
     private val syllables = mutableListOf<KyricsSyllable>()
     private var currentTime: Int = lineStart
-    private val metadataMap = mutableMapOf<String, String>()
+    private var isAccompaniment = false
+    private var alignment = "center"
 
     /**
      * Add a syllable with automatic timing based on duration.
@@ -75,7 +76,7 @@ class KyricsLineBuilder(
      * Mark this line as accompaniment/background vocals.
      */
     fun accompaniment() {
-        metadataMap["type"] = "accompaniment"
+        isAccompaniment = true
     }
 
     /**
@@ -84,20 +85,7 @@ class KyricsLineBuilder(
      * @param alignment Alignment value: "left", "center", or "right"
      */
     fun alignment(alignment: String) {
-        metadataMap["alignment"] = alignment
-    }
-
-    /**
-     * Add custom metadata to this line.
-     *
-     * @param key Metadata key
-     * @param value Metadata value
-     */
-    fun metadata(
-        key: String,
-        value: String,
-    ) {
-        metadataMap[key] = value
+        this.alignment = alignment
     }
 
     internal fun build(): KyricsLine =
@@ -105,7 +93,8 @@ class KyricsLineBuilder(
             syllables = syllables.toList(),
             start = lineStart,
             end = lineEnd,
-            metadata = metadataMap.toMap(),
+            isAccompaniment = isAccompaniment,
+            alignment = alignment,
         )
 }
 
@@ -313,7 +302,7 @@ object KyricsLineFactory {
             syllables = listOf(KyricsSyllable(content, start, end)),
             start = start,
             end = end,
-            metadata = mapOf("type" to "accompaniment"),
+            isAccompaniment = true,
         )
 }
 
