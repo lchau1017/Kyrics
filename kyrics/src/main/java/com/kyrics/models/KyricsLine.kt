@@ -8,7 +8,6 @@ data class KyricsLine(
     val start: Int,
     val end: Int,
     val isAccompaniment: Boolean = false,
-    val alignment: String = "center",
 ) {
     fun getContent(): String = syllables.joinToString("") { it.content }
 }

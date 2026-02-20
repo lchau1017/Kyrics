@@ -24,7 +24,7 @@ fun parseLyrics(content: String): ParseResult =
  *
  * @param lines List of synchronized lines to display.
  * @param currentTimeMs Current playback time in milliseconds.
- * @param config Configuration for visual, animation, and behavior. Use [kyricsConfig] DSL or [KyricsPresets].
+ * @param config Configuration for visual and layout. Use [kyricsConfig] DSL or [KyricsPresets].
  * @param modifier Modifier for the composable.
  * @param onLineClick Optional callback when a line is clicked. Receives the line and its index.
  */

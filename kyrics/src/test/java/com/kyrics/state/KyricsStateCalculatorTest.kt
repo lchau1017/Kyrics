@@ -1,10 +1,8 @@
 package com.kyrics.state
 
 import com.google.common.truth.Truth.assertThat
-import com.kyrics.config.KyricsConfig
 import com.kyrics.testdata.TestData
 import com.kyrics.testdata.TestData.TimePoints
-import org.junit.Before
 import org.junit.Test
 
 /**
@@ -13,12 +11,6 @@ import org.junit.Test
  */
 class KyricsStateCalculatorTest {
     private val calculator = KyricsStateCalculator
-    private lateinit var defaultConfig: KyricsConfig
-
-    @Before
-    fun setup() {
-        defaultConfig = KyricsConfig.Default
-    }
 
     // ==================== findCurrentLineIndex Tests ====================
 
@@ -84,43 +76,6 @@ class KyricsStateCalculatorTest {
         assertThat(result).isNull()
     }
 
-    // ==================== getLineStateCategory Tests ====================
-
-    @Test
-    fun `getLineStateCategory returns PLAYING when time is within range`() {
-        val line = TestData.createSimpleLines()[0] // 0-2000ms
-        val result = calculator.getLineStateCategory(line, 1000)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.PLAYING)
-    }
-
-    @Test
-    fun `getLineStateCategory returns PLAYING at exact start`() {
-        val line = TestData.createSimpleLines()[0] // 0-2000ms
-        val result = calculator.getLineStateCategory(line, 0)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.PLAYING)
-    }
-
-    @Test
-    fun `getLineStateCategory returns PLAYING at exact end`() {
-        val line = TestData.createSimpleLines()[0] // 0-2000ms
-        val result = calculator.getLineStateCategory(line, 2000)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.PLAYING)
-    }
-
-    @Test
-    fun `getLineStateCategory returns PLAYED when time is after end`() {
-        val line = TestData.createSimpleLines()[0] // 0-2000ms
-        val result = calculator.getLineStateCategory(line, 2001)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.PLAYED)
-    }
-
-    @Test
-    fun `getLineStateCategory returns UPCOMING when time is before start`() {
-        val line = TestData.createSimpleLines()[1] // 2500-4500ms
-        val result = calculator.getLineStateCategory(line, 2000)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.UPCOMING)
-    }
-
     // ==================== calculateDistanceFromCurrent Tests ====================
 
     @Test
@@ -156,7 +111,6 @@ class KyricsStateCalculatorTest {
                 isPlaying = true,
                 hasPlayed = false,
                 distance = 0,
-                config = defaultConfig,
             )
         assertThat(result).isEqualTo(1f)
     }
@@ -168,7 +122,6 @@ class KyricsStateCalculatorTest {
                 isPlaying = false,
                 hasPlayed = true,
                 distance = 1,
-                config = defaultConfig,
             )
         assertThat(result).isEqualTo(0.25f)
     }
@@ -180,7 +133,6 @@ class KyricsStateCalculatorTest {
                 isPlaying = false,
                 hasPlayed = false,
                 distance = 0,
-                config = defaultConfig,
             )
         assertThat(result).isEqualTo(0.6f)
     }
@@ -192,14 +144,12 @@ class KyricsStateCalculatorTest {
                 isPlaying = false,
                 hasPlayed = false,
                 distance = 1,
-                config = defaultConfig,
             )
         val farResult =
             calculator.calculateOpacity(
                 isPlaying = false,
                 hasPlayed = false,
                 distance = 3,
-                config = defaultConfig,
             )
         assertThat(farResult).isLessThan(closeResult)
     }
@@ -211,7 +161,6 @@ class KyricsStateCalculatorTest {
                 isPlaying = false,
                 hasPlayed = false,
                 distance = 100,
-                config = defaultConfig,
             )
         // Use tolerance for floating point comparison
         assertThat(result).isWithin(0.001f).of(0.2f)
@@ -221,13 +170,13 @@ class KyricsStateCalculatorTest {
 
     @Test
     fun `calculateScale returns 1_05 when playing`() {
-        val result = calculator.calculateScale(isPlaying = true, config = defaultConfig)
+        val result = calculator.calculateScale(isPlaying = true)
         assertThat(result).isEqualTo(1.05f)
     }
 
     @Test
     fun `calculateScale returns 1 when not playing`() {
-        val result = calculator.calculateScale(isPlaying = false, config = defaultConfig)
+        val result = calculator.calculateScale(isPlaying = false)
         assertThat(result).isEqualTo(1f)
     }
 
@@ -242,7 +191,6 @@ class KyricsStateCalculatorTest {
                 lineIndex = 1,
                 currentLineIndex = 1,
                 currentTimeMs = 3500, // Middle of line 1
-                config = defaultConfig,
             )
 
         assertThat(result.isPlaying).isTrue()
@@ -261,7 +209,6 @@ class KyricsStateCalculatorTest {
                 lineIndex = 0,
                 currentLineIndex = 2,
                 currentTimeMs = 5500, // Line 0 has ended
-                config = defaultConfig,
             )
 
         assertThat(result.isPlaying).isFalse()
@@ -279,7 +226,6 @@ class KyricsStateCalculatorTest {
                 lineIndex = 3,
                 currentLineIndex = 1,
                 currentTimeMs = 3500, // Line 3 hasn't started
-                config = defaultConfig,
             )
 
         assertThat(result.isPlaying).isFalse()
@@ -296,7 +242,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = emptyList(),
                 currentTimeMs = 1000,
-                config = defaultConfig,
             )
 
         assertThat(result.lines).isEmpty()
@@ -313,7 +258,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = 3500, // Line 1 is playing
-                config = defaultConfig,
             )
 
         assertThat(result.lines).hasSize(5)
@@ -336,7 +280,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = TimePoints.BETWEEN_LINE_0_AND_1,
-                config = defaultConfig,
             )
 
         assertThat(result.currentLineIndex).isNull()
@@ -352,7 +295,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = 3500, // Line 1 is playing
-                config = defaultConfig,
             )
 
         assertThat(result.currentLine).isEqualTo(lines[1])
@@ -365,7 +307,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = TimePoints.BETWEEN_LINE_0_AND_1,
-                config = defaultConfig,
             )
 
         assertThat(result.currentLine).isNull()
@@ -378,7 +319,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = 1000,
-                config = defaultConfig,
             )
 
         val invalidState = result.getLineState(999)

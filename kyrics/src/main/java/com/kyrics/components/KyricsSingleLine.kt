@@ -109,7 +109,7 @@ private fun calculateTextColor(
 ): Color =
     when {
         line.isAccompaniment -> config.visual.accompanimentTextColor
-        lineUiState.isPlaying -> config.visual.upcomingTextColor
+        lineUiState.isPlaying -> config.visual.playingTextColor
         lineUiState.hasPlayed -> config.visual.playedTextColor
         else -> config.visual.upcomingTextColor
     }

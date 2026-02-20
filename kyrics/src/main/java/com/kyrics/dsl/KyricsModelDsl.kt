@@ -24,7 +24,6 @@ class KyricsLineBuilder(
     private val syllables = mutableListOf<KyricsSyllable>()
     private var currentTime: Int = lineStart
     private var isAccompaniment = false
-    private var alignment = "center"
 
     /**
      * Add a syllable with automatic timing based on duration.
@@ -81,22 +80,12 @@ class KyricsLineBuilder(
         isAccompaniment = true
     }
 
-    /**
-     * Set the alignment for this line.
-     *
-     * @param alignment Alignment value: "left", "center", or "right"
-     */
-    fun alignment(alignment: String) {
-        this.alignment = alignment
-    }
-
     internal fun build(): KyricsLine =
         KyricsLine(
             syllables = syllables.toList(),
             start = lineStart,
             end = lineEnd,
             isAccompaniment = isAccompaniment,
-            alignment = alignment,
         )
 }
 

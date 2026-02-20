@@ -136,7 +136,6 @@ class TtmlParser : LyricsParser {
     ): KyricsLine? {
         if (isEmpty()) return null
         return kyricsLine(start = start, end = end) {
-            alignment("center")
             if (isAccompaniment) accompaniment()
             forEachIndexed { index, syllable ->
                 val text = if (index == lastIndex) syllable.text.trimEnd() else syllable.text

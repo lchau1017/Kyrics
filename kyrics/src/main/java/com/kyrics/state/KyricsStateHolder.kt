@@ -66,7 +66,6 @@ class KyricsStateHolder(
                 KyricsStateCalculator.calculateState(
                     lines = currentState.lines,
                     currentTimeMs = currentState.currentTimeMs,
-                    config = config,
                 )
         }
     }
@@ -81,7 +80,6 @@ class KyricsStateHolder(
             KyricsStateCalculator.calculateState(
                 lines = lines,
                 currentTimeMs = _uiState.value.currentTimeMs,
-                config = currentConfigInternal,
             )
     }
 
@@ -101,7 +99,6 @@ class KyricsStateHolder(
             KyricsStateCalculator.calculateState(
                 lines = currentState.lines,
                 currentTimeMs = currentTimeMs,
-                config = currentConfigInternal,
             )
     }
 
@@ -120,7 +117,6 @@ class KyricsStateHolder(
             KyricsStateCalculator.calculateState(
                 lines = lines,
                 currentTimeMs = currentTimeMs,
-                config = currentConfigInternal,
             )
     }
 
@@ -156,7 +152,7 @@ class KyricsStateHolder(
  * The state holder is remembered across recompositions and survives
  * config changes. Config updates are handled internally via [KyricsStateHolder.updateConfig].
  *
- * @param config Library configuration for visual/animation settings
+ * @param config Library configuration for visual and layout settings
  * @return A remembered state holder instance
  */
 @Composable
@@ -176,7 +172,7 @@ fun rememberKyricsStateHolder(config: KyricsConfig = KyricsConfig.Default): Kyri
  * Creates and remembers a [KyricsStateHolder] instance with initial lines.
  *
  * @param lines Initial lines to display
- * @param config Library configuration for visual/animation settings
+ * @param config Library configuration for visual and layout settings
  * @return A remembered state holder instance initialized with lines
  */
 @Composable
@@ -245,22 +241,19 @@ fun rememberKyricsStateHolder(
  * Pure calculation logic for karaoke UI state.
  * This object has no Compose dependencies and is fully unit-testable.
  *
- * Extracts and consolidates state calculation logic that was previously
- * scattered across AnimationManager, EffectsManager, and various viewers.
+ * Extracts and consolidates state calculation logic.
  */
 internal object KyricsStateCalculator {
     /**
-     * Calculate the complete UI state based on current time and configuration.
+     * Calculate the complete UI state based on current time.
      *
      * @param lines List of synchronized lines
      * @param currentTimeMs Current playback time in milliseconds
-     * @param config Library configuration for visual/animation settings
      * @return Complete UI state ready for rendering
      */
     fun calculateState(
         lines: List<KyricsLine>,
         currentTimeMs: Int,
-        config: KyricsConfig,
     ): KyricsUiState {
         if (lines.isEmpty()) {
             return KyricsUiState(currentTimeMs = currentTimeMs, isInitialized = true)
@@ -277,7 +270,6 @@ internal object KyricsStateCalculator {
                             lineIndex = index,
                             currentLineIndex = currentLineIndex,
                             currentTimeMs = currentTimeMs,
-                            config = config,
                         )
                 }.toMap()
 
@@ -313,7 +305,6 @@ internal object KyricsStateCalculator {
      * @param lineIndex Index of this line in the list
      * @param currentLineIndex Index of the currently playing line (if any)
      * @param currentTimeMs Current playback time
-     * @param config Library configuration
      * @return Calculated line UI state
      */
     fun calculateLineState(
@@ -321,7 +312,6 @@ internal object KyricsStateCalculator {
         lineIndex: Int,
         currentLineIndex: Int?,
         currentTimeMs: Int,
-        config: KyricsConfig,
     ): LineUiState {
         val isPlaying = currentTimeMs >= line.start && currentTimeMs <= line.end
         val hasPlayed = currentTimeMs > line.end
@@ -334,14 +324,9 @@ internal object KyricsStateCalculator {
                 isPlaying = isPlaying,
                 hasPlayed = hasPlayed,
                 distance = distanceFromCurrent,
-                config = config,
             )
 
-        val scale =
-            calculateScale(
-                isPlaying = isPlaying,
-                config = config,
-            )
+        val scale = calculateScale(isPlaying = isPlaying)
 
         return LineUiState(
             isPlaying = isPlaying,
@@ -368,13 +353,11 @@ internal object KyricsStateCalculator {
 
     /**
      * Calculate opacity based on line state and distance.
-     * Matches the logic from EffectsManager.calculateOpacity
      */
     fun calculateOpacity(
         isPlaying: Boolean,
         hasPlayed: Boolean,
         distance: Int,
-        @Suppress("UNUSED_PARAMETER") config: KyricsConfig,
     ): Float {
         if (isPlaying) return 1f
         if (hasPlayed) return 0.25f
@@ -384,33 +367,6 @@ internal object KyricsStateCalculator {
 
     /**
      * Calculate scale based on playing state.
-     * Matches the logic from AnimationManager.animateLine
      */
-    fun calculateScale(
-        isPlaying: Boolean,
-        @Suppress("UNUSED_PARAMETER") config: KyricsConfig,
-    ): Float = if (isPlaying) 1.05f else 1f
-
-    /**
-     * Determine the appropriate line state category.
-     * Useful for simple state checks without full calculation.
-     */
-    fun getLineStateCategory(
-        line: KyricsLine,
-        currentTimeMs: Int,
-    ): LineStateCategory =
-        when {
-            currentTimeMs >= line.start && currentTimeMs <= line.end -> LineStateCategory.PLAYING
-            currentTimeMs > line.end -> LineStateCategory.PLAYED
-            else -> LineStateCategory.UPCOMING
-        }
-
-    /**
-     * Simple enumeration of line state categories
-     */
-    enum class LineStateCategory {
-        PLAYING,
-        PLAYED,
-        UPCOMING,
-    }
+    fun calculateScale(isPlaying: Boolean): Float = if (isPlaying) 1.05f else 1f
 }
