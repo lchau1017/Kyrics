@@ -10,6 +10,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.kyrics.config.KyricsConfig
 import com.kyrics.models.KyricsLine
+import com.kyrics.rendering.character.CharacterRenderContext
 import com.kyrics.rendering.character.CharacterRenderer
 import com.kyrics.rendering.layout.TextLayoutCalculator
 
@@ -45,6 +46,15 @@ fun SyllableRenderer(
                 )
             }
 
+        val renderContext =
+            CharacterRenderContext(
+                currentTimeMs = currentTimeMs,
+                config = config,
+                textStyle = textStyle,
+                baseColor = baseColor,
+                textMeasurer = textMeasurer,
+            )
+
         Canvas(
             modifier =
                 Modifier
@@ -55,23 +65,16 @@ fun SyllableRenderer(
                         },
                     ),
         ) {
-            // Render each line of text
             layoutInfo.lines.forEachIndexed { lineIndex, lineData ->
                 val yPosition = lineIndex * layoutInfo.lineHeight
 
-                // Render each syllable in the line
                 lineData.syllables.forEach { syllableData ->
-                    // Render each character in the syllable
                     CharacterRenderer.renderSyllableCharacters(
                         drawScope = this,
                         syllable = syllableData.syllable,
                         xOffset = syllableData.xOffset,
                         yOffset = yPosition,
-                        currentTimeMs = currentTimeMs,
-                        config = config,
-                        textStyle = textStyle,
-                        baseColor = baseColor,
-                        textMeasurer = textMeasurer,
+                        context = renderContext,
                     )
                 }
             }

@@ -11,6 +11,18 @@ import androidx.compose.ui.text.drawText
 import com.kyrics.config.KyricsConfig
 
 /**
+ * Groups per-character rendering state for passing between rendering stages.
+ */
+data class CharacterDrawInfo(
+    val layout: TextLayoutResult,
+    val x: Float,
+    val y: Float,
+    val color: Color,
+    val progress: Float,
+    val animationState: RenderingCalculations.CharacterAnimationState? = null,
+)
+
+/**
  * Handles Canvas-based rendering of characters with effects.
  * Delegates calculations to RenderingCalculations and gradients to GradientFactory.
  *
@@ -19,56 +31,32 @@ import com.kyrics.config.KyricsConfig
 object EffectsManager {
     /**
      * Render a character with all configured effects (animation, gradient).
-     *
-     * @param drawScope The Canvas draw scope
-     * @param charLayout Measured character layout
-     * @param charX X position to draw at
-     * @param charY Y position to draw at
-     * @param charColor Base color for the character
-     * @param config Library configuration
-     * @param charProgress Progress of character animation (0.0 to 1.0)
-     * @param animationState Optional animation transformations (scale, rotation, offset)
      */
     fun renderCharacterWithEffects(
         drawScope: DrawScope,
-        charLayout: TextLayoutResult,
-        charX: Float,
-        charY: Float,
-        charColor: Color,
+        charInfo: CharacterDrawInfo,
         config: KyricsConfig,
-        charProgress: Float,
-        animationState: RenderingCalculations.CharacterAnimationState? = null,
     ) {
+        val animationState = charInfo.animationState
         with(drawScope) {
             if (animationState != null && (animationState.scale != 1f || animationState.rotation != 0f)) {
-                val pivotX = charX + charLayout.size.width / 2f
-                val pivotY = charY + charLayout.size.height / 2f
+                val pivotX = charInfo.x + charInfo.layout.size.width / 2f
+                val pivotY = charInfo.y + charInfo.layout.size.height / 2f
 
                 drawIntoCanvas {
                     scale(scale = animationState.scale, pivot = Offset(pivotX, pivotY)) {
                         rotate(degrees = animationState.rotation, pivot = Offset(pivotX, pivotY)) {
-                            drawCharacter(
-                                drawScope = this,
-                                charLayout = charLayout,
-                                charX = charX + animationState.offset.x,
-                                charY = charY + animationState.offset.y,
-                                charColor = charColor,
-                                config = config,
-                                charProgress = charProgress,
-                            )
+                            val offsetInfo =
+                                charInfo.copy(
+                                    x = charInfo.x + animationState.offset.x,
+                                    y = charInfo.y + animationState.offset.y,
+                                )
+                            drawCharacter(this, offsetInfo, config)
                         }
                     }
                 }
             } else {
-                drawCharacter(
-                    drawScope = this,
-                    charLayout = charLayout,
-                    charX = charX,
-                    charY = charY,
-                    charColor = charColor,
-                    config = config,
-                    charProgress = charProgress,
-                )
+                drawCharacter(this, charInfo, config)
             }
         }
     }
@@ -78,33 +66,30 @@ object EffectsManager {
      */
     private fun drawCharacter(
         drawScope: DrawScope,
-        charLayout: TextLayoutResult,
-        charX: Float,
-        charY: Float,
-        charColor: Color,
+        charInfo: CharacterDrawInfo,
         config: KyricsConfig,
-        charProgress: Float,
     ) {
         with(drawScope) {
-            if (config.visual.gradientEnabled && charProgress > 0f) {
+            if (config.visual.gradientEnabled && charInfo.progress > 0f) {
+                val charSize = charInfo.layout.size
                 val gradient =
                     GradientFactory.createCharacterGradient(
-                        charWidth = charLayout.size.width.toFloat(),
-                        charHeight = charLayout.size.height.toFloat(),
-                        charProgress = charProgress,
+                        charWidth = charSize.width.toFloat(),
+                        charHeight = charSize.height.toFloat(),
+                        charProgress = charInfo.progress,
                         config = config,
-                        baseColor = charColor,
+                        baseColor = charInfo.color,
                     )
                 drawText(
-                    textLayoutResult = charLayout,
+                    textLayoutResult = charInfo.layout,
                     brush = gradient,
-                    topLeft = Offset(charX, charY),
+                    topLeft = Offset(charInfo.x, charInfo.y),
                 )
             } else {
                 drawText(
-                    textLayoutResult = charLayout,
-                    color = charColor,
-                    topLeft = Offset(charX, charY),
+                    textLayoutResult = charInfo.layout,
+                    color = charInfo.color,
+                    topLeft = Offset(charInfo.x, charInfo.y),
                 )
             }
         }

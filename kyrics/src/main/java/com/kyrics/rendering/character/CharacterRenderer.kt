@@ -6,8 +6,20 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import com.kyrics.config.KyricsConfig
 import com.kyrics.models.KyricsSyllable
+import com.kyrics.rendering.CharacterDrawInfo
 import com.kyrics.rendering.EffectsManager
 import com.kyrics.rendering.RenderingCalculations
+
+/**
+ * Groups the configuration parameters that remain constant across all characters in a syllable.
+ */
+data class CharacterRenderContext(
+    val currentTimeMs: Int,
+    val config: KyricsConfig,
+    val textStyle: TextStyle,
+    val baseColor: Color,
+    val textMeasurer: TextMeasurer,
+)
 
 /**
  * Handles the rendering of individual characters within syllables.
@@ -16,17 +28,12 @@ import com.kyrics.rendering.RenderingCalculations
  * This is an object (singleton) as it has no mutable state.
  */
 object CharacterRenderer {
-    @Suppress("LongParameterList")
     fun renderSyllableCharacters(
         drawScope: DrawScope,
         syllable: KyricsSyllable,
         xOffset: Float,
         yOffset: Float,
-        currentTimeMs: Int,
-        config: KyricsConfig,
-        textStyle: TextStyle,
-        baseColor: Color,
-        textMeasurer: TextMeasurer,
+        context: CharacterRenderContext,
     ) {
         val syllableDuration = syllable.end - syllable.start
         val charCount = syllable.content.length
@@ -38,60 +45,60 @@ object CharacterRenderer {
             val charStartTime = syllable.start + (charIndex * charDuration).toInt()
             val charEndTime = syllable.start + ((charIndex + 1) * charDuration).toInt()
 
-            // Calculate character color using RenderingCalculations
             val charColor =
                 RenderingCalculations.calculateCharacterColor(
-                    currentTimeMs = currentTimeMs,
+                    currentTimeMs = context.currentTimeMs,
                     charStartTime = charStartTime,
                     charEndTime = charEndTime,
-                    baseColor = baseColor,
-                    playingColor = config.visual.playingTextColor,
-                    playedColor = config.visual.playedTextColor,
+                    baseColor = context.baseColor,
+                    playingColor = context.config.visual.playingTextColor,
+                    playedColor = context.config.visual.playedTextColor,
                 )
 
-            // Measure character
-            val charText = char.toString()
-            val charLayout = textMeasurer.measure(charText, textStyle)
+            val charLayout = context.textMeasurer.measure(char.toString(), context.textStyle)
 
-            // Calculate progress for gradient effects
             val charProgress =
                 RenderingCalculations.calculateProgress(
-                    currentTime = currentTimeMs,
+                    currentTime = context.currentTimeMs,
                     startTime = charStartTime,
                     endTime = charEndTime,
                 )
 
-            // Determine if character should be animated
             val isCharActive =
-                currentTimeMs >= charStartTime &&
-                    currentTimeMs <= charEndTime + config.animation.characterAnimationDuration.toInt()
+                context.currentTimeMs >= charStartTime &&
+                    context.currentTimeMs <= charEndTime +
+                    context.config.animation.characterAnimationDuration
+                        .toInt()
 
-            // Calculate animation state if needed
             val animationState =
-                if (config.animation.enableCharacterAnimations && isCharActive) {
+                if (context.config.animation.enableCharacterAnimations && isCharActive) {
                     RenderingCalculations.calculateCharacterAnimation(
                         characterStartTime = charStartTime,
                         characterEndTime = charEndTime,
-                        currentTime = currentTimeMs,
-                        animationDuration = config.animation.characterAnimationDuration,
-                        maxScale = config.animation.characterMaxScale,
-                        floatOffset = config.animation.characterFloatOffset,
-                        rotationDegrees = config.animation.characterRotationDegrees,
+                        currentTime = context.currentTimeMs,
+                        animationDuration = context.config.animation.characterAnimationDuration,
+                        maxScale = context.config.animation.characterMaxScale,
+                        floatOffset = context.config.animation.characterFloatOffset,
+                        rotationDegrees = context.config.animation.characterRotationDegrees,
                     )
                 } else {
                     null
                 }
 
-            // Render character with effects
+            val charInfo =
+                CharacterDrawInfo(
+                    layout = charLayout,
+                    x = charX,
+                    y = yOffset,
+                    color = charColor,
+                    progress = charProgress,
+                    animationState = animationState,
+                )
+
             EffectsManager.renderCharacterWithEffects(
                 drawScope = drawScope,
-                charLayout = charLayout,
-                charX = charX,
-                charY = yOffset,
-                charColor = charColor,
-                config = config,
-                charProgress = charProgress,
-                animationState = animationState,
+                charInfo = charInfo,
+                config = context.config,
             )
 
             charX += charLayout.size.width
