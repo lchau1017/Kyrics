@@ -1,5 +1,6 @@
 package com.kyrics
 
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.kyrics.config.ViewerType
 import com.kyrics.config.kyricsConfig
@@ -139,6 +140,31 @@ class KyricsPublicApiTest {
     fun `KyricsLineFactory creates lines`() {
         val line = KyricsLineFactory.fromText("Test", 0, 1000)
         assertThat(line).isNotNull()
+    }
+
+    @Test
+    fun `kyricsConfig DSL blur block configures blur settings`() {
+        val config =
+            kyricsConfig {
+                blur {
+                    enabled = true
+                    playedLineBlur = 4.dp
+                    upcomingLineBlur = 5.dp
+                    distantLineBlur = 8.dp
+                }
+            }
+
+        assertThat(config.visual.enableBlur).isTrue()
+        assertThat(config.visual.playedLineBlur).isEqualTo(4.dp)
+        assertThat(config.visual.upcomingLineBlur).isEqualTo(5.dp)
+        assertThat(config.visual.distantLineBlur).isEqualTo(8.dp)
+    }
+
+    @Test
+    fun `kyricsConfig DSL without blur block defaults to disabled`() {
+        val config = kyricsConfig { }
+
+        assertThat(config.visual.enableBlur).isFalse()
     }
 
     // ==================== Integration Tests ====================

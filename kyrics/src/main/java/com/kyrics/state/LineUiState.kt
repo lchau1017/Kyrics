@@ -20,4 +20,6 @@ data class LineUiState(
     val opacity: Float = 0.6f,
     /** Pre-calculated scale value (typically 1.0 to 1.1) */
     val scale: Float = 1f,
+    /** Pre-calculated blur radius in dp (0 = no blur) */
+    val blurRadius: Float = 0f,
 )

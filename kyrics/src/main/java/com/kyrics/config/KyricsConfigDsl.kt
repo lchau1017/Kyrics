@@ -49,6 +49,7 @@ class KyricsConfigBuilder {
     private var viewerBuilder = ViewerBuilder()
     private var layoutBuilder = LayoutBuilder()
     private var gradientBuilder: GradientBuilder? = null
+    private var blurBuilder: BlurBuilder? = null
 
     /**
      * Configure text colors for different line states.
@@ -85,10 +86,18 @@ class KyricsConfigBuilder {
         gradientBuilder = GradientBuilder().apply(block)
     }
 
+    /**
+     * Configure blur effects for non-playing lines.
+     */
+    fun blur(block: BlurBuilder.() -> Unit) {
+        blurBuilder = BlurBuilder().apply(block)
+    }
+
     internal fun build(): KyricsConfig {
         val colors = colorsBuilder.build()
         val typography = typographyBuilder.build()
         val gradient = gradientBuilder?.build()
+        val blur = blurBuilder?.build()
         val viewer = viewerBuilder.build()
         val layout = layoutBuilder.build(viewer)
 
@@ -116,6 +125,10 @@ class KyricsConfigBuilder {
                             unsung = colors.unsung,
                             active = colors.active,
                         ),
+                    enableBlur = blur?.enabled ?: false,
+                    playedLineBlur = blur?.playedLineBlur ?: 2.dp,
+                    upcomingLineBlur = blur?.upcomingLineBlur ?: 3.dp,
+                    distantLineBlur = blur?.distantLineBlur ?: 5.dp,
                 ),
             layout = layout,
         )
@@ -241,6 +254,26 @@ class GradientBuilder {
 
     /** Colors for multi-color gradient */
     var colors: List<Color> = listOf(Color(0xFF00BCD4), Color(0xFFE91E63))
+
+    internal fun build() = this
+}
+
+/**
+ * Builder for blur configuration.
+ */
+@KyricsConfigDsl
+class BlurBuilder {
+    /** Enable blur effects on non-playing lines */
+    var enabled: Boolean = true
+
+    /** Blur radius for played lines */
+    var playedLineBlur: Dp = 2.dp
+
+    /** Blur radius for upcoming lines */
+    var upcomingLineBlur: Dp = 3.dp
+
+    /** Blur radius for distant lines */
+    var distantLineBlur: Dp = 5.dp
 
     internal fun build() = this
 }

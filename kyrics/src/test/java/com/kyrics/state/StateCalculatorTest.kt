@@ -1,6 +1,8 @@
 package com.kyrics.state
 
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import com.kyrics.config.VisualConfig
 import com.kyrics.testdata.TestData
 import com.kyrics.testdata.TestData.TimePoints
 import org.junit.Test
@@ -323,5 +325,70 @@ class StateCalculatorTest {
 
         val invalidState = result.getLineState(999)
         assertThat(invalidState).isEqualTo(LineUiState())
+    }
+
+    // ==================== calculateBlurRadius Tests ====================
+
+    @Test
+    fun `calculateBlurRadius returns 0 when blur disabled`() {
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = false,
+                hasPlayed = true,
+                distance = 1,
+                visualConfig = VisualConfig(enableBlur = false),
+            )
+        assertThat(result).isEqualTo(0f)
+    }
+
+    @Test
+    fun `calculateBlurRadius returns 0 for playing line`() {
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = true,
+                hasPlayed = false,
+                distance = 0,
+                visualConfig = VisualConfig(enableBlur = true),
+            )
+        assertThat(result).isEqualTo(0f)
+    }
+
+    @Test
+    fun `calculateBlurRadius returns playedLineBlur for played lines`() {
+        val config = VisualConfig(enableBlur = true, playedLineBlur = 4.dp)
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = false,
+                hasPlayed = true,
+                distance = 2,
+                visualConfig = config,
+            )
+        assertThat(result).isEqualTo(4f)
+    }
+
+    @Test
+    fun `calculateBlurRadius returns upcomingLineBlur for close upcoming lines`() {
+        val config = VisualConfig(enableBlur = true, upcomingLineBlur = 3.dp)
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = false,
+                hasPlayed = false,
+                distance = 1,
+                visualConfig = config,
+            )
+        assertThat(result).isEqualTo(3f)
+    }
+
+    @Test
+    fun `calculateBlurRadius returns distantLineBlur for distant upcoming lines`() {
+        val config = VisualConfig(enableBlur = true, distantLineBlur = 6.dp)
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = false,
+                hasPlayed = false,
+                distance = 3,
+                visualConfig = config,
+            )
+        assertThat(result).isEqualTo(6f)
     }
 }

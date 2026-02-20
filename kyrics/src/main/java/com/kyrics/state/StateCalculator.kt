@@ -1,5 +1,6 @@
 package com.kyrics.state
 
+import com.kyrics.config.VisualConfig
 import com.kyrics.models.KyricsLine
 import kotlin.math.abs
 
@@ -20,6 +21,7 @@ internal object StateCalculator {
     fun calculateState(
         lines: List<KyricsLine>,
         currentTimeMs: Int,
+        visualConfig: VisualConfig = VisualConfig(),
     ): KyricsUiState {
         if (lines.isEmpty()) {
             return KyricsUiState(currentTimeMs = currentTimeMs, isInitialized = true)
@@ -36,6 +38,7 @@ internal object StateCalculator {
                             lineIndex = index,
                             currentLineIndex = currentLineIndex,
                             currentTimeMs = currentTimeMs,
+                            visualConfig = visualConfig,
                         )
                 }.toMap()
 
@@ -78,6 +81,7 @@ internal object StateCalculator {
         lineIndex: Int,
         currentLineIndex: Int?,
         currentTimeMs: Int,
+        visualConfig: VisualConfig = VisualConfig(),
     ): LineUiState {
         val isPlaying = currentTimeMs >= line.start && currentTimeMs <= line.end
         val hasPlayed = currentTimeMs > line.end
@@ -94,6 +98,14 @@ internal object StateCalculator {
 
         val scale = calculateScale(isPlaying = isPlaying)
 
+        val blurRadius =
+            calculateBlurRadius(
+                isPlaying = isPlaying,
+                hasPlayed = hasPlayed,
+                distance = distanceFromCurrent,
+                visualConfig = visualConfig,
+            )
+
         return LineUiState(
             isPlaying = isPlaying,
             hasPlayed = hasPlayed,
@@ -101,6 +113,7 @@ internal object StateCalculator {
             distanceFromCurrent = distanceFromCurrent,
             opacity = opacity,
             scale = scale,
+            blurRadius = blurRadius,
         )
     }
 
@@ -135,4 +148,24 @@ internal object StateCalculator {
      * Calculate scale based on playing state.
      */
     fun calculateScale(isPlaying: Boolean): Float = if (isPlaying) 1.05f else 1f
+
+    /**
+     * Calculate blur radius based on line state and distance.
+     * Returns 0 if blur is disabled.
+     */
+    fun calculateBlurRadius(
+        isPlaying: Boolean,
+        hasPlayed: Boolean,
+        distance: Int,
+        visualConfig: VisualConfig,
+    ): Float {
+        if (!visualConfig.enableBlur) return 0f
+        if (isPlaying) return 0f
+        if (hasPlayed) return visualConfig.playedLineBlur.value
+        return if (distance > 2) {
+            visualConfig.distantLineBlur.value
+        } else {
+            visualConfig.upcomingLineBlur.value
+        }
+    }
 }

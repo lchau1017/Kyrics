@@ -65,6 +65,7 @@ class KyricsStateHolder(
                 StateCalculator.calculateState(
                     lines = currentState.lines,
                     currentTimeMs = currentState.currentTimeMs,
+                    visualConfig = config.visual,
                 )
         }
     }
@@ -79,6 +80,7 @@ class KyricsStateHolder(
             StateCalculator.calculateState(
                 lines = lines,
                 currentTimeMs = _uiState.value.currentTimeMs,
+                visualConfig = currentConfigInternal.visual,
             )
     }
 
@@ -98,6 +100,7 @@ class KyricsStateHolder(
             StateCalculator.calculateState(
                 lines = currentState.lines,
                 currentTimeMs = currentTimeMs,
+                visualConfig = currentConfigInternal.visual,
             )
     }
 
@@ -116,6 +119,7 @@ class KyricsStateHolder(
             StateCalculator.calculateState(
                 lines = lines,
                 currentTimeMs = currentTimeMs,
+                visualConfig = currentConfigInternal.visual,
             )
     }
 
