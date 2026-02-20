@@ -10,7 +10,7 @@ import com.kyrics.models.KyricsSyllable
  * Word wrapping and text alignment for karaoke lines.
  * Measures syllables, wraps them into lines that fit maxWidth, and applies alignment.
  */
-object KaraokeLayout {
+object TextLayout {
     /**
      * Calculate complete layout information for a karaoke line
      */

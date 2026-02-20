@@ -10,10 +10,10 @@ import com.kyrics.config.VisualConfig
 import org.junit.Test
 
 /**
- * Unit tests for KaraokeDrawing gradient functions.
+ * Unit tests for TextDrawing gradient functions.
  * Tests gradient brush creation for karaoke text rendering.
  */
-class KaraokeDrawingTest {
+class TextDrawingTest {
     // ==================== createLinearGradient Tests ====================
 
     @Test
@@ -21,7 +21,7 @@ class KaraokeDrawingTest {
         val colors = listOf(Color.Red, Color.Blue)
 
         val result =
-            KaraokeDrawing.createLinearGradient(
+            TextDrawing.createLinearGradient(
                 colors = colors,
                 angle = 45f,
                 width = 100f,
@@ -37,7 +37,7 @@ class KaraokeDrawingTest {
         val colors = listOf(Color.Red, Color.Blue)
 
         val result =
-            KaraokeDrawing.createLinearGradient(
+            TextDrawing.createLinearGradient(
                 colors = colors,
                 angle = 0f,
                 width = 100f,
@@ -52,7 +52,7 @@ class KaraokeDrawingTest {
         val colors = listOf(Color.Red, Color.Blue)
 
         val result =
-            KaraokeDrawing.createLinearGradient(
+            TextDrawing.createLinearGradient(
                 colors = colors,
                 angle = 90f,
                 width = 100f,
@@ -67,7 +67,7 @@ class KaraokeDrawingTest {
         val colors = listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow)
 
         val result =
-            KaraokeDrawing.createLinearGradient(
+            TextDrawing.createLinearGradient(
                 colors = colors,
                 angle = 45f,
                 width = 100f,
@@ -82,7 +82,7 @@ class KaraokeDrawingTest {
     @Test
     fun `createProgressGradient with zero progress returns base color gradient`() {
         val result =
-            KaraokeDrawing.createProgressGradient(
+            TextDrawing.createProgressGradient(
                 progress = 0f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -95,7 +95,7 @@ class KaraokeDrawingTest {
     @Test
     fun `createProgressGradient with full progress returns highlight color gradient`() {
         val result =
-            KaraokeDrawing.createProgressGradient(
+            TextDrawing.createProgressGradient(
                 progress = 1f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -108,7 +108,7 @@ class KaraokeDrawingTest {
     @Test
     fun `createProgressGradient with partial progress creates split gradient`() {
         val result =
-            KaraokeDrawing.createProgressGradient(
+            TextDrawing.createProgressGradient(
                 progress = 0.5f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -121,7 +121,7 @@ class KaraokeDrawingTest {
     @Test
     fun `createProgressGradient clamps negative progress to zero`() {
         val result =
-            KaraokeDrawing.createProgressGradient(
+            TextDrawing.createProgressGradient(
                 progress = -0.5f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -134,7 +134,7 @@ class KaraokeDrawingTest {
     @Test
     fun `createProgressGradient clamps progress over 1 to 1`() {
         val result =
-            KaraokeDrawing.createProgressGradient(
+            TextDrawing.createProgressGradient(
                 progress = 1.5f,
                 baseColor = Color.White,
                 highlightColor = Color.Yellow,
@@ -149,7 +149,7 @@ class KaraokeDrawingTest {
     @Test
     fun `createMultiColorGradient with single color returns solid gradient`() {
         val result =
-            KaraokeDrawing.createMultiColorGradient(
+            TextDrawing.createMultiColorGradient(
                 colors = listOf(Color.Red),
                 angle = 45f,
                 width = 100f,
@@ -162,7 +162,7 @@ class KaraokeDrawingTest {
     @Test
     fun `createMultiColorGradient with empty list returns white gradient`() {
         val result =
-            KaraokeDrawing.createMultiColorGradient(
+            TextDrawing.createMultiColorGradient(
                 colors = emptyList(),
                 angle = 45f,
                 width = 100f,
@@ -177,7 +177,7 @@ class KaraokeDrawingTest {
         val colors = listOf(Color.Red, Color.Green, Color.Blue)
 
         val result =
-            KaraokeDrawing.createMultiColorGradient(
+            TextDrawing.createMultiColorGradient(
                 colors = colors,
                 angle = 0f,
                 width = 100f,
@@ -206,7 +206,7 @@ class KaraokeDrawingTest {
             )
 
         val result =
-            KaraokeDrawing.createCharacterGradient(
+            TextDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -231,7 +231,7 @@ class KaraokeDrawingTest {
             )
 
         val result =
-            KaraokeDrawing.createCharacterGradient(
+            TextDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -260,7 +260,7 @@ class KaraokeDrawingTest {
             )
 
         val result =
-            KaraokeDrawing.createCharacterGradient(
+            TextDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -289,7 +289,7 @@ class KaraokeDrawingTest {
             )
 
         val result =
-            KaraokeDrawing.createCharacterGradient(
+            TextDrawing.createCharacterGradient(
                 charWidth = 50f,
                 charHeight = 30f,
                 charProgress = 0.5f,
@@ -305,7 +305,7 @@ class KaraokeDrawingTest {
     @Test
     fun `gradient handles 180 degree angle`() {
         val result =
-            KaraokeDrawing.createLinearGradient(
+            TextDrawing.createLinearGradient(
                 colors = listOf(Color.Red, Color.Blue),
                 angle = 180f,
                 width = 100f,
@@ -318,7 +318,7 @@ class KaraokeDrawingTest {
     @Test
     fun `gradient handles 270 degree angle`() {
         val result =
-            KaraokeDrawing.createLinearGradient(
+            TextDrawing.createLinearGradient(
                 colors = listOf(Color.Red, Color.Blue),
                 angle = 270f,
                 width = 100f,
@@ -331,7 +331,7 @@ class KaraokeDrawingTest {
     @Test
     fun `gradient handles 360 degree angle (same as 0)`() {
         val result =
-            KaraokeDrawing.createLinearGradient(
+            TextDrawing.createLinearGradient(
                 colors = listOf(Color.Red, Color.Blue),
                 angle = 360f,
                 width = 100f,
@@ -344,7 +344,7 @@ class KaraokeDrawingTest {
     @Test
     fun `gradient handles negative angle`() {
         val result =
-            KaraokeDrawing.createLinearGradient(
+            TextDrawing.createLinearGradient(
                 colors = listOf(Color.Red, Color.Blue),
                 angle = -45f,
                 width = 100f,

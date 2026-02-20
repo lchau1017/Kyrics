@@ -6,11 +6,11 @@ import com.kyrics.testdata.TestData.TimePoints
 import org.junit.Test
 
 /**
- * Unit tests for KyricsStateCalculator.
+ * Unit tests for StateCalculator.
  * Tests the pure calculation logic that determines line states.
  */
-class KyricsStateCalculatorTest {
-    private val calculator = KyricsStateCalculator
+class StateCalculatorTest {
+    private val calculator = StateCalculator
 
     // ==================== findCurrentLineIndex Tests ====================
 

@@ -134,7 +134,7 @@ import com.kyrics.*
 
 ```kotlin
 @Composable
-fun KaraokeScreen(lyrics: List<KyricsLine>, currentTimeMs: Int) {
+fun LyricsScreen(lyrics: List<KyricsLine>, currentTimeMs: Int) {
     KyricsViewer(
         lines = lyrics,
         currentTimeMs = currentTimeMs
@@ -146,7 +146,7 @@ fun KaraokeScreen(lyrics: List<KyricsLine>, currentTimeMs: Int) {
 
 ```kotlin
 @Composable
-fun KaraokeScreen(lyrics: List<KyricsLine>, currentTimeMs: Int) {
+fun LyricsScreen(lyrics: List<KyricsLine>, currentTimeMs: Int) {
     KyricsViewer(
         lines = lyrics,
         currentTimeMs = currentTimeMs

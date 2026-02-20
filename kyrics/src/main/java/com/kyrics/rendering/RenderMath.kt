@@ -12,7 +12,7 @@ import kotlin.math.sin
  *
  * All functions are pure (no side effects) and can be easily unit tested.
  */
-object KaraokeMath {
+object RenderMath {
     // ==================== Animation Calculations ====================
 
     /**

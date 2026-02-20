@@ -9,7 +9,7 @@ import kotlin.math.abs
  *
  * Extracts and consolidates state calculation logic.
  */
-internal object KyricsStateCalculator {
+internal object StateCalculator {
     /**
      * Calculate the complete UI state based on current time.
      *

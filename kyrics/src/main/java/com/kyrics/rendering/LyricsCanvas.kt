@@ -35,7 +35,7 @@ private data class RenderContext(
  */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun KaraokeCanvas(
+fun LyricsCanvas(
     line: KyricsLine,
     currentTimeMs: Int,
     config: KyricsConfig,
@@ -53,7 +53,7 @@ fun KaraokeCanvas(
 
         val layoutInfo =
             remember(line, textStyle, maxWidthPx) {
-                KaraokeLayout.calculateLayout(
+                TextLayout.calculateLayout(
                     line = line,
                     textMeasurer = textMeasurer,
                     textStyle = textStyle,
@@ -99,8 +99,8 @@ fun KaraokeCanvas(
 /**
  * Draws each character in a syllable with timing-based color and animation.
  * Divides syllable duration evenly across characters, then for each:
- * 1. KaraokeMath calculates color, progress, and animation state
- * 2. KaraokeDrawing draws the character on Canvas
+ * 1. RenderMath calculates color, progress, and animation state
+ * 2. TextDrawing draws the character on Canvas
  */
 private fun DrawScope.drawSyllableCharacters(
     syllable: KyricsSyllable,
@@ -131,7 +131,7 @@ private fun DrawScope.drawSyllableCharacters(
                 ctx = ctx,
             )
 
-        KaraokeDrawing.drawCharacterWithEffects(
+        TextDrawing.drawCharacterWithEffects(
             drawScope = this,
             charInfo = charInfo,
             config = ctx.config,
@@ -153,7 +153,7 @@ private fun buildCharacterDrawInfo(
     ctx: RenderContext,
 ): CharacterDrawInfo {
     val charColor =
-        KaraokeMath.calculateCharacterColor(
+        RenderMath.calculateCharacterColor(
             currentTimeMs = ctx.currentTimeMs,
             charStartTime = charStartTime,
             charEndTime = charEndTime,
@@ -166,7 +166,7 @@ private fun buildCharacterDrawInfo(
         ctx.textMeasurer.measure(char.toString(), ctx.textStyle)
 
     val charProgress =
-        KaraokeMath.calculateProgress(
+        RenderMath.calculateProgress(
             currentTime = ctx.currentTimeMs,
             startTime = charStartTime,
             endTime = charEndTime,
@@ -179,7 +179,7 @@ private fun buildCharacterDrawInfo(
 
     val animationState =
         if (isCharActive) {
-            KaraokeMath.calculateCharacterAnimation(
+            RenderMath.calculateCharacterAnimation(
                 characterStartTime = charStartTime,
                 characterEndTime = charEndTime,
                 currentTime = ctx.currentTimeMs,

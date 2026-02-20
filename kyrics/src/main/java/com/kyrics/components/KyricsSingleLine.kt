@@ -18,7 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.kyrics.config.KyricsConfig
 import com.kyrics.models.KyricsLine
-import com.kyrics.rendering.KaraokeCanvas
+import com.kyrics.rendering.LyricsCanvas
 import com.kyrics.state.LineUiState
 
 /**
@@ -69,7 +69,7 @@ internal fun KyricsSingleLine(
                 ),
         contentAlignment = getContentAlignment(config.visual.textAlign),
     ) {
-        KaraokeCanvas(
+        LyricsCanvas(
             line = line,
             currentTimeMs = currentTimeMs,
             config = config,

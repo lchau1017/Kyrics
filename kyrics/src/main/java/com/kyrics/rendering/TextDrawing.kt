@@ -24,14 +24,14 @@ data class CharacterDrawInfo(
     val y: Float,
     val color: Color,
     val progress: Float,
-    val animationState: KaraokeMath.CharacterAnimationState? = null,
+    val animationState: RenderMath.CharacterAnimationState? = null,
 )
 
 /**
  * Canvas drawing functions for karaoke text.
  * Handles drawing text with gradients, scale, and rotation transforms.
  */
-object KaraokeDrawing {
+object TextDrawing {
     // ==================== Character Drawing ====================
 
     /**

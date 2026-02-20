@@ -62,7 +62,7 @@ class KyricsStateHolder(
         val currentState = _uiState.value
         if (currentState.lines.isNotEmpty()) {
             _uiState.value =
-                KyricsStateCalculator.calculateState(
+                StateCalculator.calculateState(
                     lines = currentState.lines,
                     currentTimeMs = currentState.currentTimeMs,
                 )
@@ -76,7 +76,7 @@ class KyricsStateHolder(
      */
     fun setLines(lines: List<KyricsLine>) {
         _uiState.value =
-            KyricsStateCalculator.calculateState(
+            StateCalculator.calculateState(
                 lines = lines,
                 currentTimeMs = _uiState.value.currentTimeMs,
             )
@@ -95,7 +95,7 @@ class KyricsStateHolder(
         }
 
         _uiState.value =
-            KyricsStateCalculator.calculateState(
+            StateCalculator.calculateState(
                 lines = currentState.lines,
                 currentTimeMs = currentTimeMs,
             )
@@ -113,7 +113,7 @@ class KyricsStateHolder(
         currentTimeMs: Int,
     ) {
         _uiState.value =
-            KyricsStateCalculator.calculateState(
+            StateCalculator.calculateState(
                 lines = lines,
                 currentTimeMs = currentTimeMs,
             )
