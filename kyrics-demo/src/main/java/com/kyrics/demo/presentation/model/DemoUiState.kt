@@ -23,7 +23,7 @@ data class DemoUiState(
     val totalDurationMs: Long = 0L,
     val selectedLineIndex: Int = 0,
     // Text settings (Compose types - appropriate for presentation)
-    val fontSize: Float = 32f,
+    val fontSize: Float = 20f,
     val fontWeight: FontWeight = FontWeight.Bold,
     val fontFamily: FontFamily = FontFamily.Default,
     val textAlign: TextAlign = TextAlign.Center,
@@ -35,8 +35,9 @@ data class DemoUiState(
     // Visual effects
     val gradientEnabled: Boolean = false,
     val gradientAngle: Float = 45f,
+    val blurEnabled: Boolean = true,
     // Layout
-    val lineSpacing: Float = 80f,
+    val lineSpacing: Float = 0f,
     val viewerTypeIndex: Int = 0,
     // UI-specific state
     val showColorPicker: ColorPickerTarget? = null,

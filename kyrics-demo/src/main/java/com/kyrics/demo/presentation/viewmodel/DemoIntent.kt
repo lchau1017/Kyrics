@@ -99,6 +99,10 @@ sealed interface DemoIntent {
         data class UpdateGradientAngle(
             val angle: Float,
         ) : VisualEffect
+
+        data class ToggleBlur(
+            val enabled: Boolean,
+        ) : VisualEffect
     }
 
     // ==================== Presets ====================

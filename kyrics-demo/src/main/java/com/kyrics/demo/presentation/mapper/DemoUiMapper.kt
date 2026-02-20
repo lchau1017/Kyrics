@@ -50,6 +50,7 @@ class DemoUiMapper
                 // Visual effects
                 gradientEnabled = settings.gradientEnabled,
                 gradientAngle = settings.gradientAngle,
+                blurEnabled = settings.blurEnabled,
                 // Layout
                 lineSpacing = settings.lineSpacing,
                 viewerTypeIndex = settings.viewerTypeIndex,
@@ -95,6 +96,7 @@ class DemoUiMapper
                 backgroundColorArgb = uiState.backgroundColor.toArgb().toLong(),
                 gradientEnabled = uiState.gradientEnabled,
                 gradientAngle = uiState.gradientAngle,
+                blurEnabled = uiState.blurEnabled,
                 lineSpacing = uiState.lineSpacing,
                 viewerTypeIndex = uiState.viewerTypeIndex,
             )
@@ -192,6 +194,10 @@ class DemoUiMapper
                 gradient {
                     enabled = settings.gradientEnabled
                     angle = settings.gradientAngle
+                }
+
+                blur {
+                    enabled = settings.blurEnabled
                 }
 
                 viewer {

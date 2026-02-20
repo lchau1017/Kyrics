@@ -95,6 +95,7 @@ fun SettingsPanel(
         VisualEffectsSection(
             gradientEnabled = state.gradientEnabled,
             gradientAngle = state.gradientAngle,
+            blurEnabled = state.blurEnabled,
             onIntent = onIntent,
         )
 
@@ -244,6 +245,7 @@ private fun ColorRow(
 private fun VisualEffectsSection(
     gradientEnabled: Boolean,
     gradientAngle: Float,
+    blurEnabled: Boolean,
     onIntent: (DemoIntent) -> Unit,
 ) {
     SectionTitle("Visual Effects")
@@ -263,5 +265,14 @@ private fun VisualEffectsSection(
             onValueChange = { onIntent(DemoIntent.VisualEffect.UpdateGradientAngle(it)) },
             valueRange = 0f..360f,
         )
+    }
+
+    // Blur
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Switch(
+            checked = blurEnabled,
+            onCheckedChange = { onIntent(DemoIntent.VisualEffect.ToggleBlur(it)) },
+        )
+        Text("Blur", modifier = Modifier.padding(start = 8.dp))
     }
 }

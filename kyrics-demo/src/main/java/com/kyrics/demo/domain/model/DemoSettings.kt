@@ -6,7 +6,7 @@ package com.kyrics.demo.domain.model
  */
 data class DemoSettings(
     // Text settings
-    val fontSize: Float = 32f,
+    val fontSize: Float = 20f,
     val fontWeightValue: Int = 700, // Bold = 700
     val fontFamilyName: String = "default",
     val textAlignName: String = "center",
@@ -18,8 +18,9 @@ data class DemoSettings(
     // Visual effects
     val gradientEnabled: Boolean = false,
     val gradientAngle: Float = 45f,
+    val blurEnabled: Boolean = true,
     // Layout
-    val lineSpacing: Float = 80f,
+    val lineSpacing: Float = 0f,
     // Viewer type
     val viewerTypeIndex: Int = 0,
 ) {

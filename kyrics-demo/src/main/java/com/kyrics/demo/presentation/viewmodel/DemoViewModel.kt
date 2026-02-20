@@ -127,6 +127,7 @@ class DemoViewModel
             when (intent) {
                 is DemoIntent.VisualEffect.ToggleGradient -> toggleGradient(intent.enabled)
                 is DemoIntent.VisualEffect.UpdateGradientAngle -> updateGradientAngle(intent.angle)
+                is DemoIntent.VisualEffect.ToggleBlur -> toggleBlur(intent.enabled)
             }
         }
 
@@ -300,6 +301,10 @@ class DemoViewModel
             updateSettings { it.copy(gradientAngle = angle) }
         }
 
+        private fun toggleBlur(enabled: Boolean) {
+            updateSettings { it.copy(blurEnabled = enabled) }
+        }
+
         // Presets
         private fun loadPreset(presetType: PresetType) {
             viewModelScope.launch(dispatcherProvider.main) {
@@ -326,6 +331,7 @@ class DemoViewModel
                                 .toArgb()
                                 .toLong(),
                         gradientEnabled = config.visual.gradientEnabled,
+                        blurEnabled = config.visual.enableBlur,
                     )
                 updateDemoSettingsUseCase(newSettings)
             }

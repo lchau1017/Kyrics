@@ -22,9 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed `DemoEffect` side-effects system, unused mapper methods, unused config fields
   - Removed `GradientPreset` enum and `PRESET` gradient type
 
+### Added
+- **Blur Effects** - Opt-in blur on non-playing lines for focus effect
+  - `blur {}` DSL block with `enabled`, `playedLineBlur`, `upcomingLineBlur`, `distantLineBlur`
+  - Animated transitions via `animateFloatAsState`
+  - Disabled by default in library, enabled by default in demo app
+- **Demo app blur toggle** - Blur switch in Visual Effects settings panel
+
 ### Improved
 - Consistent naming: public API uses `Kyrics` prefix, internals use descriptive names without prefix
 - Extracted `StateCalculator` into separate file from `KyricsStateHolder`
+- Demo app defaults: smaller font size (20sp) and zero line spacing for better multi-line visibility
 
 ## [1.2.0] - 2025-01-20
 

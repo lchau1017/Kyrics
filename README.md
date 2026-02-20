@@ -22,6 +22,7 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 - **Synchronized Lyrics Display** - Character-by-character and syllable-by-syllable highlighting
 - **2 Viewer Types** - Smooth Scroll and Fade Through
 - **Customizable Gradients** - Progress-based, multi-color gradient options
+- **Blur Effects** - Optional blur on non-playing lines for focus effect
 - **Type-Safe DSL** - Kotlin DSL for configuration and lyrics creation
 - **Extension Functions** - Rich utilities for working with synced lines
 - **Single Import** - All APIs available from `com.kyrics` package
@@ -297,6 +298,14 @@ val config = kyricsConfig {
         angle = 45f
     }
 
+    // Blur (non-playing lines)
+    blur {
+        enabled = true
+        playedLineBlur = 2.dp
+        upcomingLineBlur = 3.dp
+        distantLineBlur = 5.dp
+    }
+
     // Viewer type
     viewer {
         type = ViewerType.SMOOTH_SCROLL
@@ -451,6 +460,7 @@ The `kyrics-demo` module provides a complete demo showcasing library features wi
 - Both viewer types
 - Preset themes (Classic, Neon)
 - Font size, weight, and family customization
+- Gradient and blur effect toggles
 - Real-time configuration changes
 
 **Run the demo:**
