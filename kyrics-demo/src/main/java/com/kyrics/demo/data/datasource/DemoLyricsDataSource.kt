@@ -23,8 +23,8 @@ class DemoLyricsDataSource
     constructor(
         @ApplicationContext private val context: Context,
     ) {
-        suspend fun getLyrics(): List<KyricsLine> {
-            return try {
+        suspend fun getLyrics(): List<KyricsLine> =
+            try {
                 val content =
                     context.assets
                         .open(LYRICS_FILE)
@@ -43,7 +43,6 @@ class DemoLyricsDataSource
                 Log.e(TAG, "Failed to load lyrics file: $LYRICS_FILE", e)
                 emptyList()
             }
-        }
 
         fun getTotalDurationMs(): Long = TOTAL_DURATION_MS
 

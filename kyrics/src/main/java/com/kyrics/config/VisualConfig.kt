@@ -36,7 +36,6 @@ data class VisualConfig(
     val textAlign: TextAlign = TextAlign.Center,
     // Background
     val backgroundColor: Color = Color.Transparent,
-    val lineBackgroundColor: Color = Color.Transparent,
     // Gradient Configuration
     val playingGradientColors: List<Color> =
         listOf(

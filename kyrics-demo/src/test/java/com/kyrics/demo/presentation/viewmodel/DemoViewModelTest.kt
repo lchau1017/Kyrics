@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.kyrics.demo.data.datasource.DemoLyricsDataSource
 import com.kyrics.demo.domain.model.DemoSettings
@@ -368,21 +367,6 @@ class DemoViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(any()) }
-        }
-
-    @Test
-    fun `LoadPreset sends PresetLoaded effect`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.effect.test {
-                viewModel.onIntent(DemoIntent.LoadPreset(PresetType.CLASSIC))
-                testDispatcher.scheduler.advanceUntilIdle()
-
-                val effect = awaitItem()
-                assertThat(effect).isEqualTo(DemoEffect.PresetLoaded)
-            }
         }
 
     // ==================== Line Selection Tests ====================

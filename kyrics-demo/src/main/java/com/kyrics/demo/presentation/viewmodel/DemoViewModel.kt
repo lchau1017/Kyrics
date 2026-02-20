@@ -18,12 +18,10 @@ import com.kyrics.demo.presentation.model.ColorPickerTarget
 import com.kyrics.demo.presentation.model.DemoUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,9 +38,6 @@ class DemoViewModel
     ) : ViewModel() {
         private val _state = MutableStateFlow(createInitialState())
         val state: StateFlow<DemoUiState> = _state.asStateFlow()
-
-        private val _effect = Channel<DemoEffect>(Channel.BUFFERED)
-        val effect = _effect.receiveAsFlow()
 
         private var playbackJob: Job? = null
 
@@ -333,7 +328,6 @@ class DemoViewModel
                         gradientEnabled = config.visual.gradientEnabled,
                     )
                 updateDemoSettingsUseCase(newSettings)
-                _effect.send(DemoEffect.PresetLoaded)
             }
         }
 

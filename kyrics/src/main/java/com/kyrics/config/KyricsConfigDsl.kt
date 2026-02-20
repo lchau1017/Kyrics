@@ -6,7 +6,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -107,7 +106,6 @@ class KyricsConfigBuilder {
                     letterSpacing = typography.letterSpacing,
                     textAlign = typography.textAlign,
                     backgroundColor = colors.background,
-                    lineBackgroundColor = colors.lineBackground,
                     playingGradientColors = gradient?.colors ?: listOf(Color(0xFF00BCD4), Color(0xFFE91E63)),
                     gradientAngle = gradient?.angle ?: 45f,
                     gradientEnabled = gradient?.enabled ?: false,
@@ -143,9 +141,6 @@ class ColorsBuilder {
 
     /** Background color for the entire viewer */
     var background: Color = Color.Transparent
-
-    /** Background color for individual lines */
-    var lineBackground: Color = Color.Transparent
 
     /** Color for sung portions in gradient mode */
     var sung: Color = Color.Green
@@ -214,26 +209,8 @@ class LayoutBuilder {
     /** Vertical spacing between lines */
     var lineSpacing: Dp = 12.dp
 
-    /** Spacing between words */
-    var wordSpacing: Dp = 4.dp
-
-    /** Spacing between characters */
-    var characterSpacing: Dp = 0.dp
-
-    /** Line height multiplier */
-    var lineHeight: Float = 1.2f
-
-    /** Line height multiplier for accompaniment */
-    var accompanimentLineHeight: Float = 1.0f
-
     /** Container padding */
     var containerPadding: PaddingValues = PaddingValues(16.dp)
-
-    /** Maximum line width (null = full width) */
-    var maxLineWidth: Dp? = null
-
-    /** Force text direction (null = auto-detect) */
-    var textDirection: LayoutDirection? = null
 
     /** Enable line click interactions */
     var enableLineClick: Boolean = true
@@ -243,13 +220,7 @@ class LayoutBuilder {
             viewerConfig = viewerConfig,
             linePadding = linePadding,
             lineSpacing = lineSpacing,
-            wordSpacing = wordSpacing,
-            characterSpacing = characterSpacing,
-            lineHeightMultiplier = lineHeight,
-            accompanimentLineHeightMultiplier = accompanimentLineHeight,
             containerPadding = containerPadding,
-            maxLineWidth = maxLineWidth,
-            forceTextDirection = textDirection,
             enableLineClick = enableLineClick,
         )
 }

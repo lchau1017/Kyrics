@@ -16,7 +16,6 @@ import com.kyrics.demo.domain.model.DemoSettings
 import com.kyrics.demo.domain.model.LyricsData
 import com.kyrics.demo.domain.model.PresetType
 import com.kyrics.demo.domain.model.ViewerTypeId
-import com.kyrics.demo.presentation.model.ColorPickerTarget
 import com.kyrics.demo.presentation.model.DemoUiState
 import com.kyrics.demo.presentation.model.ViewerTypeUiModel
 import javax.inject.Inject
@@ -99,21 +98,6 @@ class DemoUiMapper
                 lineSpacing = uiState.lineSpacing,
                 viewerTypeIndex = uiState.viewerTypeIndex,
             )
-
-        /**
-         * Maps presentation ColorPickerTarget to domain field update.
-         */
-        fun applyColorUpdate(
-            uiState: DemoUiState,
-            target: ColorPickerTarget,
-            color: Color,
-        ): DemoUiState =
-            when (target) {
-                ColorPickerTarget.SUNG_COLOR -> uiState.copy(sungColor = color)
-                ColorPickerTarget.UNSUNG_COLOR -> uiState.copy(unsungColor = color)
-                ColorPickerTarget.ACTIVE_COLOR -> uiState.copy(activeColor = color)
-                ColorPickerTarget.BACKGROUND_COLOR -> uiState.copy(backgroundColor = color)
-            }
 
         /**
          * Maps preset type to library KyricsConfig.

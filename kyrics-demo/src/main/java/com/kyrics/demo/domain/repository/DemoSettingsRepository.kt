@@ -16,9 +16,4 @@ interface DemoSettingsRepository {
      * Update the demo settings.
      */
     suspend fun updateSettings(settings: DemoSettings)
-
-    /**
-     * Reset settings to default values.
-     */
-    suspend fun resetSettings()
 }

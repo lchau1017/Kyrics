@@ -63,17 +63,6 @@ class KyricsLineBuilder(
     }
 
     /**
-     * Add multiple syllables from a list of pairs (content to duration).
-     *
-     * @param syllableData List of pairs where first is content and second is duration
-     */
-    fun syllables(vararg syllableData: Pair<String, Int>) {
-        syllableData.forEach { (content, duration) ->
-            syllable(content, duration)
-        }
-    }
-
-    /**
      * Mark this line as accompaniment/background vocals.
      */
     fun accompaniment() {
@@ -111,10 +100,6 @@ class KyricsLyricsBuilder {
         block: KyricsLineBuilder.() -> Unit,
     ) {
         lines.add(kyricsLine(start, end, block))
-    }
-
-    fun line(line: KyricsLine) {
-        lines.add(line)
     }
 
     fun accompaniment(

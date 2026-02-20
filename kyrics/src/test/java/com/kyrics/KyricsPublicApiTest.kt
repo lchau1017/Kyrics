@@ -3,12 +3,6 @@ package com.kyrics
 import com.google.common.truth.Truth.assertThat
 import com.kyrics.config.ViewerType
 import com.kyrics.config.kyricsConfig
-import com.kyrics.dsl.KyricsLineFactory
-import com.kyrics.dsl.kyricsAccompaniment
-import com.kyrics.dsl.kyricsLine
-import com.kyrics.dsl.kyricsLineFromText
-import com.kyrics.dsl.kyricsLineFromWords
-import com.kyrics.dsl.kyricsLyrics
 import com.kyrics.models.KyricsLine
 import org.junit.Test
 
