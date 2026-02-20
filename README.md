@@ -10,10 +10,6 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
   <img src="media/demo_screenshot.png" alt="Kyrics Demo Screenshot" width="300"/>
 </p>
 
-<p align="center">
-  <a href="media/demo_video.webm">Watch Demo Video</a>
-</p>
-
 ---
 
 ## Features
@@ -24,7 +20,6 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 - **Customizable Gradients** - Progress-based, multi-color gradient options
 - **Blur Effects** - Optional blur on non-playing lines for focus effect
 - **Type-Safe DSL** - Kotlin DSL for configuration and lyrics creation
-- **Extension Functions** - Rich utilities for working with synced lines
 - **Single Import** - All APIs available from `com.kyrics` package
 - **Compose-First** - Built entirely with Jetpack Compose
 
@@ -38,7 +33,6 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 - [Creating Lyrics](#creating-lyrics)
 - [Configuration](#configuration)
 - [Viewer Types](#viewer-types)
-- [Extension Functions](#extension-functions)
 - [Data Models](#data-models)
 - [State Management](#state-management)
 - [Demo App](#demo-app)
@@ -341,57 +335,6 @@ KyricsPresets.Neon     // Cyan/Magenta with gradient
 |--------|-------------|
 | `SMOOTH_SCROLL` | Standard vertical scrolling with smooth animations |
 | `FADE_THROUGH` | Pure opacity transitions between lines |
-
----
-
-## Extension Functions
-
-All extension functions are available from `com.kyrics.*`:
-
-### Finding Lines
-
-```kotlin
-val currentLine = lyrics.findLineAtTime(timeMs)
-val currentIndex = lyrics.findLineIndexAtTime(timeMs)
-val nextLine = lyrics.findNextLine(timeMs)
-val prevLine = lyrics.findPreviousLine(timeMs)
-```
-
-### Progress Calculations
-
-```kotlin
-val progress = line.progressAt(timeMs)  // 0.0 to 1.0
-val overallProgress = lyrics.calculateOverallProgress(timeMs)
-```
-
-### Time Utilities
-
-```kotlin
-val duration = line.duration
-val totalDuration = lyrics.getTotalDuration()
-val (start, end) = lyrics.getTimeRange()
-```
-
-### State Checks
-
-```kotlin
-val isPlaying = line.containsTime(timeMs)
-val hasPlayed = line.hasPlayedAt(timeMs)
-val isUpcoming = line.isUpcomingAt(timeMs)
-```
-
-### Filtering
-
-```kotlin
-val playedLines = lyrics.getPlayedLines(timeMs)
-val upcomingLines = lyrics.getUpcomingLines(timeMs)
-val nearbyLines = lyrics.getLinesInRange(currentIndex, range = 3)
-
-// KyricsLine specific
-val mainVocals = kyricsLines.filterMainVocals()
-val accompaniment = kyricsLines.filterAccompaniment()
-val syllableCount = kyricsLines.getTotalSyllableCount()
-```
 
 ---
 
