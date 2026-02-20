@@ -1,5 +1,6 @@
 package com.kyrics.components.viewers
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
  * Smooth scrolling viewer that positions the active line at a comfortable reading position.
  * Shows multiple lines for context, ideal for following along with lyrics.
  */
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 internal fun SmoothScrollViewer(
     uiState: KyricsUiState,

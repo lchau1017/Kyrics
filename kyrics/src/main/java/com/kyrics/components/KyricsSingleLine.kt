@@ -12,16 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.kyrics.config.KyricsConfig
 import com.kyrics.models.KyricsLine
 import com.kyrics.rendering.KaraokeCanvas
-import com.kyrics.rendering.KaraokeMath
 import com.kyrics.state.LineUiState
 
 /**
@@ -41,7 +38,7 @@ internal fun KyricsSingleLine(
         targetValue = lineUiState.scale,
         animationSpec =
             tween(
-                durationMillis = config.animation.lineAnimationDuration.toInt(),
+                durationMillis = 700,
                 easing = FastOutSlowInEasing,
             ),
         label = "lineScale",
@@ -53,24 +50,6 @@ internal fun KyricsSingleLine(
         label = "lineOpacity",
     )
 
-    val animatedBlur by animateFloatAsState(
-        targetValue = lineUiState.blurRadius,
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "lineBlur",
-    )
-
-    val pulseScale =
-        if (config.animation.enablePulse && lineUiState.isPlaying) {
-            KaraokeMath.calculatePulseScale(
-                currentTimeMs = currentTimeMs,
-                minScale = config.animation.pulseMinScale,
-                maxScale = config.animation.pulseMaxScale,
-                duration = config.animation.pulseDuration,
-            )
-        } else {
-            1f
-        }
-
     val textStyle = createTextStyle(line, config)
     val textColor = calculateTextColor(line, lineUiState, config)
 
@@ -79,15 +58,9 @@ internal fun KyricsSingleLine(
             modifier
                 .fillMaxWidth()
                 .padding(config.layout.linePadding)
-                .scale(animatedScale * pulseScale)
+                .scale(animatedScale)
                 .alpha(animatedOpacity)
                 .then(
-                    if (animatedBlur > 0f) {
-                        Modifier.blur(animatedBlur.dp)
-                    } else {
-                        Modifier
-                    },
-                ).then(
                     if (config.layout.enableLineClick && onLineClick != null) {
                         Modifier.clickable { onLineClick(line) }
                     } else {

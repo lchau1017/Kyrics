@@ -1,8 +1,6 @@
 package com.kyrics.state
 
 import com.google.common.truth.Truth.assertThat
-import com.kyrics.config.AnimationConfig
-import com.kyrics.config.EffectsConfig
 import com.kyrics.config.KyricsConfig
 import com.kyrics.testdata.TestData
 import com.kyrics.testdata.TestData.TimePoints
@@ -152,7 +150,7 @@ class KyricsStateCalculatorTest {
     // ==================== calculateOpacity Tests ====================
 
     @Test
-    fun `calculateOpacity returns playingLineOpacity when playing`() {
+    fun `calculateOpacity returns 1 when playing`() {
         val result =
             calculator.calculateOpacity(
                 isPlaying = true,
@@ -160,11 +158,11 @@ class KyricsStateCalculatorTest {
                 distance = 0,
                 config = defaultConfig,
             )
-        assertThat(result).isEqualTo(defaultConfig.effects.playingLineOpacity)
+        assertThat(result).isEqualTo(1f)
     }
 
     @Test
-    fun `calculateOpacity returns playedLineOpacity when played`() {
+    fun `calculateOpacity returns 0_25 when played`() {
         val result =
             calculator.calculateOpacity(
                 isPlaying = false,
@@ -172,11 +170,11 @@ class KyricsStateCalculatorTest {
                 distance = 1,
                 config = defaultConfig,
             )
-        assertThat(result).isEqualTo(defaultConfig.effects.playedLineOpacity)
+        assertThat(result).isEqualTo(0.25f)
     }
 
     @Test
-    fun `calculateOpacity returns upcomingLineOpacity for close upcoming line`() {
+    fun `calculateOpacity returns 0_6 for close upcoming line`() {
         val result =
             calculator.calculateOpacity(
                 isPlaying = false,
@@ -184,7 +182,7 @@ class KyricsStateCalculatorTest {
                 distance = 0,
                 config = defaultConfig,
             )
-        assertThat(result).isEqualTo(defaultConfig.effects.upcomingLineOpacity)
+        assertThat(result).isEqualTo(0.6f)
     }
 
     @Test
@@ -219,30 +217,12 @@ class KyricsStateCalculatorTest {
         assertThat(result).isWithin(0.001f).of(0.2f)
     }
 
-    @Test
-    fun `calculateOpacity respects custom config values`() {
-        val customConfig =
-            KyricsConfig(
-                effects =
-                    EffectsConfig(
-                        playingLineOpacity = 0.9f,
-                        playedLineOpacity = 0.1f,
-                        upcomingLineOpacity = 0.5f,
-                    ),
-            )
-        val playingResult = calculator.calculateOpacity(true, false, 0, customConfig)
-        val playedResult = calculator.calculateOpacity(false, true, 0, customConfig)
-
-        assertThat(playingResult).isEqualTo(0.9f)
-        assertThat(playedResult).isEqualTo(0.1f)
-    }
-
     // ==================== calculateScale Tests ====================
 
     @Test
-    fun `calculateScale returns scaleOnPlay when playing and animations enabled`() {
+    fun `calculateScale returns 1_05 when playing`() {
         val result = calculator.calculateScale(isPlaying = true, config = defaultConfig)
-        assertThat(result).isEqualTo(defaultConfig.animation.lineScaleOnPlay)
+        assertThat(result).isEqualTo(1.05f)
     }
 
     @Test
@@ -251,122 +231,18 @@ class KyricsStateCalculatorTest {
         assertThat(result).isEqualTo(1f)
     }
 
-    @Test
-    fun `calculateScale returns 1 when animations disabled`() {
-        val noAnimConfig =
-            KyricsConfig(
-                animation = AnimationConfig(enableLineAnimations = false),
-            )
-        val result = calculator.calculateScale(isPlaying = true, config = noAnimConfig)
-        assertThat(result).isEqualTo(1f)
-    }
-
-    @Test
-    fun `calculateScale respects custom scale value`() {
-        val customConfig =
-            KyricsConfig(
-                animation = AnimationConfig(lineScaleOnPlay = 1.2f),
-            )
-        val result = calculator.calculateScale(isPlaying = true, config = customConfig)
-        assertThat(result).isEqualTo(1.2f)
-    }
-
     // ==================== calculateBlurRadius Tests ====================
 
     @Test
-    fun `calculateBlurRadius returns 0 when playing`() {
+    fun `calculateBlurRadius always returns 0`() {
         val result =
             calculator.calculateBlurRadius(
-                isPlaying = true,
-                hasPlayed = false,
-                distance = 0,
+                isPlaying = false,
+                hasPlayed = true,
+                distance = 5,
                 config = defaultConfig,
             )
         assertThat(result).isEqualTo(0f)
-    }
-
-    @Test
-    fun `calculateBlurRadius returns playedLineBlur when played`() {
-        val blurEnabledConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = true),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = true,
-                distance = 1,
-                config = blurEnabledConfig,
-            )
-        val expected = blurEnabledConfig.effects.playedLineBlur.value * blurEnabledConfig.effects.blurIntensity
-        assertThat(result).isEqualTo(expected)
-    }
-
-    @Test
-    fun `calculateBlurRadius returns upcomingLineBlur for close upcoming`() {
-        val blurEnabledConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = true),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = false,
-                distance = 2,
-                config = blurEnabledConfig,
-            )
-        val expected = blurEnabledConfig.effects.upcomingLineBlur.value * blurEnabledConfig.effects.blurIntensity
-        assertThat(result).isEqualTo(expected)
-    }
-
-    @Test
-    fun `calculateBlurRadius returns distantLineBlur for far lines`() {
-        val blurEnabledConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = true),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = false,
-                distance = 5,
-                config = blurEnabledConfig,
-            )
-        val expected = blurEnabledConfig.effects.distantLineBlur.value * blurEnabledConfig.effects.blurIntensity
-        assertThat(result).isEqualTo(expected)
-    }
-
-    @Test
-    fun `calculateBlurRadius returns 0 when blur disabled`() {
-        val noBlurConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = false),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = false,
-                distance = 5,
-                config = noBlurConfig,
-            )
-        assertThat(result).isEqualTo(0f)
-    }
-
-    @Test
-    fun `calculateBlurRadius respects blur intensity multiplier`() {
-        val intensityConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = true, blurIntensity = 2.0f),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = true,
-                distance = 1,
-                config = intensityConfig,
-            )
-        val expected = intensityConfig.effects.playedLineBlur.value * 2.0f
-        assertThat(result).isEqualTo(expected)
     }
 
     // ==================== calculateLineState Tests ====================
@@ -387,7 +263,7 @@ class KyricsStateCalculatorTest {
         assertThat(result.hasPlayed).isFalse()
         assertThat(result.isUpcoming).isFalse()
         assertThat(result.distanceFromCurrent).isEqualTo(0)
-        assertThat(result.opacity).isEqualTo(defaultConfig.effects.playingLineOpacity)
+        assertThat(result.opacity).isEqualTo(1f)
     }
 
     @Test

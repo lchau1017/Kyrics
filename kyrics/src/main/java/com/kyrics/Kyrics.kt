@@ -78,13 +78,6 @@ fun KyricsViewer(
 object KyricsPresets {
     val Classic = ConfigPresets.Classic
     val Neon = ConfigPresets.Neon
-    val Rainbow = ConfigPresets.Rainbow
-    val Fire = ConfigPresets.Fire
-    val Ocean = ConfigPresets.Ocean
-    val Retro = ConfigPresets.Retro
     val Minimal = ConfigPresets.Minimal
-    val Elegant = ConfigPresets.Elegant
-    val Party = ConfigPresets.Party
-    val Matrix = ConfigPresets.Matrix
     val all = ConfigPresets.allPresets
 }

@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import com.kyrics.config.ColorConfig
-import com.kyrics.config.GradientPreset
 import com.kyrics.config.GradientType
 import com.kyrics.config.KyricsConfig
 import com.kyrics.config.VisualConfig
@@ -188,55 +187,6 @@ class KaraokeDrawingTest {
         assertThat(result).isNotNull()
     }
 
-    // ==================== getPresetColors Tests ====================
-
-    @Test
-    fun `getPresetColors returns rainbow colors for RAINBOW preset`() {
-        val result = KaraokeDrawing.getPresetColors(GradientPreset.RAINBOW)
-
-        assertThat(result).isNotNull()
-        assertThat(result).hasSize(7) // ROYGBIV
-    }
-
-    @Test
-    fun `getPresetColors returns sunset colors for SUNSET preset`() {
-        val result = KaraokeDrawing.getPresetColors(GradientPreset.SUNSET)
-
-        assertThat(result).isNotNull()
-        assertThat(result).hasSize(3)
-    }
-
-    @Test
-    fun `getPresetColors returns ocean colors for OCEAN preset`() {
-        val result = KaraokeDrawing.getPresetColors(GradientPreset.OCEAN)
-
-        assertThat(result).isNotNull()
-        assertThat(result).hasSize(3)
-    }
-
-    @Test
-    fun `getPresetColors returns fire colors for FIRE preset`() {
-        val result = KaraokeDrawing.getPresetColors(GradientPreset.FIRE)
-
-        assertThat(result).isNotNull()
-        assertThat(result).hasSize(3)
-    }
-
-    @Test
-    fun `getPresetColors returns neon colors for NEON preset`() {
-        val result = KaraokeDrawing.getPresetColors(GradientPreset.NEON)
-
-        assertThat(result).isNotNull()
-        assertThat(result).hasSize(3)
-    }
-
-    @Test
-    fun `getPresetColors returns null for null preset`() {
-        val result = KaraokeDrawing.getPresetColors(null)
-
-        assertThat(result).isNull()
-    }
-
     // ==================== createCharacterGradient Tests ====================
 
     @Test
@@ -293,31 +243,6 @@ class KaraokeDrawingTest {
     }
 
     @Test
-    fun `createCharacterGradient with PRESET type uses preset colors`() {
-        val config =
-            KyricsConfig(
-                visual =
-                    VisualConfig(
-                        gradientEnabled = true,
-                        gradientType = GradientType.PRESET,
-                        gradientPreset = GradientPreset.RAINBOW,
-                        gradientAngle = 0f,
-                    ),
-            )
-
-        val result =
-            KaraokeDrawing.createCharacterGradient(
-                charWidth = 50f,
-                charHeight = 30f,
-                charProgress = 0.5f,
-                config = config,
-                baseColor = Color.White,
-            )
-
-        assertThat(result).isNotNull()
-    }
-
-    @Test
     fun `createCharacterGradient with LINEAR type creates linear gradient`() {
         val config =
             KyricsConfig(
@@ -355,35 +280,6 @@ class KaraokeDrawingTest {
                         gradientEnabled = true,
                         gradientType = GradientType.MULTI_COLOR,
                         playingGradientColors = emptyList(),
-                        colors =
-                            ColorConfig(
-                                active = Color.Yellow,
-                                sung = Color.Green,
-                            ),
-                    ),
-            )
-
-        val result =
-            KaraokeDrawing.createCharacterGradient(
-                charWidth = 50f,
-                charHeight = 30f,
-                charProgress = 0.5f,
-                config = config,
-                baseColor = Color.White,
-            )
-
-        assertThat(result).isNotNull()
-    }
-
-    @Test
-    fun `createCharacterGradient uses fallback colors when preset is null`() {
-        val config =
-            KyricsConfig(
-                visual =
-                    VisualConfig(
-                        gradientEnabled = true,
-                        gradientType = GradientType.PRESET,
-                        gradientPreset = null,
                         colors =
                             ColorConfig(
                                 active = Color.Yellow,

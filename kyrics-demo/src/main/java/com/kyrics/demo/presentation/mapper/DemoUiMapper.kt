@@ -51,20 +51,6 @@ class DemoUiMapper
                 // Visual effects
                 gradientEnabled = settings.gradientEnabled,
                 gradientAngle = settings.gradientAngle,
-                blurEnabled = settings.blurEnabled,
-                blurIntensity = settings.blurIntensity,
-                // Character animations
-                charAnimEnabled = settings.charAnimEnabled,
-                charMaxScale = settings.charMaxScale,
-                charFloatOffset = settings.charFloatOffset,
-                charRotationDegrees = settings.charRotationDegrees,
-                // Line animations
-                lineAnimEnabled = settings.lineAnimEnabled,
-                lineScaleOnPlay = settings.lineScaleOnPlay,
-                // Pulse effect
-                pulseEnabled = settings.pulseEnabled,
-                pulseMinScale = settings.pulseMinScale,
-                pulseMaxScale = settings.pulseMaxScale,
                 // Layout
                 lineSpacing = settings.lineSpacing,
                 viewerTypeIndex = settings.viewerTypeIndex,
@@ -110,17 +96,6 @@ class DemoUiMapper
                 backgroundColorArgb = uiState.backgroundColor.toArgb().toLong(),
                 gradientEnabled = uiState.gradientEnabled,
                 gradientAngle = uiState.gradientAngle,
-                blurEnabled = uiState.blurEnabled,
-                blurIntensity = uiState.blurIntensity,
-                charAnimEnabled = uiState.charAnimEnabled,
-                charMaxScale = uiState.charMaxScale,
-                charFloatOffset = uiState.charFloatOffset,
-                charRotationDegrees = uiState.charRotationDegrees,
-                lineAnimEnabled = uiState.lineAnimEnabled,
-                lineScaleOnPlay = uiState.lineScaleOnPlay,
-                pulseEnabled = uiState.pulseEnabled,
-                pulseMinScale = uiState.pulseMinScale,
-                pulseMaxScale = uiState.pulseMaxScale,
                 lineSpacing = uiState.lineSpacing,
                 viewerTypeIndex = uiState.viewerTypeIndex,
             )
@@ -148,13 +123,6 @@ class DemoUiMapper
                 PresetType.CLASSIC -> KyricsPresets.Classic
                 PresetType.NEON -> KyricsPresets.Neon
                 PresetType.MINIMAL -> KyricsPresets.Minimal
-                PresetType.RAINBOW -> KyricsPresets.Rainbow
-                PresetType.FIRE -> KyricsPresets.Fire
-                PresetType.OCEAN -> KyricsPresets.Ocean
-                PresetType.RETRO -> KyricsPresets.Retro
-                PresetType.ELEGANT -> KyricsPresets.Elegant
-                PresetType.PARTY -> KyricsPresets.Party
-                PresetType.MATRIX -> KyricsPresets.Matrix
             }
 
         // ==================== Type Conversion Helpers ====================
@@ -216,20 +184,10 @@ class DemoUiMapper
             return when (viewerTypeId) {
                 ViewerTypeId.CENTER_FOCUSED -> ViewerType.CENTER_FOCUSED
                 ViewerTypeId.SMOOTH_SCROLL -> ViewerType.SMOOTH_SCROLL
-                ViewerTypeId.STACKED -> ViewerType.STACKED
-                ViewerTypeId.HORIZONTAL_PAGED -> ViewerType.HORIZONTAL_PAGED
-                ViewerTypeId.WAVE_FLOW -> ViewerType.WAVE_FLOW
-                ViewerTypeId.SPIRAL -> ViewerType.SPIRAL
-                ViewerTypeId.CAROUSEL_3D -> ViewerType.CAROUSEL_3D
-                ViewerTypeId.SPLIT_DUAL -> ViewerType.SPLIT_DUAL
-                ViewerTypeId.ELASTIC_BOUNCE -> ViewerType.ELASTIC_BOUNCE
                 ViewerTypeId.FADE_THROUGH -> ViewerType.FADE_THROUGH
-                ViewerTypeId.RADIAL_BURST -> ViewerType.RADIAL_BURST
-                ViewerTypeId.FLIP_CARD -> ViewerType.FLIP_CARD
             }
         }
 
-        @Suppress("LongMethod")
         private fun buildLibraryConfig(settings: DemoSettings): KyricsConfig =
             kyricsConfig {
                 colors {
@@ -247,27 +205,6 @@ class DemoUiMapper
                     fontWeight = mapFontWeight(settings.fontWeightValue)
                     fontFamily = mapFontFamily(settings.fontFamilyName)
                     textAlign = mapTextAlign(settings.textAlignName)
-                }
-
-                animations {
-                    characterAnimations = settings.charAnimEnabled
-                    characterScale = settings.charMaxScale
-                    characterFloat = settings.charFloatOffset
-                    characterRotation = settings.charRotationDegrees
-                    characterDuration = 800f
-                    lineAnimations = settings.lineAnimEnabled
-                    lineScale = settings.lineScaleOnPlay
-                    lineDuration = 700f
-                    pulse = settings.pulseEnabled
-                    pulseMin = settings.pulseMinScale
-                    pulseMax = settings.pulseMaxScale
-                }
-
-                effects {
-                    blur = settings.blurEnabled
-                    blurIntensity = settings.blurIntensity
-                    upcomingBlur = (3 * settings.blurIntensity).dp
-                    distantBlur = (6 * settings.blurIntensity).dp
                 }
 
                 gradient {

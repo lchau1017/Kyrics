@@ -83,7 +83,6 @@ class DemoViewModel
                 is DemoIntent.Font -> handleFont(intent)
                 is DemoIntent.Layout -> handleLayout(intent)
                 is DemoIntent.VisualEffect -> handleVisualEffect(intent)
-                is DemoIntent.Animation -> handleAnimation(intent)
                 is DemoIntent.LoadPreset -> loadPreset(intent.presetType)
             }
         }
@@ -133,22 +132,6 @@ class DemoViewModel
             when (intent) {
                 is DemoIntent.VisualEffect.ToggleGradient -> toggleGradient(intent.enabled)
                 is DemoIntent.VisualEffect.UpdateGradientAngle -> updateGradientAngle(intent.angle)
-                is DemoIntent.VisualEffect.ToggleBlur -> toggleBlur(intent.enabled)
-                is DemoIntent.VisualEffect.UpdateBlurIntensity -> updateBlurIntensity(intent.intensity)
-            }
-        }
-
-        private fun handleAnimation(intent: DemoIntent.Animation) {
-            when (intent) {
-                is DemoIntent.Animation.ToggleCharAnimation -> toggleCharAnimation(intent.enabled)
-                is DemoIntent.Animation.UpdateCharMaxScale -> updateCharMaxScale(intent.scale)
-                is DemoIntent.Animation.UpdateCharFloatOffset -> updateCharFloatOffset(intent.offset)
-                is DemoIntent.Animation.UpdateCharRotation -> updateCharRotation(intent.degrees)
-                is DemoIntent.Animation.ToggleLineAnimation -> toggleLineAnimation(intent.enabled)
-                is DemoIntent.Animation.UpdateLineScaleOnPlay -> updateLineScaleOnPlay(intent.scale)
-                is DemoIntent.Animation.TogglePulse -> togglePulse(intent.enabled)
-                is DemoIntent.Animation.UpdatePulseMinScale -> updatePulseMinScale(intent.scale)
-                is DemoIntent.Animation.UpdatePulseMaxScale -> updatePulseMaxScale(intent.scale)
             }
         }
 
@@ -322,59 +305,11 @@ class DemoViewModel
             updateSettings { it.copy(gradientAngle = angle) }
         }
 
-        private fun toggleBlur(enabled: Boolean) {
-            updateSettings { it.copy(blurEnabled = enabled) }
-        }
-
-        private fun updateBlurIntensity(intensity: Float) {
-            updateSettings { it.copy(blurIntensity = intensity) }
-        }
-
-        // Character animations
-        private fun toggleCharAnimation(enabled: Boolean) {
-            updateSettings { it.copy(charAnimEnabled = enabled) }
-        }
-
-        private fun updateCharMaxScale(scale: Float) {
-            updateSettings { it.copy(charMaxScale = scale) }
-        }
-
-        private fun updateCharFloatOffset(offset: Float) {
-            updateSettings { it.copy(charFloatOffset = offset) }
-        }
-
-        private fun updateCharRotation(degrees: Float) {
-            updateSettings { it.copy(charRotationDegrees = degrees) }
-        }
-
-        // Line animations
-        private fun toggleLineAnimation(enabled: Boolean) {
-            updateSettings { it.copy(lineAnimEnabled = enabled) }
-        }
-
-        private fun updateLineScaleOnPlay(scale: Float) {
-            updateSettings { it.copy(lineScaleOnPlay = scale) }
-        }
-
-        // Pulse
-        private fun togglePulse(enabled: Boolean) {
-            updateSettings { it.copy(pulseEnabled = enabled) }
-        }
-
-        private fun updatePulseMinScale(scale: Float) {
-            updateSettings { it.copy(pulseMinScale = scale) }
-        }
-
-        private fun updatePulseMaxScale(scale: Float) {
-            updateSettings { it.copy(pulseMaxScale = scale) }
-        }
-
         // Presets
         private fun loadPreset(presetType: PresetType) {
             viewModelScope.launch(dispatcherProvider.main) {
                 val config = uiMapper.mapPresetToConfig(presetType)
                 val currentSettings = uiMapper.mapUiStateToSettings(_state.value)
-                // Use colors from config.visual.colors (the primary color source for presets)
                 val newSettings =
                     currentSettings.copy(
                         fontSize = config.visual.fontSize.value,
@@ -395,14 +330,7 @@ class DemoViewModel
                             config.visual.backgroundColor
                                 .toArgb()
                                 .toLong(),
-                        charAnimEnabled = config.animation.enableCharacterAnimations,
-                        lineAnimEnabled = config.animation.enableLineAnimations,
-                        pulseEnabled = config.animation.enablePulse,
-                        pulseMinScale = config.animation.pulseMinScale,
-                        pulseMaxScale = config.animation.pulseMaxScale,
                         gradientEnabled = config.visual.gradientEnabled,
-                        blurEnabled = config.effects.enableBlur,
-                        blurIntensity = config.effects.blurIntensity,
                     )
                 updateDemoSettingsUseCase(newSettings)
                 _effect.send(DemoEffect.PresetLoaded)

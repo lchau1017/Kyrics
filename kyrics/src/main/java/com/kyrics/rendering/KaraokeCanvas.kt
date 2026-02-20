@@ -172,25 +172,21 @@ private fun buildCharacterDrawInfo(
             endTime = charEndTime,
         )
 
-    val animDurationInt =
-        ctx.config.animation.characterAnimationDuration
-            .toInt()
+    val animDurationInt = 800
     val isCharActive =
         ctx.currentTimeMs >= charStartTime &&
             ctx.currentTimeMs <= charEndTime + animDurationInt
 
     val animationState =
-        if (ctx.config.animation.enableCharacterAnimations && isCharActive) {
+        if (isCharActive) {
             KaraokeMath.calculateCharacterAnimation(
                 characterStartTime = charStartTime,
                 characterEndTime = charEndTime,
                 currentTime = ctx.currentTimeMs,
-                animationDuration =
-                    ctx.config.animation.characterAnimationDuration,
-                maxScale = ctx.config.animation.characterMaxScale,
-                floatOffset = ctx.config.animation.characterFloatOffset,
-                rotationDegrees =
-                    ctx.config.animation.characterRotationDegrees,
+                animationDuration = 800f,
+                maxScale = 1.15f,
+                floatOffset = 6f,
+                rotationDegrees = 3f,
             )
         } else {
             null

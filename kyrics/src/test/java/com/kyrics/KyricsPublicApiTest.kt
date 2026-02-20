@@ -28,16 +28,10 @@ class KyricsPublicApiTest {
                 colors {
                     playing = androidx.compose.ui.graphics.Color.Yellow
                 }
-                animations {
-                    characterAnimations = true
-                    characterScale = 1.5f
-                }
             }
 
         assertThat(config).isNotNull()
         assertThat(config.visual.playingTextColor).isEqualTo(androidx.compose.ui.graphics.Color.Yellow)
-        assertThat(config.animation.enableCharacterAnimations).isTrue()
-        assertThat(config.animation.characterMaxScale).isEqualTo(1.5f)
     }
 
     @Test
@@ -164,7 +158,7 @@ class KyricsPublicApiTest {
                     played = androidx.compose.ui.graphics.Color.Gray
                 }
                 viewer {
-                    type = ViewerType.CAROUSEL_3D
+                    type = ViewerType.FADE_THROUGH
                 }
             }
 
@@ -189,7 +183,7 @@ class KyricsPublicApiTest {
                 }
             }
 
-        assertThat(config.layout.viewerConfig.type).isEqualTo(ViewerType.CAROUSEL_3D)
+        assertThat(config.layout.viewerConfig.type).isEqualTo(ViewerType.FADE_THROUGH)
         assertThat(lyrics).hasSize(3)
         assertThat(lyrics[0].getContent()).isEqualTo("When the sun goes down")
         assertThat(lyrics[1].getContent()).isEqualTo("And the stars come out")
@@ -200,15 +194,8 @@ class KyricsPublicApiTest {
     fun `KyricsPresets are accessible`() {
         assertThat(KyricsPresets.Classic).isNotNull()
         assertThat(KyricsPresets.Neon).isNotNull()
-        assertThat(KyricsPresets.Rainbow).isNotNull()
-        assertThat(KyricsPresets.Fire).isNotNull()
-        assertThat(KyricsPresets.Ocean).isNotNull()
-        assertThat(KyricsPresets.Retro).isNotNull()
         assertThat(KyricsPresets.Minimal).isNotNull()
-        assertThat(KyricsPresets.Elegant).isNotNull()
-        assertThat(KyricsPresets.Party).isNotNull()
-        assertThat(KyricsPresets.Matrix).isNotNull()
-        assertThat(KyricsPresets.all).isNotEmpty()
+        assertThat(KyricsPresets.all).hasSize(3)
     }
 
     @Test
@@ -217,19 +204,10 @@ class KyricsPublicApiTest {
             listOf(
                 ViewerType.CENTER_FOCUSED,
                 ViewerType.SMOOTH_SCROLL,
-                ViewerType.STACKED,
-                ViewerType.HORIZONTAL_PAGED,
-                ViewerType.WAVE_FLOW,
-                ViewerType.SPIRAL,
-                ViewerType.CAROUSEL_3D,
-                ViewerType.SPLIT_DUAL,
-                ViewerType.ELASTIC_BOUNCE,
                 ViewerType.FADE_THROUGH,
-                ViewerType.RADIAL_BURST,
-                ViewerType.FLIP_CARD,
             )
 
-        assertThat(viewerTypes).hasSize(12)
+        assertThat(viewerTypes).hasSize(3)
         viewerTypes.forEach { type ->
             assertThat(type).isNotNull()
         }

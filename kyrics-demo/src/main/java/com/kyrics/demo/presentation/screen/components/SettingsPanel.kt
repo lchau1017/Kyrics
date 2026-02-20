@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import com.kyrics.demo.presentation.model.ColorPickerTarget
 import com.kyrics.demo.presentation.model.DemoUiState
 import com.kyrics.demo.presentation.viewmodel.DemoIntent
-import java.util.Locale
 
 /**
  * Stateless settings panel composable containing all demo controls.
@@ -96,24 +95,6 @@ fun SettingsPanel(
         VisualEffectsSection(
             gradientEnabled = state.gradientEnabled,
             gradientAngle = state.gradientAngle,
-            blurEnabled = state.blurEnabled,
-            blurIntensity = state.blurIntensity,
-            onIntent = onIntent,
-        )
-
-        SectionDivider()
-
-        // Animations
-        AnimationsSection(
-            charAnimEnabled = state.charAnimEnabled,
-            charMaxScale = state.charMaxScale,
-            charFloatOffset = state.charFloatOffset,
-            charRotationDegrees = state.charRotationDegrees,
-            lineAnimEnabled = state.lineAnimEnabled,
-            lineScaleOnPlay = state.lineScaleOnPlay,
-            pulseEnabled = state.pulseEnabled,
-            pulseMinScale = state.pulseMinScale,
-            pulseMaxScale = state.pulseMaxScale,
             onIntent = onIntent,
         )
 
@@ -263,8 +244,6 @@ private fun ColorRow(
 private fun VisualEffectsSection(
     gradientEnabled: Boolean,
     gradientAngle: Float,
-    blurEnabled: Boolean,
-    blurIntensity: Float,
     onIntent: (DemoIntent) -> Unit,
 ) {
     SectionTitle("Visual Effects")
@@ -278,116 +257,11 @@ private fun VisualEffectsSection(
         Text("Gradient", modifier = Modifier.padding(start = 8.dp))
     }
     if (gradientEnabled) {
-        Text("Angle: ${gradientAngle.toInt()}°", fontSize = 12.sp)
+        Text("Angle: ${gradientAngle.toInt()}\u00B0", fontSize = 12.sp)
         Slider(
             value = gradientAngle,
             onValueChange = { onIntent(DemoIntent.VisualEffect.UpdateGradientAngle(it)) },
             valueRange = 0f..360f,
         )
     }
-
-    // Blur
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Switch(
-            checked = blurEnabled,
-            onCheckedChange = { onIntent(DemoIntent.VisualEffect.ToggleBlur(it)) },
-        )
-        Text("Blur (for non-active lines)", modifier = Modifier.padding(start = 8.dp))
-    }
-    if (blurEnabled) {
-        Text("Intensity: ${String.format(Locale.US, "%.1f", blurIntensity)}", fontSize = 12.sp)
-        Slider(
-            value = blurIntensity,
-            onValueChange = { onIntent(DemoIntent.VisualEffect.UpdateBlurIntensity(it)) },
-            valueRange = 0.1f..3f,
-        )
-    }
 }
-
-@Composable
-private fun AnimationsSection(
-    charAnimEnabled: Boolean,
-    charMaxScale: Float,
-    charFloatOffset: Float,
-    charRotationDegrees: Float,
-    lineAnimEnabled: Boolean,
-    lineScaleOnPlay: Float,
-    pulseEnabled: Boolean,
-    pulseMinScale: Float,
-    pulseMaxScale: Float,
-    onIntent: (DemoIntent) -> Unit,
-) {
-    SectionTitle("Animations")
-
-    // Character animations
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Switch(
-            checked = charAnimEnabled,
-            onCheckedChange = { onIntent(DemoIntent.Animation.ToggleCharAnimation(it)) },
-        )
-        Text("Character Animation", modifier = Modifier.padding(start = 8.dp))
-    }
-    if (charAnimEnabled) {
-        Text("Max Scale: ${String.format(Locale.US, "%.2f", charMaxScale)}", fontSize = 12.sp)
-        Slider(
-            value = charMaxScale,
-            onValueChange = { onIntent(DemoIntent.Animation.UpdateCharMaxScale(it)) },
-            valueRange = 1f..2f,
-        )
-        Text("Float Offset: ${charFloatOffset.toInt()}", fontSize = 12.sp)
-        Slider(
-            value = charFloatOffset,
-            onValueChange = { onIntent(DemoIntent.Animation.UpdateCharFloatOffset(it)) },
-            valueRange = 0f..20f,
-        )
-        Text("Rotation: ${charRotationDegrees.toInt()}°", fontSize = 12.sp)
-        Slider(
-            value = charRotationDegrees,
-            onValueChange = { onIntent(DemoIntent.Animation.UpdateCharRotation(it)) },
-            valueRange = 0f..15f,
-        )
-    }
-
-    // Line animations
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Switch(
-            checked = lineAnimEnabled,
-            onCheckedChange = { onIntent(DemoIntent.Animation.ToggleLineAnimation(it)) },
-        )
-        Text("Line Animation", modifier = Modifier.padding(start = 8.dp))
-    }
-    if (lineAnimEnabled) {
-        Text("Scale on Play: ${String.format(Locale.US, "%.2f", lineScaleOnPlay)}", fontSize = 12.sp)
-        Slider(
-            value = lineScaleOnPlay,
-            onValueChange = { onIntent(DemoIntent.Animation.UpdateLineScaleOnPlay(it)) },
-            valueRange = 1f..1.5f,
-        )
-    }
-
-    // Pulse animation
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Switch(
-            checked = pulseEnabled,
-            onCheckedChange = { onIntent(DemoIntent.Animation.TogglePulse(it)) },
-        )
-        Text("Pulse Effect", modifier = Modifier.padding(start = 8.dp))
-    }
-    if (pulseEnabled) {
-        Text(
-            "Pulse Range: ${String.format(Locale.US, "%.2f", pulseMinScale)} - ${String.format(Locale.US, "%.2f", pulseMaxScale)}",
-            fontSize = 12.sp,
-        )
-        Slider(
-            value = pulseMinScale,
-            onValueChange = { onIntent(DemoIntent.Animation.UpdatePulseMinScale(it)) },
-            valueRange = 0.9f..1f,
-        )
-        Slider(
-            value = pulseMaxScale,
-            onValueChange = { onIntent(DemoIntent.Animation.UpdatePulseMaxScale(it)) },
-            valueRange = 1f..1.1f,
-        )
-    }
-}
-

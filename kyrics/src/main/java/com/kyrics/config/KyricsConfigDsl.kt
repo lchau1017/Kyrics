@@ -1,9 +1,6 @@
 package com.kyrics.config
 
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -35,15 +32,6 @@ annotation class KyricsConfigDsl
  *         fontSize = 34.sp
  *         fontWeight = FontWeight.Bold
  *     }
- *     animations {
- *         characterAnimations = true
- *         lineAnimations = true
- *         characterScale = 1.2f
- *     }
- *     effects {
- *         blur = true
- *         shadows = true
- *     }
  *     viewer {
  *         type = ViewerType.SMOOTH_SCROLL
  *     }
@@ -59,8 +47,6 @@ fun kyricsConfig(block: KyricsConfigBuilder.() -> Unit): KyricsConfig = KyricsCo
 class KyricsConfigBuilder {
     private var colorsBuilder = ColorsBuilder()
     private var typographyBuilder = TypographyBuilder()
-    private var animationsBuilder = AnimationsBuilder()
-    private var effectsBuilder = EffectsBuilder()
     private var viewerBuilder = ViewerBuilder()
     private var layoutBuilder = LayoutBuilder()
     private var gradientBuilder: GradientBuilder? = null
@@ -77,20 +63,6 @@ class KyricsConfigBuilder {
      */
     fun typography(block: TypographyBuilder.() -> Unit) {
         typographyBuilder.apply(block)
-    }
-
-    /**
-     * Configure animation settings.
-     */
-    fun animations(block: AnimationsBuilder.() -> Unit) {
-        animationsBuilder.apply(block)
-    }
-
-    /**
-     * Configure visual effects (blur, shadows, opacity).
-     */
-    fun effects(block: EffectsBuilder.() -> Unit) {
-        effectsBuilder.apply(block)
     }
 
     /**
@@ -118,8 +90,6 @@ class KyricsConfigBuilder {
         val colors = colorsBuilder.build()
         val typography = typographyBuilder.build()
         val gradient = gradientBuilder?.build()
-        val animations = animationsBuilder.build()
-        val effects = effectsBuilder.build()
         val viewer = viewerBuilder.build()
         val layout = layoutBuilder.build(viewer)
 
@@ -142,7 +112,6 @@ class KyricsConfigBuilder {
                     gradientAngle = gradient?.angle ?: 45f,
                     gradientEnabled = gradient?.enabled ?: false,
                     gradientType = gradient?.type ?: GradientType.LINEAR,
-                    gradientPreset = gradient?.preset,
                     colors =
                         ColorConfig(
                             sung = colors.sung,
@@ -150,9 +119,7 @@ class KyricsConfigBuilder {
                             active = colors.active,
                         ),
                 ),
-            animation = animations,
             layout = layout,
-            effects = effects,
         )
     }
 }
@@ -216,172 +183,6 @@ class TypographyBuilder {
     var textAlign: TextAlign = TextAlign.Center
 
     internal fun build() = this
-}
-
-/**
- * Builder for animation configuration.
- */
-@KyricsConfigDsl
-class AnimationsBuilder {
-    // Character animations
-
-    /** Enable per-character animations (scale, float, rotate) */
-    var characterAnimations: Boolean = true
-
-    /** Duration of character animations in milliseconds */
-    var characterDuration: Float = 800f
-
-    /** Maximum scale for character pop effect */
-    var characterScale: Float = 1.15f
-
-    /** Vertical float offset for characters */
-    var characterFloat: Float = 6f
-
-    /** Rotation angle for character animations */
-    var characterRotation: Float = 3f
-
-    // Line animations
-
-    /** Enable line-level animations */
-    var lineAnimations: Boolean = true
-
-    /** Scale factor when line is playing */
-    var lineScale: Float = 1.05f
-
-    /** Duration of line animations in milliseconds */
-    var lineDuration: Float = 700f
-
-    // Pulse
-
-    /** Enable pulsing effect on active line */
-    var pulse: Boolean = false
-
-    /** Minimum scale during pulse */
-    var pulseMin: Float = 0.98f
-
-    /** Maximum scale during pulse */
-    var pulseMax: Float = 1.02f
-
-    /** Pulse cycle duration in milliseconds */
-    var pulseDuration: Int = 1500
-
-    // Color transition
-
-    /** Enable smooth color transitions */
-    var colorTransition: Boolean = true
-
-    /** Duration of color transitions in milliseconds */
-    var colorTransitionDuration: Int = 300
-
-    // Fade
-
-    /** Fade in duration in milliseconds */
-    var fadeIn: Float = 300f
-
-    /** Fade out duration in milliseconds */
-    var fadeOut: Float = 500f
-
-    /** Animation easing curve */
-    var easing: Easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
-
-    internal fun build() =
-        AnimationConfig(
-            enableCharacterAnimations = characterAnimations,
-            characterAnimationDuration = characterDuration,
-            characterMaxScale = characterScale,
-            characterFloatOffset = characterFloat,
-            characterRotationDegrees = characterRotation,
-            enableLineAnimations = lineAnimations,
-            lineScaleOnPlay = lineScale,
-            lineAnimationDuration = lineDuration,
-            enablePulse = pulse,
-            pulseMinScale = pulseMin,
-            pulseMaxScale = pulseMax,
-            pulseDuration = pulseDuration,
-            enableColorTransition = colorTransition,
-            colorTransitionDuration = colorTransitionDuration,
-            fadeInDuration = fadeIn,
-            fadeOutDuration = fadeOut,
-            animationEasing = easing,
-        )
-}
-
-/**
- * Builder for effects configuration.
- */
-@KyricsConfigDsl
-class EffectsBuilder {
-    // Blur
-
-    /** Enable blur effect on non-active lines */
-    var blur: Boolean = false
-
-    /** Blur intensity multiplier */
-    var blurIntensity: Float = 1.0f
-
-    /** Blur radius for played lines */
-    var playedBlur: Dp = 2.dp
-
-    /** Blur radius for upcoming lines */
-    var upcomingBlur: Dp = 3.dp
-
-    /** Blur radius for distant lines */
-    var distantBlur: Dp = 5.dp
-
-    // Shadows
-
-    /** Enable text shadows */
-    var shadows: Boolean = true
-
-    /** Shadow color */
-    var shadowColor: Color = Color.Black.copy(alpha = 0.3f)
-
-    /** Shadow offset */
-    var shadowOffset: Offset = Offset(2f, 2f)
-
-    /** Shadow blur radius */
-    var shadowRadius: Float = 4f
-
-    // Opacity
-
-    /** Opacity for playing line */
-    var playingOpacity: Float = 1f
-
-    /** Opacity for played lines */
-    var playedOpacity: Float = 0.25f
-
-    /** Opacity for upcoming lines */
-    var upcomingOpacity: Float = 0.6f
-
-    /** Opacity for distant lines */
-    var distantOpacity: Float = 0.3f
-
-    // Visibility
-
-    /** Number of lines visible around current */
-    var visibleRange: Int = 3
-
-    /** Opacity falloff per line distance */
-    var opacityFalloff: Float = 0.1f
-
-    internal fun build() =
-        EffectsConfig(
-            enableBlur = blur,
-            blurIntensity = blurIntensity,
-            playedLineBlur = playedBlur,
-            upcomingLineBlur = upcomingBlur,
-            distantLineBlur = distantBlur,
-            enableShadows = shadows,
-            textShadowColor = shadowColor,
-            textShadowOffset = shadowOffset,
-            textShadowRadius = shadowRadius,
-            playingLineOpacity = playingOpacity,
-            playedLineOpacity = playedOpacity,
-            upcomingLineOpacity = upcomingOpacity,
-            distantLineOpacity = distantOpacity,
-            visibleLineRange = visibleRange,
-            opacityFalloff = opacityFalloff,
-        )
 }
 
 /**
@@ -469,9 +270,6 @@ class GradientBuilder {
 
     /** Colors for multi-color gradient */
     var colors: List<Color> = listOf(Color(0xFF00BCD4), Color(0xFFE91E63))
-
-    /** Preset gradient pattern */
-    var preset: GradientPreset? = null
 
     internal fun build() = this
 }

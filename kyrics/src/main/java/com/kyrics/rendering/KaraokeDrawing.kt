@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.drawText
-import com.kyrics.config.GradientPreset
 import com.kyrics.config.GradientType
 import com.kyrics.config.KyricsConfig
 import kotlin.math.PI
@@ -145,20 +144,6 @@ object KaraokeDrawing {
                     height = charHeight,
                 )
             }
-            GradientType.PRESET -> {
-                val presetColors =
-                    getPresetColors(config.visual.gradientPreset)
-                        ?: listOf(
-                            config.visual.colors.active,
-                            config.visual.colors.sung,
-                        )
-                createMultiColorGradient(
-                    colors = presetColors,
-                    angle = config.visual.gradientAngle,
-                    width = charWidth,
-                    height = charHeight,
-                )
-            }
             else -> {
                 createLinearGradient(
                     colors =
@@ -257,48 +242,6 @@ object KaraokeDrawing {
             end = end,
         )
     }
-
-    /**
-     * Get predefined gradient colors for a preset.
-     */
-    fun getPresetColors(preset: GradientPreset?): List<Color>? =
-        when (preset) {
-            GradientPreset.RAINBOW ->
-                listOf(
-                    Color(0xFFFF0000),
-                    Color(0xFFFF7F00),
-                    Color(0xFFFFFF00),
-                    Color(0xFF00FF00),
-                    Color(0xFF0000FF),
-                    Color(0xFF4B0082),
-                    Color(0xFF9400D3),
-                )
-            GradientPreset.SUNSET ->
-                listOf(
-                    Color(0xFFFF6B6B),
-                    Color(0xFFFFE66D),
-                    Color(0xFF4ECDC4),
-                )
-            GradientPreset.OCEAN ->
-                listOf(
-                    Color(0xFF006BA6),
-                    Color(0xFF0496FF),
-                    Color(0xFF87CEEB),
-                )
-            GradientPreset.FIRE ->
-                listOf(
-                    Color(0xFFFF0000),
-                    Color(0xFFFFA500),
-                    Color(0xFFFFFF00),
-                )
-            GradientPreset.NEON ->
-                listOf(
-                    Color(0xFF00FFF0),
-                    Color(0xFFFF00FF),
-                    Color(0xFFFFFF00),
-                )
-            null -> null
-        }
 
     /**
      * Calculate gradient start and end points based on angle.

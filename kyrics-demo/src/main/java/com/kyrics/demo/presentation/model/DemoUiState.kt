@@ -35,20 +35,6 @@ data class DemoUiState(
     // Visual effects
     val gradientEnabled: Boolean = false,
     val gradientAngle: Float = 45f,
-    val blurEnabled: Boolean = false,
-    val blurIntensity: Float = 1f,
-    // Character animations
-    val charAnimEnabled: Boolean = false,
-    val charMaxScale: Float = 1.2f,
-    val charFloatOffset: Float = 8f,
-    val charRotationDegrees: Float = 5f,
-    // Line animations
-    val lineAnimEnabled: Boolean = false,
-    val lineScaleOnPlay: Float = 1.05f,
-    // Pulse effect
-    val pulseEnabled: Boolean = false,
-    val pulseMinScale: Float = 0.95f,
-    val pulseMaxScale: Float = 1.05f,
     // Layout
     val lineSpacing: Float = 80f,
     val viewerTypeIndex: Int = 0,

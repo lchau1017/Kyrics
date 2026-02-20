@@ -204,7 +204,7 @@ fun rememberKyricsStateHolder(
  * ```kotlin
  * val stateHolder = rememberKyricsStateHolder {
  *     colors { playing = Color.Yellow }
- *     animations { characterScale = 1.2f }
+ *     typography { fontSize = 28.sp }
  * }
  * ```
  *
@@ -224,7 +224,7 @@ fun rememberKyricsStateHolder(configBuilder: KyricsConfigBuilder.() -> Unit): Ky
  * ```kotlin
  * val stateHolder = rememberKyricsStateHolder(lyrics) {
  *     colors { playing = Color.Yellow }
- *     animations { characterScale = 1.2f }
+ *     typography { fontSize = 28.sp }
  * }
  * ```
  *
@@ -383,22 +383,12 @@ internal object KyricsStateCalculator {
         isPlaying: Boolean,
         hasPlayed: Boolean,
         distance: Int,
-        config: KyricsConfig,
+        @Suppress("UNUSED_PARAMETER") config: KyricsConfig,
     ): Float {
-        val effects = config.effects
-        return when {
-            isPlaying -> {
-                effects.playingLineOpacity
-            }
-            hasPlayed -> {
-                effects.playedLineOpacity
-            }
-            else -> {
-                // Upcoming line - reduce opacity based on distance
-                val distanceReduction = (distance * effects.opacityFalloff).coerceAtMost(effects.maxOpacityReduction)
-                (effects.upcomingLineOpacity - distanceReduction).coerceAtLeast(0.2f)
-            }
-        }
+        if (isPlaying) return 1f
+        if (hasPlayed) return 0.25f
+        val distanceReduction = (distance * 0.1f).coerceAtMost(0.4f)
+        return (0.6f - distanceReduction).coerceAtLeast(0.2f)
     }
 
     /**
@@ -407,39 +397,20 @@ internal object KyricsStateCalculator {
      */
     fun calculateScale(
         isPlaying: Boolean,
-        config: KyricsConfig,
-    ): Float =
-        if (isPlaying && config.animation.enableLineAnimations) {
-            config.animation.lineScaleOnPlay
-        } else {
-            1f
-        }
+        @Suppress("UNUSED_PARAMETER") config: KyricsConfig,
+    ): Float = if (isPlaying) 1.05f else 1f
 
     /**
      * Calculate blur radius based on line state and distance.
-     * Matches the logic from EffectsManager.applyConditionalBlur
+     * Blur is disabled — always returns 0.
      */
+    @Suppress("FunctionOnlyReturningConstant")
     fun calculateBlurRadius(
-        isPlaying: Boolean,
-        hasPlayed: Boolean,
-        distance: Int,
-        config: KyricsConfig,
-    ): Float {
-        val effects = config.effects
-        if (!effects.enableBlur) {
-            return 0f
-        }
-
-        val baseBlurRadius =
-            when {
-                isPlaying -> 0f
-                hasPlayed -> effects.playedLineBlur.value
-                distance > effects.distanceThreshold -> effects.distantLineBlur.value
-                else -> effects.upcomingLineBlur.value
-            }
-
-        return baseBlurRadius * effects.blurIntensity
-    }
+        @Suppress("UNUSED_PARAMETER") isPlaying: Boolean,
+        @Suppress("UNUSED_PARAMETER") hasPlayed: Boolean,
+        @Suppress("UNUSED_PARAMETER") distance: Int,
+        @Suppress("UNUSED_PARAMETER") config: KyricsConfig,
+    ): Float = 0f
 
     /**
      * Determine the appropriate line state category.

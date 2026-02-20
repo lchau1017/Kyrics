@@ -7,9 +7,7 @@ package com.kyrics.config
  */
 data class KyricsConfig(
     val visual: VisualConfig = VisualConfig(),
-    val animation: AnimationConfig = AnimationConfig(),
     val layout: LayoutConfig = LayoutConfig(),
-    val effects: EffectsConfig = EffectsConfig(),
 ) {
     companion object {
         /**
