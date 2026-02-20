@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import com.kyrics.components.viewers.*
 import com.kyrics.config.KyricsConfig
 import com.kyrics.config.ViewerType
-import com.kyrics.models.SyncedLine
+import com.kyrics.models.KyricsLine
 import com.kyrics.state.KyricsUiState
 import com.kyrics.state.rememberKyricsStateHolder
 
@@ -27,11 +27,11 @@ import com.kyrics.state.rememberKyricsStateHolder
  */
 @Composable
 fun KyricsViewer(
-    lines: List<SyncedLine>,
+    lines: List<KyricsLine>,
     currentTimeMs: Int,
     config: KyricsConfig = KyricsConfig.Default,
     modifier: Modifier = Modifier,
-    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((KyricsLine, Int) -> Unit)? = null,
 ) {
     // Create and manage state holder internally
     val stateHolder = rememberKyricsStateHolder(config)
@@ -66,7 +66,7 @@ private fun KyricsViewerContent(
     uiState: KyricsUiState,
     config: KyricsConfig,
     modifier: Modifier = Modifier,
-    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((KyricsLine, Int) -> Unit)? = null,
 ) {
     Box(
         modifier =

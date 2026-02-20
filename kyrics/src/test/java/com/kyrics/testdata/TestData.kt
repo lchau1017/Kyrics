@@ -2,7 +2,6 @@ package com.kyrics.testdata
 
 import com.kyrics.models.KyricsLine
 import com.kyrics.models.KyricsSyllable
-import com.kyrics.models.SyncedLine
 
 /**
  * Test data fixtures for unit tests.
@@ -10,34 +9,16 @@ import com.kyrics.models.SyncedLine
  */
 object TestData {
     /**
-     * Simple implementation of SyncedLine for testing
+     * Creates a list of simple lines for testing.
+     * Each line is a single syllable with 2 seconds duration and 500ms gaps.
      */
-    data class SimpleSyncedLine(
-        override val start: Int,
-        override val end: Int,
-        private val content: String,
-    ) : SyncedLine {
-        override fun getContent(): String = content
-    }
-
-    /**
-     * Creates a list of simple synced lines for testing.
-     * Each line is 2 seconds long with 500ms gap between lines.
-     *
-     * Timeline:
-     * Line 0: 0ms - 2000ms ("Hello world")
-     * Line 1: 2500ms - 4500ms ("This is a test")
-     * Line 2: 5000ms - 7000ms ("Karaoke lyrics")
-     * Line 3: 7500ms - 9500ms ("Are fun to sing")
-     * Line 4: 10000ms - 12000ms ("The end")
-     */
-    fun createSimpleLines(): List<SyncedLine> =
+    fun createSimpleLines(): List<KyricsLine> =
         listOf(
-            SimpleSyncedLine(start = 0, end = 2000, content = "Hello world"),
-            SimpleSyncedLine(start = 2500, end = 4500, content = "This is a test"),
-            SimpleSyncedLine(start = 5000, end = 7000, content = "Karaoke lyrics"),
-            SimpleSyncedLine(start = 7500, end = 9500, content = "Are fun to sing"),
-            SimpleSyncedLine(start = 10_000, end = 12_000, content = "The end"),
+            KyricsLine(listOf(KyricsSyllable("Hello world", 0, 2000)), 0, 2000),
+            KyricsLine(listOf(KyricsSyllable("This is a test", 2500, 4500)), 2500, 4500),
+            KyricsLine(listOf(KyricsSyllable("Karaoke lyrics", 5000, 7000)), 5000, 7000),
+            KyricsLine(listOf(KyricsSyllable("Are fun to sing", 7500, 9500)), 7500, 9500),
+            KyricsLine(listOf(KyricsSyllable("The end", 10_000, 12_000)), 10_000, 12_000),
         )
 
     /**

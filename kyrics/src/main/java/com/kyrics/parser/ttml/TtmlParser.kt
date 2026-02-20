@@ -1,7 +1,7 @@
 package com.kyrics.parser.ttml
 
+import com.kyrics.dsl.kyricsLine
 import com.kyrics.models.KyricsLine
-import com.kyrics.models.kyricsLine
 import com.kyrics.parser.LyricsFormat
 import com.kyrics.parser.LyricsParser
 import com.kyrics.parser.ParseResult

@@ -63,7 +63,6 @@ class KyricsConfigBuilder {
     private var effectsBuilder = EffectsBuilder()
     private var viewerBuilder = ViewerBuilder()
     private var layoutBuilder = LayoutBuilder()
-    private var behaviorBuilder = BehaviorBuilder()
     private var gradientBuilder: GradientBuilder? = null
 
     /**
@@ -109,13 +108,6 @@ class KyricsConfigBuilder {
     }
 
     /**
-     * Configure behavior settings (scrolling, interaction).
-     */
-    fun behavior(block: BehaviorBuilder.() -> Unit) {
-        behaviorBuilder.apply(block)
-    }
-
-    /**
      * Configure gradient effects.
      */
     fun gradient(block: GradientBuilder.() -> Unit) {
@@ -130,7 +122,6 @@ class KyricsConfigBuilder {
         val effects = effectsBuilder.build()
         val viewer = viewerBuilder.build()
         val layout = layoutBuilder.build(viewer)
-        val behavior = behaviorBuilder.build()
 
         return KyricsConfig(
             visual =
@@ -162,7 +153,6 @@ class KyricsConfigBuilder {
             animation = animations,
             layout = layout,
             effects = effects,
-            behavior = behavior,
         )
     }
 }
@@ -444,6 +434,9 @@ class LayoutBuilder {
     /** Force text direction (null = auto-detect) */
     var textDirection: LayoutDirection? = null
 
+    /** Enable line click interactions */
+    var enableLineClick: Boolean = true
+
     internal fun build(viewerConfig: ViewerConfig) =
         LayoutConfig(
             viewerConfig = viewerConfig,
@@ -456,32 +449,7 @@ class LayoutBuilder {
             containerPadding = containerPadding,
             maxLineWidth = maxLineWidth,
             forceTextDirection = textDirection,
-        )
-}
-
-/**
- * Builder for behavior configuration.
- */
-@KyricsConfigDsl
-class BehaviorBuilder {
-    /** Scroll behavior mode */
-    var scrollBehavior: ScrollBehavior = ScrollBehavior.SMOOTH_CENTER
-
-    /** Scroll animation duration in milliseconds */
-    var scrollDuration: Int = 500
-
-    /** Scroll offset from edge */
-    var scrollOffset: Dp = 100.dp
-
-    /** Enable line click interactions */
-    var lineClickEnabled: Boolean = true
-
-    internal fun build() =
-        BehaviorConfig(
-            scrollBehavior = scrollBehavior,
-            scrollAnimationDuration = scrollDuration,
-            scrollOffset = scrollOffset,
-            enableLineClick = lineClickEnabled,
+            enableLineClick = enableLineClick,
         )
 }
 

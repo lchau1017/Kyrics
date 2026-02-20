@@ -1,7 +1,7 @@
 package com.kyrics.state
 
 import androidx.compose.runtime.Immutable
-import com.kyrics.models.SyncedLine
+import com.kyrics.models.KyricsLine
 
 /**
  * Immutable UI state for the karaoke viewer.
@@ -12,7 +12,7 @@ data class KyricsUiState(
     /**
      * List of synchronized lines to display
      */
-    val lines: List<SyncedLine> = emptyList(),
+    val lines: List<KyricsLine> = emptyList(),
     /**
      * Current playback time in milliseconds
      */
@@ -33,7 +33,7 @@ data class KyricsUiState(
     /**
      * Get the currently playing line, if any
      */
-    val currentLine: SyncedLine?
+    val currentLine: KyricsLine?
         get() = currentLineIndex?.let { lines.getOrNull(it) }
 
     /**

@@ -26,4 +26,6 @@ data class LayoutConfig(
     val maxLineWidth: Dp? = null,
     // RTL/LTR Support (null means auto-detect)
     val forceTextDirection: LayoutDirection? = null,
+    // Interaction
+    val enableLineClick: Boolean = true,
 )

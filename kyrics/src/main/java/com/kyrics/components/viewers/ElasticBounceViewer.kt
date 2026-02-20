@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import com.kyrics.components.KyricsSingleLine
 import com.kyrics.config.KyricsConfig
-import com.kyrics.models.SyncedLine
+import com.kyrics.models.KyricsLine
 import com.kyrics.state.KyricsUiState
 
 /**
@@ -20,7 +20,7 @@ import com.kyrics.state.KyricsUiState
 internal fun ElasticBounceViewer(
     uiState: KyricsUiState,
     config: KyricsConfig,
-    onLineClick: ((SyncedLine, Int) -> Unit)? = null,
+    onLineClick: ((KyricsLine, Int) -> Unit)? = null,
 ) {
     val currentLineIndex = uiState.currentLineIndex ?: 0
     var previousIndex by remember { mutableStateOf(0) }

@@ -1,14 +1,14 @@
 package com.kyrics.models
 
 /**
- * Implementation of SyncedLine for karaoke content with syllable-level timing.
+ * A karaoke line with syllable-level timing for synchronized highlighting.
  */
 data class KyricsLine(
     val syllables: List<KyricsSyllable>,
-    override val start: Int,
-    override val end: Int,
+    val start: Int,
+    val end: Int,
     val isAccompaniment: Boolean = false,
     val alignment: String = "center",
-) : SyncedLine {
-    override fun getContent(): String = syllables.joinToString("") { it.content }
+) {
+    fun getContent(): String = syllables.joinToString("") { it.content }
 }

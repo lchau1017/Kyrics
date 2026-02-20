@@ -1,6 +1,8 @@
 package com.kyrics.state
 
 import com.google.common.truth.Truth.assertThat
+import com.kyrics.config.AnimationConfig
+import com.kyrics.config.EffectsConfig
 import com.kyrics.config.KyricsConfig
 import com.kyrics.testdata.TestData
 import org.junit.Before
@@ -199,7 +201,20 @@ class KyricsStateHolderTest {
 
     @Test
     fun `currentConfig returns provided config`() {
-        val customConfig = KyricsConfig.Dramatic
+        val customConfig =
+            KyricsConfig(
+                animation =
+                    AnimationConfig(
+                        characterMaxScale = 1.3f,
+                        characterFloatOffset = 10f,
+                        characterRotationDegrees = 5f,
+                    ),
+                effects =
+                    EffectsConfig(
+                        enableBlur = true,
+                        blurIntensity = 1.5f,
+                    ),
+            )
 
         val holder = KyricsStateHolder(customConfig)
 
@@ -208,7 +223,19 @@ class KyricsStateHolderTest {
 
     @Test
     fun `state calculations use provided config`() {
-        val minimalConfig = KyricsConfig.Minimal
+        val minimalConfig =
+            KyricsConfig(
+                effects =
+                    EffectsConfig(
+                        enableBlur = false,
+                        enableShadows = false,
+                    ),
+                animation =
+                    AnimationConfig(
+                        enableCharacterAnimations = false,
+                        enableLineAnimations = false,
+                    ),
+            )
         val holder = KyricsStateHolder(minimalConfig)
 
         holder.setLines(TestData.createSimpleLines())

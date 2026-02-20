@@ -14,12 +14,11 @@ import org.junit.Test
  * Tests the pure calculation logic that determines line states.
  */
 class KyricsStateCalculatorTest {
-    private lateinit var calculator: KyricsStateCalculator
+    private val calculator = KyricsStateCalculator
     private lateinit var defaultConfig: KyricsConfig
 
     @Before
     fun setup() {
-        calculator = KyricsStateCalculator()
         defaultConfig = KyricsConfig.Default
     }
 

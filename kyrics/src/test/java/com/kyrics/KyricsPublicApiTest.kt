@@ -1,65 +1,24 @@
 package com.kyrics
 
 import com.google.common.truth.Truth.assertThat
+import com.kyrics.config.ViewerType
+import com.kyrics.config.kyricsConfig
+import com.kyrics.dsl.KyricsLineFactory
+import com.kyrics.dsl.kyricsAccompaniment
+import com.kyrics.dsl.kyricsLine
+import com.kyrics.dsl.kyricsLineFromText
+import com.kyrics.dsl.kyricsLineFromWords
+import com.kyrics.dsl.kyricsLyrics
+import com.kyrics.models.KyricsLine
 import org.junit.Test
 
 /**
  * Tests for the Kyrics public API.
  *
- * These tests verify that all DSL functions and type aliases are properly
- * exported from the `com.kyrics` package, allowing client apps to use the
- * library with a single import.
- *
- * This ensures that the public API contract is maintained and that client
- * apps don't need to import from internal packages like `com.kyrics.models`
- * or `com.kyrics.config`.
+ * Verifies DSL functions, configuration, presets, and factory functions
+ * work correctly for library consumers.
  */
 class KyricsPublicApiTest {
-    // ==================== Type Alias Tests ====================
-
-    @Test
-    fun `SyncedLine type alias is accessible`() {
-        // Verify type alias works - create a KyricsLine which implements SyncedLine
-        val line: SyncedLine = kyricsLineFromText("Test", 0, 1000)
-        assertThat(line).isNotNull()
-        assertThat(line.start).isEqualTo(0)
-        assertThat(line.end).isEqualTo(1000)
-    }
-
-    @Test
-    fun `KyricsLine type alias is accessible`() {
-        val line: KyricsLine = kyricsLineFromText("Test", 0, 1000)
-        assertThat(line).isNotNull()
-        assertThat(line.syllables).hasSize(1)
-    }
-
-    @Test
-    fun `KyricsSyllable type alias is accessible`() {
-        val line = kyricsLineFromText("Test", 0, 1000)
-        val syllable: KyricsSyllable = line.syllables.first()
-        assertThat(syllable.content).isEqualTo("Test")
-        assertThat(syllable.start).isEqualTo(0)
-        assertThat(syllable.end).isEqualTo(1000)
-    }
-
-    @Test
-    fun `KyricsConfig type alias is accessible`() {
-        val config: KyricsConfig = KyricsConfig.Default
-        assertThat(config).isNotNull()
-    }
-
-    @Test
-    fun `ViewerType type alias is accessible`() {
-        val viewerType: ViewerType = ViewerType.SMOOTH_SCROLL
-        assertThat(viewerType).isEqualTo(ViewerType.SMOOTH_SCROLL)
-    }
-
-    @Test
-    fun `KyricsLineFactory type alias is accessible`() {
-        val line = KyricsLineFactory.fromText("Test", 0, 1000)
-        assertThat(line).isNotNull()
-    }
-
     // ==================== DSL Function Tests ====================
 
     @Test
@@ -172,7 +131,6 @@ class KyricsPublicApiTest {
     fun `kyricsLineFromWords distributes timing evenly`() {
         val line = kyricsLineFromWords("A B C", start = 0, end = 3000)
 
-        // 3 words, 3000ms total = 1000ms each
         assertThat(line.syllables[0].start).isEqualTo(0)
         assertThat(line.syllables[0].end).isEqualTo(1000)
         assertThat(line.syllables[1].start).isEqualTo(1000)
@@ -189,11 +147,16 @@ class KyricsPublicApiTest {
         assertThat(line.getContent()).isEqualTo("(background)")
     }
 
+    @Test
+    fun `KyricsLineFactory creates lines`() {
+        val line = KyricsLineFactory.fromText("Test", 0, 1000)
+        assertThat(line).isNotNull()
+    }
+
     // ==================== Integration Tests ====================
 
     @Test
-    fun `can create complete lyrics using only com_kyrics imports`() {
-        // This test verifies that a complete use case works with only com.kyrics imports
+    fun `can create complete lyrics`() {
         val config =
             kyricsConfig {
                 colors {
@@ -205,7 +168,7 @@ class KyricsPublicApiTest {
                 }
             }
 
-        val lyrics: List<SyncedLine> =
+        val lyrics: List<KyricsLine> =
             kyricsLyrics {
                 line(start = 0, end = 2000) {
                     syllable("When ", duration = 200)
@@ -230,7 +193,7 @@ class KyricsPublicApiTest {
         assertThat(lyrics).hasSize(3)
         assertThat(lyrics[0].getContent()).isEqualTo("When the sun goes down")
         assertThat(lyrics[1].getContent()).isEqualTo("And the stars come out")
-        assertThat((lyrics[2] as KyricsLine).isAccompaniment).isTrue()
+        assertThat(lyrics[2].isAccompaniment).isTrue()
     }
 
     @Test
