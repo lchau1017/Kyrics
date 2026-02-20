@@ -4,28 +4,22 @@
 [![API](https://img.shields.io/badge/API-31%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=31)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Jetpack Compose library for displaying synchronized karaoke-style lyrics with customizable animations and visual effects.
+A Jetpack Compose library for displaying synchronized karaoke-style lyrics with customizable visual styles.
 
 <p align="center">
   <img src="media/demo_screenshot.png" alt="Kyrics Demo Screenshot" width="300"/>
-</p>
-
-<p align="center">
-  <a href="media/demo_video.webm">Watch Demo Video</a>
 </p>
 
 ---
 
 ## Features
 
-- **Multi-Format Lyrics Parser** - Parse TTML, LRC, and Enhanced LRC formats with automatic detection
+- **TTML Lyrics Parser** - Parse TTML lyrics with syllable-level timing and automatic format detection
 - **Synchronized Lyrics Display** - Character-by-character and syllable-by-syllable highlighting
-- **12 Viewer Types** - Smooth Scroll, Carousel 3D, Wave Flow, Spiral, and more
-- **Rich Animations** - Character pop, float, rotation, and pulse effects
-- **Customizable Gradients** - Progress-based, multi-color, and preset gradient options
-- **Visual Effects** - Blur, shadows, and opacity transitions
+- **2 Viewer Types** - Smooth Scroll and Fade Through
+- **Customizable Gradients** - Progress-based, multi-color gradient options
+- **Blur Effects** - Optional blur on non-playing lines for focus effect
 - **Type-Safe DSL** - Kotlin DSL for configuration and lyrics creation
-- **Extension Functions** - Rich utilities for working with synced lines
 - **Single Import** - All APIs available from `com.kyrics` package
 - **Compose-First** - Built entirely with Jetpack Compose
 
@@ -39,7 +33,6 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 - [Creating Lyrics](#creating-lyrics)
 - [Configuration](#configuration)
 - [Viewer Types](#viewer-types)
-- [Extension Functions](#extension-functions)
 - [Data Models](#data-models)
 - [State Management](#state-management)
 - [Demo App](#demo-app)
@@ -68,7 +61,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.lchau1017:Kyrics:v1.2.0")
+    implementation("com.github.lchau1017:Kyrics:v1.3.0")
 }
 ```
 
@@ -136,10 +129,10 @@ import com.kyrics.*
 
 ```kotlin
 @Composable
-fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
+fun LyricsScreen(lyrics: List<KyricsLine>, currentTimeMs: Int) {
     KyricsViewer(
         lines = lyrics,
-        currentTimeMs = currentTimeMs.toInt()
+        currentTimeMs = currentTimeMs
     )
 }
 ```
@@ -148,22 +141,18 @@ fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
 
 ```kotlin
 @Composable
-fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
+fun LyricsScreen(lyrics: List<KyricsLine>, currentTimeMs: Int) {
     KyricsViewer(
         lines = lyrics,
-        currentTimeMs = currentTimeMs.toInt()
+        currentTimeMs = currentTimeMs
     ) {
         colors {
             playing = Color.Yellow
             sung = Color.Green
             unsung = Color.White
         }
-        animations {
-            characterAnimations = true
-            characterScale = 1.2f
-        }
         viewer {
-            type = ViewerType.CAROUSEL_3D
+            type = ViewerType.SMOOTH_SCROLL
         }
     }
 }
@@ -173,22 +162,20 @@ fun KaraokeScreen(lyrics: List<SyncedLine>, currentTimeMs: Long) {
 
 ## Parsing Lyrics
 
-Kyrics includes a multi-format lyrics parser that can parse TTML, LRC, and Enhanced LRC files with automatic format detection.
+Kyrics includes a TTML lyrics parser with syllable-level timing support.
 
-### Automatic Format Detection
+### Usage
 
 ```kotlin
 import com.kyrics.*
 
-// Parse lyrics content - format is auto-detected
-val content = loadLyricsFile() // Your lyrics file content as String
+val content = loadLyricsFile() // Your TTML file content as String
 
 when (val result = parseLyrics(content)) {
     is ParseResult.Success -> {
         val lines = result.lines        // List<KyricsLine>
-        val metadata = result.metadata  // LyricsMetadata (title, artist, album, duration)
+        val duration = result.durationMs // Total duration (nullable)
 
-        // Use with KyricsViewer
         KyricsViewer(
             lines = lines,
             currentTimeMs = currentTime
@@ -200,48 +187,13 @@ when (val result = parseLyrics(content)) {
 }
 ```
 
-### Supported Formats
-
-| Format | Extension | Features |
-|--------|-----------|----------|
-| **TTML** | `.ttml` | W3C standard, syllable-level timing, Apple Music compatible |
-| **LRC** | `.lrc` | Standard format, line-level timing, metadata tags |
-| **Enhanced LRC** | `.elrc` | Extended LRC with word-level timing (`<mm:ss.xx>`) |
-
-### Explicit Format Selection
-
-```kotlin
-import com.kyrics.*
-
-// Parse with specific format
-val ttmlResult = parseLyrics(content, LyricsFormat.TTML)
-val lrcResult = parseLyrics(content, LyricsFormat.LRC)
-val elrcResult = parseLyrics(content, LyricsFormat.ENHANCED_LRC)
-
-// Detect format without parsing
-val format = detectLyricsFormat(content) // Returns LyricsFormat enum
-```
-
-### Using the Parser Factory
-
-```kotlin
-import com.kyrics.*
-
-// Get a specific parser
-val ttmlParser = LyricsParserFactory.createParser(LyricsFormat.TTML)
-val result = ttmlParser.parse(content)
-
-// Check if content can be parsed by a format
-val canParse = ttmlParser.canParse(content)
-```
-
 ### ParseResult
 
 ```kotlin
 sealed class ParseResult {
     data class Success(
         val lines: List<KyricsLine>,
-        val metadata: LyricsMetadata = LyricsMetadata()
+        val durationMs: Long? = null
     ) : ParseResult()
 
     data class Failure(
@@ -249,13 +201,6 @@ sealed class ParseResult {
         val lineNumber: Int? = null
     ) : ParseResult()
 }
-
-data class LyricsMetadata(
-    val title: String? = null,
-    val artist: String? = null,
-    val album: String? = null,
-    val duration: Int? = null
-)
 ```
 
 ---
@@ -341,29 +286,18 @@ val config = kyricsConfig {
         textAlign = TextAlign.Center
     }
 
-    // Animations
-    animations {
-        characterAnimations = true
-        characterDuration = 800f
-        characterScale = 1.15f
-        characterFloat = 6f
-        lineAnimations = true
-        lineScale = 1.05f
-        pulse = true
-        pulseMin = 0.98f
-        pulseMax = 1.02f
-    }
-
-    // Visual effects
-    effects {
-        blur = true
-        blurIntensity = 1.0f
-    }
-
     // Gradient
     gradient {
         enabled = true
         angle = 45f
+    }
+
+    // Blur (non-playing lines)
+    blur {
+        enabled = true
+        playedLineBlur = 2.dp
+        upcomingLineBlur = 3.dp
+        distantLineBlur = 5.dp
     }
 
     // Viewer type
@@ -378,75 +312,29 @@ val config = kyricsConfig {
 }
 ```
 
+### Presets
+
+```kotlin
+// Use a preset configuration
+KyricsViewer(
+    lines = lyrics,
+    currentTimeMs = currentTime,
+    config = KyricsPresets.Classic
+)
+
+// Available presets
+KyricsPresets.Classic  // Yellow/Green on black, bold
+KyricsPresets.Neon     // Cyan/Magenta with gradient
+```
+
 ---
 
 ## Viewer Types
 
 | Viewer | Description |
 |--------|-------------|
-| `CENTER_FOCUSED` | Shows only the active line centered |
 | `SMOOTH_SCROLL` | Standard vertical scrolling with smooth animations |
-| `STACKED` | Z-layer overlapping effect with active line on top |
-| `HORIZONTAL_PAGED` | Horizontal swipe transitions between lines |
-| `WAVE_FLOW` | Sinusoidal motion pattern with wave-like effects |
-| `SPIRAL` | Lines arranged in a spiral pattern |
-| `CAROUSEL_3D` | 3D cylindrical carousel arrangement |
-| `SPLIT_DUAL` | Shows current and next line simultaneously |
-| `ELASTIC_BOUNCE` | Physics-based spring animations |
-| `FADE_THROUGH` | Pure opacity transitions |
-| `RADIAL_BURST` | Lines emerge from center in burst pattern |
-| `FLIP_CARD` | 3D card flip transitions |
-
----
-
-## Extension Functions
-
-All extension functions are available from `com.kyrics.*`:
-
-### Finding Lines
-
-```kotlin
-val currentLine = lyrics.findLineAtTime(timeMs)
-val currentIndex = lyrics.findLineIndexAtTime(timeMs)
-val nextLine = lyrics.findNextLine(timeMs)
-val prevLine = lyrics.findPreviousLine(timeMs)
-```
-
-### Progress Calculations
-
-```kotlin
-val progress = line.progressAt(timeMs)  // 0.0 to 1.0
-val overallProgress = lyrics.calculateOverallProgress(timeMs)
-```
-
-### Time Utilities
-
-```kotlin
-val duration = line.duration
-val totalDuration = lyrics.getTotalDuration()
-val (start, end) = lyrics.getTimeRange()
-```
-
-### State Checks
-
-```kotlin
-val isPlaying = line.containsTime(timeMs)
-val hasPlayed = line.hasPlayedAt(timeMs)
-val isUpcoming = line.isUpcomingAt(timeMs)
-```
-
-### Filtering
-
-```kotlin
-val playedLines = lyrics.getPlayedLines(timeMs)
-val upcomingLines = lyrics.getUpcomingLines(timeMs)
-val nearbyLines = lyrics.getLinesInRange(currentIndex, range = 3)
-
-// KyricsLine specific
-val mainVocals = kyricsLines.filterMainVocals()
-val accompaniment = kyricsLines.filterAccompaniment()
-val syllableCount = kyricsLines.getTotalSyllableCount()
-```
+| `FADE_THROUGH` | Pure opacity transitions between lines |
 
 ---
 
@@ -454,25 +342,15 @@ val syllableCount = kyricsLines.getTotalSyllableCount()
 
 All types are available from `com.kyrics.*`:
 
-### SyncedLine (Interface)
-
-```kotlin
-interface SyncedLine {
-    val start: Int  // Start time in milliseconds
-    val end: Int    // End time in milliseconds
-    fun getContent(): String
-}
-```
-
-### KyricsLine (Implementation)
+### KyricsLine
 
 ```kotlin
 data class KyricsLine(
     val syllables: List<KyricsSyllable>,
-    override val start: Int,
-    override val end: Int,
-    val metadata: Map<String, String> = emptyMap()
-) : SyncedLine
+    val start: Int,
+    val end: Int,
+    val isAccompaniment: Boolean = false
+)
 ```
 
 ### KyricsSyllable
@@ -501,7 +379,7 @@ val stateHolder = rememberKyricsStateHolder(lyrics, config)
 // With inline DSL
 val stateHolder = rememberKyricsStateHolder {
     colors { playing = Color.Yellow }
-    animations { characterScale = 1.2f }
+    typography { fontSize = 28.sp }
 }
 
 // With lines and inline DSL
@@ -514,7 +392,7 @@ val stateHolder = rememberKyricsStateHolder(lyrics) {
 
 ## Demo App
 
-The `kyrics-demo` module provides a complete demo showcasing all library features with clean architecture (MVI pattern).
+The `kyrics-demo` module provides a complete demo showcasing library features with clean architecture (MVI pattern).
 
 <p align="center">
   <img src="media/demo_screenshot.png" alt="Demo App" width="280"/>
@@ -522,8 +400,10 @@ The `kyrics-demo` module provides a complete demo showcasing all library feature
 
 **Features:**
 - Playback controls (play/pause, seek)
-- All 12 viewer types
+- Both viewer types
+- Preset themes (Classic, Neon)
 - Font size, weight, and family customization
+- Gradient and blur effect toggles
 - Real-time configuration changes
 
 **Run the demo:**

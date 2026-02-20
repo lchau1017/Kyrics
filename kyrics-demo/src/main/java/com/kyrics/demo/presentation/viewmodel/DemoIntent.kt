@@ -103,64 +103,11 @@ sealed interface DemoIntent {
         data class ToggleBlur(
             val enabled: Boolean,
         ) : VisualEffect
-
-        data class UpdateBlurIntensity(
-            val intensity: Float,
-        ) : VisualEffect
-    }
-
-    // ==================== Animations ====================
-
-    sealed interface Animation : DemoIntent {
-        // Character animations
-        data class ToggleCharAnimation(
-            val enabled: Boolean,
-        ) : Animation
-
-        data class UpdateCharMaxScale(
-            val scale: Float,
-        ) : Animation
-
-        data class UpdateCharFloatOffset(
-            val offset: Float,
-        ) : Animation
-
-        data class UpdateCharRotation(
-            val degrees: Float,
-        ) : Animation
-
-        // Line animations
-        data class ToggleLineAnimation(
-            val enabled: Boolean,
-        ) : Animation
-
-        data class UpdateLineScaleOnPlay(
-            val scale: Float,
-        ) : Animation
-
-        // Pulse effect
-        data class TogglePulse(
-            val enabled: Boolean,
-        ) : Animation
-
-        data class UpdatePulseMinScale(
-            val scale: Float,
-        ) : Animation
-
-        data class UpdatePulseMaxScale(
-            val scale: Float,
-        ) : Animation
     }
 
     // ==================== Presets ====================
 
     data class LoadPreset(
         val presetType: PresetType,
-    ) : DemoIntent
-
-    // ==================== Lyrics Source ====================
-
-    data class SelectLyricsSource(
-        val index: Int,
     ) : DemoIntent
 }

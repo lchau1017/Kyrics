@@ -9,12 +9,4 @@ enum class PresetType(
 ) {
     CLASSIC("Classic"),
     NEON("Neon"),
-    MINIMAL("Minimal"),
-    RAINBOW("Rainbow"),
-    FIRE("Fire"),
-    OCEAN("Ocean"),
-    RETRO("Retro"),
-    ELEGANT("Elegant"),
-    PARTY("Party"),
-    MATRIX("Matrix"),
 }

@@ -23,7 +23,7 @@ data class DemoUiState(
     val totalDurationMs: Long = 0L,
     val selectedLineIndex: Int = 0,
     // Text settings (Compose types - appropriate for presentation)
-    val fontSize: Float = 32f,
+    val fontSize: Float = 20f,
     val fontWeight: FontWeight = FontWeight.Bold,
     val fontFamily: FontFamily = FontFamily.Default,
     val textAlign: TextAlign = TextAlign.Center,
@@ -35,29 +35,13 @@ data class DemoUiState(
     // Visual effects
     val gradientEnabled: Boolean = false,
     val gradientAngle: Float = 45f,
-    val blurEnabled: Boolean = false,
-    val blurIntensity: Float = 1f,
-    // Character animations
-    val charAnimEnabled: Boolean = false,
-    val charMaxScale: Float = 1.2f,
-    val charFloatOffset: Float = 8f,
-    val charRotationDegrees: Float = 5f,
-    // Line animations
-    val lineAnimEnabled: Boolean = false,
-    val lineScaleOnPlay: Float = 1.05f,
-    // Pulse effect
-    val pulseEnabled: Boolean = false,
-    val pulseMinScale: Float = 0.95f,
-    val pulseMaxScale: Float = 1.05f,
+    val blurEnabled: Boolean = true,
     // Layout
-    val lineSpacing: Float = 80f,
+    val lineSpacing: Float = 0f,
     val viewerTypeIndex: Int = 0,
-    // Lyrics source (presentation-specific, maps from domain)
-    val lyricsSourceIndex: Int = 0,
     // UI-specific state
     val showColorPicker: ColorPickerTarget? = null,
     val viewerTypeOptions: List<ViewerTypeUiModel> = emptyList(),
-    val lyricsSourceOptions: List<LyricsSourceUiModel> = emptyList(),
     // Data for display (library types needed for KyricsViewer)
     val demoLines: List<KyricsLine> = emptyList(),
     // Library config (derived in mapper, needed for KyricsViewer)
@@ -73,15 +57,6 @@ data class DemoUiState(
  */
 @Immutable
 data class ViewerTypeUiModel(
-    val index: Int,
-    val displayName: String,
-)
-
-/**
- * UI model for lyrics source options.
- */
-@Immutable
-data class LyricsSourceUiModel(
     val index: Int,
     val displayName: String,
 )

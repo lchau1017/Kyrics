@@ -38,7 +38,6 @@ class UpdateDemoSettingsUseCaseTest {
             val settings =
                 DemoSettings(
                     fontSize = 30f,
-                    blurEnabled = true,
                     gradientEnabled = true,
                 )
             coEvery { repository.updateSettings(any()) } returns Unit
@@ -49,7 +48,6 @@ class UpdateDemoSettingsUseCaseTest {
                 repository.updateSettings(
                     match {
                         it.fontSize == 30f &&
-                            it.blurEnabled &&
                             it.gradientEnabled
                     },
                 )

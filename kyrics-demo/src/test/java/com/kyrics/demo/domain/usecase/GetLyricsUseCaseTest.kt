@@ -1,7 +1,6 @@
 package com.kyrics.demo.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
-import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.demo.domain.repository.LyricsRepository
 import com.kyrics.models.KyricsLine
 import io.mockk.coEvery
@@ -27,33 +26,33 @@ class GetLyricsUseCaseTest {
         runTest {
             val expectedLines = listOf<KyricsLine>(mockk())
             val expectedDuration = 172_830L
-            coEvery { lyricsRepository.getLyrics(LyricsSource.TTML) } returns expectedLines
+            coEvery { lyricsRepository.getLyrics() } returns expectedLines
             every { lyricsRepository.getTotalDurationMs() } returns expectedDuration
 
-            val result = useCase(LyricsSource.TTML)
+            val result = useCase()
 
             assertThat(result.lines).isEqualTo(expectedLines)
             assertThat(result.totalDurationMs).isEqualTo(expectedDuration)
         }
 
     @Test
-    fun `invoke calls repository with correct source`() =
+    fun `invoke calls repository getLyrics`() =
         runTest {
-            coEvery { lyricsRepository.getLyrics(any()) } returns emptyList()
+            coEvery { lyricsRepository.getLyrics() } returns emptyList()
             every { lyricsRepository.getTotalDurationMs() } returns 0L
 
-            useCase(LyricsSource.LRC)
+            useCase()
 
-            coVerify { lyricsRepository.getLyrics(LyricsSource.LRC) }
+            coVerify { lyricsRepository.getLyrics() }
         }
 
     @Test
     fun `invoke returns empty list when repository returns empty`() =
         runTest {
-            coEvery { lyricsRepository.getLyrics(any()) } returns emptyList()
+            coEvery { lyricsRepository.getLyrics() } returns emptyList()
             every { lyricsRepository.getTotalDurationMs() } returns 0L
 
-            val result = useCase(LyricsSource.TTML)
+            val result = useCase()
 
             assertThat(result.lines).isEmpty()
         }

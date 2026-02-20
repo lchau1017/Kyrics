@@ -23,8 +23,4 @@ class DemoSettingsRepositoryImpl
         override suspend fun updateSettings(settings: DemoSettings) {
             _settings.value = settings
         }
-
-        override suspend fun resetSettings() {
-            _settings.value = DemoSettings.Default
-        }
     }

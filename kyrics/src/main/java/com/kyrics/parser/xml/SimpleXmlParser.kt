@@ -35,25 +35,6 @@ class SimpleXmlParser(
     }
 
     /**
-     * Finds all elements with the given tag that have a specific attribute value.
-     *
-     * @param tagName The tag to search for
-     * @param attrName Attribute name to match
-     * @param attrValue Attribute value to match
-     * @return List of matching [XmlElement]s
-     */
-    fun findElementsByAttribute(
-        tagName: String,
-        attrName: String,
-        attrValue: String,
-    ): List<XmlElement> =
-        findElements(tagName).filter { element ->
-            element.attributes.any { (key, value) ->
-                (key == attrName || key.endsWith(":$attrName")) && value == attrValue
-            }
-        }
-
-    /**
      * Extracts child elements of a specific type from within an element's inner XML.
      *
      * @param innerXml The inner XML to search within

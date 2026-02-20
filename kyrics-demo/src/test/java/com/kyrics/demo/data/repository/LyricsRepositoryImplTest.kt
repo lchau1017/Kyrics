@@ -2,7 +2,6 @@ package com.kyrics.demo.data.repository
 
 import com.google.common.truth.Truth.assertThat
 import com.kyrics.demo.data.datasource.DemoLyricsDataSource
-import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.models.KyricsLine
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -26,22 +25,12 @@ class LyricsRepositoryImplTest {
     fun `getLyrics delegates to data source`() =
         runTest {
             val expectedLines = listOf<KyricsLine>(mockk())
-            coEvery { dataSource.getLyrics(LyricsSource.TTML) } returns expectedLines
+            coEvery { dataSource.getLyrics() } returns expectedLines
 
-            val result = repository.getLyrics(LyricsSource.TTML)
+            val result = repository.getLyrics()
 
             assertThat(result).isEqualTo(expectedLines)
-            coVerify { dataSource.getLyrics(LyricsSource.TTML) }
-        }
-
-    @Test
-    fun `getLyrics passes correct source to data source`() =
-        runTest {
-            coEvery { dataSource.getLyrics(any()) } returns emptyList()
-
-            repository.getLyrics(LyricsSource.LRC)
-
-            coVerify { dataSource.getLyrics(LyricsSource.LRC) }
+            coVerify { dataSource.getLyrics() }
         }
 
     @Test
