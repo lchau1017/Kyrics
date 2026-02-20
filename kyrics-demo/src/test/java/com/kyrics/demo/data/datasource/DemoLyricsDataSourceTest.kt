@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.AssetManager
 import android.util.Log
 import com.google.common.truth.Truth.assertThat
-import com.kyrics.demo.domain.model.LyricsSource
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -39,14 +38,6 @@ class DemoLyricsDataSourceTest {
         </tt>
         """.trimIndent()
 
-    private val sampleLrc =
-        """
-        [ti:Test Song]
-        [ar:Test Artist]
-        [00:00.00]Hello World
-        [00:05.00]Test Line
-        """.trimIndent()
-
     @Before
     fun setup() {
         mockkStatic(Log::class)
@@ -66,23 +57,12 @@ class DemoLyricsDataSourceTest {
     }
 
     @Test
-    fun `getLyrics with TTML source returns parsed lines`() =
+    fun `getLyrics returns parsed lines`() =
         runTest {
             every { assetManager.open("golden-hour.ttml") } returns
                 ByteArrayInputStream(sampleTtml.toByteArray())
 
-            val lyrics = dataSource.getLyrics(LyricsSource.TTML)
-
-            assertThat(lyrics).hasSize(2)
-        }
-
-    @Test
-    fun `getLyrics with LRC source returns parsed lines`() =
-        runTest {
-            every { assetManager.open("golden-hour.lrc") } returns
-                ByteArrayInputStream(sampleLrc.toByteArray())
-
-            val lyrics = dataSource.getLyrics(LyricsSource.LRC)
+            val lyrics = dataSource.getLyrics()
 
             assertThat(lyrics).hasSize(2)
         }
@@ -92,7 +72,7 @@ class DemoLyricsDataSourceTest {
         runTest {
             every { assetManager.open(any()) } throws java.io.IOException("File not found")
 
-            val lyrics = dataSource.getLyrics(LyricsSource.TTML)
+            val lyrics = dataSource.getLyrics()
 
             assertThat(lyrics).isEmpty()
         }
@@ -103,7 +83,7 @@ class DemoLyricsDataSourceTest {
             every { assetManager.open("golden-hour.ttml") } returns
                 ByteArrayInputStream("invalid content".toByteArray())
 
-            val lyrics = dataSource.getLyrics(LyricsSource.TTML)
+            val lyrics = dataSource.getLyrics()
 
             assertThat(lyrics).isEmpty()
         }
@@ -114,12 +94,12 @@ class DemoLyricsDataSourceTest {
     }
 
     @Test
-    fun `getLyrics with TTML returns lines with valid timing`() =
+    fun `getLyrics returns lines with valid timing`() =
         runTest {
             every { assetManager.open("golden-hour.ttml") } returns
                 ByteArrayInputStream(sampleTtml.toByteArray())
 
-            val lyrics = dataSource.getLyrics(LyricsSource.TTML)
+            val lyrics = dataSource.getLyrics()
 
             lyrics.forEach { line ->
                 assertThat(line.start).isAtLeast(0)
@@ -128,12 +108,12 @@ class DemoLyricsDataSourceTest {
         }
 
     @Test
-    fun `getLyrics with TTML returns lines with syllables`() =
+    fun `getLyrics returns lines with syllables`() =
         runTest {
             every { assetManager.open("golden-hour.ttml") } returns
                 ByteArrayInputStream(sampleTtml.toByteArray())
 
-            val lyrics = dataSource.getLyrics(LyricsSource.TTML)
+            val lyrics = dataSource.getLyrics()
 
             lyrics.forEach { line ->
                 assertThat(line.syllables).isNotEmpty()
@@ -141,12 +121,12 @@ class DemoLyricsDataSourceTest {
         }
 
     @Test
-    fun `getLyrics with TTML returns lines in chronological order`() =
+    fun `getLyrics returns lines in chronological order`() =
         runTest {
             every { assetManager.open("golden-hour.ttml") } returns
                 ByteArrayInputStream(sampleTtml.toByteArray())
 
-            val lyrics = dataSource.getLyrics(LyricsSource.TTML)
+            val lyrics = dataSource.getLyrics()
 
             for (i in 0 until lyrics.size - 1) {
                 assertThat(lyrics[i].end).isAtMost(lyrics[i + 1].start)

@@ -14,12 +14,10 @@ import com.kyrics.config.ViewerType
 import com.kyrics.config.kyricsConfig
 import com.kyrics.demo.domain.model.DemoSettings
 import com.kyrics.demo.domain.model.LyricsData
-import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.demo.domain.model.PresetType
 import com.kyrics.demo.domain.model.ViewerTypeId
 import com.kyrics.demo.presentation.model.ColorPickerTarget
 import com.kyrics.demo.presentation.model.DemoUiState
-import com.kyrics.demo.presentation.model.LyricsSourceUiModel
 import com.kyrics.demo.presentation.model.ViewerTypeUiModel
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -70,8 +68,6 @@ class DemoUiMapper
                 // Layout
                 lineSpacing = settings.lineSpacing,
                 viewerTypeIndex = settings.viewerTypeIndex,
-                // Lyrics source
-                lyricsSourceIndex = settings.lyricsSource.ordinal,
                 // Derived config
                 libraryConfig = buildLibraryConfig(settings),
             )
@@ -100,22 +96,10 @@ class DemoUiMapper
             }
 
         /**
-         * Maps lyrics source options to UI models.
-         */
-        fun mapLyricsSourceOptions(): List<LyricsSourceUiModel> =
-            LyricsSource.entries.mapIndexed { index, source ->
-                LyricsSourceUiModel(
-                    index = index,
-                    displayName = source.displayName,
-                )
-            }
-
-        /**
          * Maps UI state back to domain settings for updates.
          */
         fun mapUiStateToSettings(uiState: DemoUiState): DemoSettings =
             DemoSettings(
-                lyricsSource = LyricsSource.entries[uiState.lyricsSourceIndex],
                 fontSize = uiState.fontSize,
                 fontWeightValue = mapFontWeightToValue(uiState.fontWeight),
                 fontFamilyName = mapFontFamilyToName(uiState.fontFamily),
@@ -172,11 +156,6 @@ class DemoUiMapper
                 PresetType.PARTY -> KyricsPresets.Party
                 PresetType.MATRIX -> KyricsPresets.Matrix
             }
-
-        /**
-         * Maps index to LyricsSource domain enum.
-         */
-        fun mapIndexToLyricsSource(index: Int): LyricsSource = LyricsSource.entries.getOrElse(index) { LyricsSource.TTML }
 
         // ==================== Type Conversion Helpers ====================
 

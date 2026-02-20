@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kyrics.demo.domain.dispatcher.DispatcherProvider
 import com.kyrics.demo.domain.model.DemoSettings
-import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.demo.domain.model.PresetType
 import com.kyrics.demo.domain.usecase.GetDemoSettingsUseCase
 import com.kyrics.demo.domain.usecase.GetLyricsUseCase
@@ -55,28 +54,13 @@ class DemoViewModel
         private fun createInitialState(): DemoUiState =
             DemoUiState.Initial.copy(
                 viewerTypeOptions = uiMapper.mapViewerTypeOptions(),
-                lyricsSourceOptions = uiMapper.mapLyricsSourceOptions(),
             )
 
         private fun loadInitialData() {
             viewModelScope.launch(dispatcherProvider.io) {
-                val lyricsData = getLyricsUseCase(LyricsSource.TTML)
+                val lyricsData = getLyricsUseCase()
                 _state.update { currentState ->
                     uiMapper.mapLyricsToUiState(lyricsData, currentState)
-                }
-            }
-        }
-
-        private fun loadLyrics(sourceIndex: Int) {
-            val source = uiMapper.mapIndexToLyricsSource(sourceIndex)
-            viewModelScope.launch(dispatcherProvider.io) {
-                val lyricsData = getLyricsUseCase(source)
-                _state.update { currentState ->
-                    uiMapper.mapLyricsToUiState(lyricsData, currentState).copy(
-                        lyricsSourceIndex = sourceIndex,
-                        currentTimeMs = 0L,
-                        selectedLineIndex = 0,
-                    )
                 }
             }
         }
@@ -101,14 +85,7 @@ class DemoViewModel
                 is DemoIntent.VisualEffect -> handleVisualEffect(intent)
                 is DemoIntent.Animation -> handleAnimation(intent)
                 is DemoIntent.LoadPreset -> loadPreset(intent.presetType)
-                is DemoIntent.SelectLyricsSource -> selectLyricsSource(intent.index)
             }
-        }
-
-        private fun selectLyricsSource(index: Int) {
-            stopPlaybackTimer()
-            _state.update { it.copy(isPlaying = false) }
-            loadLyrics(index)
         }
 
         // ==================== Intent Handlers ====================

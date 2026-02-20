@@ -1,24 +1,10 @@
 package com.kyrics.demo.domain.model
 
 /**
- * Lyrics source format for demo.
- */
-enum class LyricsSource(
-    val extension: String,
-    val displayName: String,
-) {
-    TTML("ttml", "TTML"),
-    ENHANCED_LRC("elrc", "Enhanced LRC"),
-    LRC("lrc", "LRC"),
-}
-
-/**
  * Pure domain model for demo settings.
  * No framework dependencies - uses primitive types only.
  */
 data class DemoSettings(
-    // Lyrics source
-    val lyricsSource: LyricsSource = LyricsSource.TTML,
     // Text settings
     val fontSize: Float = 32f,
     val fontWeightValue: Int = 700, // Bold = 700

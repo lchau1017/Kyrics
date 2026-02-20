@@ -52,12 +52,9 @@ data class DemoUiState(
     // Layout
     val lineSpacing: Float = 80f,
     val viewerTypeIndex: Int = 0,
-    // Lyrics source (presentation-specific, maps from domain)
-    val lyricsSourceIndex: Int = 0,
     // UI-specific state
     val showColorPicker: ColorPickerTarget? = null,
     val viewerTypeOptions: List<ViewerTypeUiModel> = emptyList(),
-    val lyricsSourceOptions: List<LyricsSourceUiModel> = emptyList(),
     // Data for display (library types needed for KyricsViewer)
     val demoLines: List<KyricsLine> = emptyList(),
     // Library config (derived in mapper, needed for KyricsViewer)
@@ -73,15 +70,6 @@ data class DemoUiState(
  */
 @Immutable
 data class ViewerTypeUiModel(
-    val index: Int,
-    val displayName: String,
-)
-
-/**
- * UI model for lyrics source options.
- */
-@Immutable
-data class LyricsSourceUiModel(
     val index: Int,
     val displayName: String,
 )

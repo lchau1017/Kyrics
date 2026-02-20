@@ -23,33 +23,6 @@ class TtmlParserTest {
     }
 
     @Test
-    fun `canParse returns true for TTML content`() {
-        val ttmlContent =
-            """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <tt xmlns="http://www.w3.org/ns/ttml">
-            </tt>
-            """.trimIndent()
-        assertThat(parser.canParse(ttmlContent)).isTrue()
-    }
-
-    @Test
-    fun `canParse returns true for content starting with tt tag`() {
-        val ttmlContent = """<tt xmlns="http://www.w3.org/ns/ttml"></tt>"""
-        assertThat(parser.canParse(ttmlContent)).isTrue()
-    }
-
-    @Test
-    fun `canParse returns false for LRC content`() {
-        val lrcContent =
-            """
-            [00:12.00]First line
-            [00:17.20]Second line
-            """.trimIndent()
-        assertThat(parser.canParse(lrcContent)).isFalse()
-    }
-
-    @Test
     fun `parse returns Success for valid TTML`() {
         val ttmlContent =
             """

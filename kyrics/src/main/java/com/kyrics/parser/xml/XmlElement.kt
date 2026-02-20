@@ -34,12 +34,4 @@ data class XmlElement(
         namespace: String,
         name: String,
     ): String? = attributes["$namespace:$name"] ?: attributes[name]
-
-    /**
-     * Checks if this element has a specific attribute value.
-     */
-    fun hasAttribute(
-        name: String,
-        value: String,
-    ): Boolean = attributes[name] == value
 }

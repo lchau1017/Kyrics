@@ -57,7 +57,7 @@ class DemoViewModelTest {
         uiMapper = DemoUiMapper()
 
         every { getDemoSettingsUseCase() } returns flowOf(DemoSettings.Default)
-        coEvery { getLyricsUseCase(any()) } returns defaultLyricsData
+        coEvery { getLyricsUseCase() } returns defaultLyricsData
         coEvery { updateDemoSettingsUseCase(any()) } returns Unit
     }
 
@@ -107,7 +107,7 @@ class DemoViewModelTest {
         runTest {
             val mockLines = listOf(mockk<com.kyrics.models.KyricsLine>())
             val lyricsData = LyricsData(lines = mockLines, totalDurationMs = 20_000L)
-            coEvery { getLyricsUseCase(any()) } returns lyricsData
+            coEvery { getLyricsUseCase() } returns lyricsData
 
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()

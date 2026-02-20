@@ -3,7 +3,6 @@ package com.kyrics.parser.ttml
 import com.kyrics.models.KyricsLine
 import com.kyrics.models.kyricsLine
 import com.kyrics.parser.LyricsFormat
-import com.kyrics.parser.LyricsMetadata
 import com.kyrics.parser.LyricsParser
 import com.kyrics.parser.ParseResult
 import com.kyrics.parser.xml.SimpleXmlParser
@@ -37,90 +36,81 @@ import com.kyrics.parser.xml.XmlElement
 class TtmlParser : LyricsParser {
     override val supportedFormat: LyricsFormat = LyricsFormat.TTML
 
-    override fun canParse(content: String): Boolean = SimpleXmlParser.isTtml(content)
-
-    @Suppress("TooGenericExceptionCaught")
     override fun parse(content: String): ParseResult =
         try {
             val xmlParser = SimpleXmlParser(content)
-            val lines = mutableListOf<KyricsLine>()
-
-            // Find all <p> elements (paragraphs/lines)
-            val paragraphs = xmlParser.findElements("p")
-
-            for (paragraph in paragraphs) {
-                parseParagraph(paragraph, xmlParser)?.let { parsedLines ->
-                    lines.addAll(parsedLines)
-                }
-            }
-
-            ParseResult.Success(
-                lines = lines.sortedBy { it.start },
-                metadata = LyricsMetadata(),
-            )
-        } catch (e: Exception) {
-            ParseResult.Failure(
-                error = "Failed to parse TTML: ${e.message}",
-                lineNumber = null,
-            )
+            val lines =
+                xmlParser
+                    .findElements("p")
+                    .flatMap { parseParagraph(it, xmlParser) }
+                    .sortedBy { it.start }
+            val durationMs =
+                xmlParser
+                    .findElements("body")
+                    .firstOrNull()
+                    ?.getAttribute("dur")
+                    ?.let { parseTime(it).toLong() }
+            ParseResult.Success(lines = lines, durationMs = durationMs)
+        } catch (e: IllegalArgumentException) {
+            ParseResult.Failure(error = "Invalid TTML content: ${e.message}")
+        } catch (e: NumberFormatException) {
+            ParseResult.Failure(error = "Invalid time format in TTML: ${e.message}")
         }
 
     /**
      * Parses a single <p> element into one or more KyricsLines.
      * Returns multiple lines if there are both main vocals and background vocals.
      */
-    @Suppress("CyclomaticComplexMethod")
     private fun parseParagraph(
         paragraph: XmlElement,
         xmlParser: SimpleXmlParser,
-    ): List<KyricsLine>? {
-        val timing = paragraph.getTiming() ?: return null
-
-        val mainSyllables = mutableListOf<Syllable>()
-        val bgSyllables = mutableListOf<Syllable>()
-        var bgTiming: Timing? = null
-
-        // Find all <span> elements within this paragraph
+    ): List<KyricsLine> {
+        val timing = paragraph.getTiming() ?: return emptyList()
         val spans = xmlParser.findChildElements(paragraph.innerXml, "span")
 
-        for (span in spans) {
-            when {
-                span.isBackgroundVocal() -> {
-                    // This is a background vocal container
-                    bgTiming = span.getTiming()
-                    // Find nested spans within the background vocal
-                    val nestedSpans = xmlParser.findChildElements(span.innerXml, "span")
-                    for (nestedSpan in nestedSpans) {
-                        nestedSpan.toSyllable()?.let { bgSyllables.add(it) }
-                    }
-                    // If no nested spans, treat the whole bg span as a syllable
-                    if (nestedSpans.isEmpty() && span.textContent.isNotBlank()) {
-                        span.toSyllable()?.let { bgSyllables.add(it) }
-                    }
-                }
-                else -> {
-                    span.toSyllable()?.let { mainSyllables.add(it) }
-                }
+        val mainLine = buildMainLine(spans, timing)
+        val bgLine = buildBackgroundLine(spans, xmlParser, timing)
+
+        return listOfNotNull(mainLine, bgLine)
+    }
+
+    /**
+     * Builds the main vocal line from non-background spans.
+     */
+    private fun buildMainLine(
+        spans: List<XmlElement>,
+        timing: Timing,
+    ): KyricsLine? {
+        val syllables =
+            spans
+                .filterNot { it.isBackgroundVocal() }
+                .mapNotNull { it.toSyllable() }
+        return syllables.toLine(timing.start, timing.end, isAccompaniment = false)
+    }
+
+    /**
+     * Builds the background vocal line from spans marked with ttm:role="x-bg".
+     * Background vocals may contain nested spans for syllable-level timing.
+     */
+    private fun buildBackgroundLine(
+        spans: List<XmlElement>,
+        xmlParser: SimpleXmlParser,
+        parentTiming: Timing,
+    ): KyricsLine? {
+        val bgSpan = spans.find { it.isBackgroundVocal() } ?: return null
+        val bgTiming = bgSpan.getTiming() ?: parentTiming
+
+        val nestedSpans = xmlParser.findChildElements(bgSpan.innerXml, "span")
+        val syllables =
+            if (nestedSpans.isNotEmpty()) {
+                nestedSpans.mapNotNull { it.toSyllable() }
+            } else if (bgSpan.textContent.isNotBlank()) {
+                listOfNotNull(bgSpan.toSyllable())
+            } else {
+                emptyList()
             }
-        }
 
-        val results = mutableListOf<KyricsLine>()
-
-        // Create main line
-        mainSyllables.toLine(timing.start, timing.end, isAccompaniment = false)?.let {
-            results.add(it)
-        }
-
-        // Create background line if present
-        if (bgSyllables.isNotEmpty()) {
-            val bgStart = bgTiming?.start ?: bgSyllables.first().start
-            val bgEnd = bgTiming?.end ?: bgSyllables.last().end
-            bgSyllables.toLine(bgStart, bgEnd, isAccompaniment = true)?.let {
-                results.add(it)
-            }
-        }
-
-        return results.takeIf { it.isNotEmpty() }
+        return syllables.toLine(bgTiming.start, bgTiming.end, isAccompaniment = true)
     }
 
     private fun XmlElement.isBackgroundVocal(): Boolean =

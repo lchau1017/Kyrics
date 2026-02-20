@@ -157,10 +157,4 @@ sealed interface DemoIntent {
     data class LoadPreset(
         val presetType: PresetType,
     ) : DemoIntent
-
-    // ==================== Lyrics Source ====================
-
-    data class SelectLyricsSource(
-        val index: Int,
-    ) : DemoIntent
 }
