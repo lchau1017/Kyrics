@@ -1,6 +1,5 @@
 package com.kyrics.demo.domain.repository
 
-import com.kyrics.demo.domain.model.LyricsSource
 import com.kyrics.models.KyricsLine
 
 /**
@@ -10,9 +9,9 @@ import com.kyrics.models.KyricsLine
  */
 interface LyricsRepository {
     /**
-     * Get the lyrics to display for the given source.
+     * Get the lyrics to display.
      */
-    suspend fun getLyrics(source: LyricsSource): List<KyricsLine>
+    suspend fun getLyrics(): List<KyricsLine>
 
     /**
      * Get the total duration of the lyrics in milliseconds.

@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -15,44 +14,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.kyrics.config.KyricsConfig
 import com.kyrics.models.KyricsLine
-import com.kyrics.models.SyncedLine
-import com.kyrics.rendering.RenderingCalculations
-import com.kyrics.rendering.syllable.SyllableRenderer
+import com.kyrics.rendering.LyricsCanvas
 import com.kyrics.state.LineUiState
 
 /**
  * Stateless composable for displaying a single karaoke line with synchronized highlighting.
  * Uses pre-calculated LineUiState for efficient rendering.
- *
- * @param line The synchronized line to display
- * @param lineUiState Pre-calculated UI state for this line
- * @param currentTimeMs Current playback time in milliseconds
- * @param config Complete configuration for visual, animation, and behavior
- * @param modifier Modifier for the composable
- * @param onLineClick Optional callback when line is clicked
  */
 @Composable
 internal fun KyricsSingleLine(
-    line: SyncedLine,
+    line: KyricsLine,
     lineUiState: LineUiState,
     currentTimeMs: Int,
     config: KyricsConfig,
     modifier: Modifier = Modifier,
-    onLineClick: ((SyncedLine) -> Unit)? = null,
+    onLineClick: ((KyricsLine) -> Unit)? = null,
 ) {
-    // Use pre-calculated state for opacity and scale
-    // But still need animated values for smooth transitions
     val animatedScale by animateFloatAsState(
         targetValue = lineUiState.scale,
         animationSpec =
             tween(
-                durationMillis = config.animation.lineAnimationDuration.toInt(),
+                durationMillis = 700,
                 easing = FastOutSlowInEasing,
             ),
         label = "lineScale",
@@ -70,18 +58,6 @@ internal fun KyricsSingleLine(
         label = "lineBlur",
     )
 
-    val pulseScale =
-        if (config.animation.enablePulse && lineUiState.isPlaying) {
-            RenderingCalculations.calculatePulseScale(
-                currentTimeMs = currentTimeMs,
-                minScale = config.animation.pulseMinScale,
-                maxScale = config.animation.pulseMaxScale,
-                duration = config.animation.pulseDuration,
-            )
-        } else {
-            1f
-        }
-
     val textStyle = createTextStyle(line, config)
     val textColor = calculateTextColor(line, lineUiState, config)
 
@@ -90,7 +66,7 @@ internal fun KyricsSingleLine(
             modifier
                 .fillMaxWidth()
                 .padding(config.layout.linePadding)
-                .scale(animatedScale * pulseScale)
+                .scale(animatedScale)
                 .alpha(animatedOpacity)
                 .then(
                     if (animatedBlur > 0f) {
@@ -99,7 +75,7 @@ internal fun KyricsSingleLine(
                         Modifier
                     },
                 ).then(
-                    if (config.behavior.enableLineClick && onLineClick != null) {
+                    if (config.layout.enableLineClick && onLineClick != null) {
                         Modifier.clickable { onLineClick(line) }
                     } else {
                         Modifier
@@ -107,57 +83,26 @@ internal fun KyricsSingleLine(
                 ),
         contentAlignment = getContentAlignment(config.visual.textAlign),
     ) {
-        when (line) {
-            is KyricsLine -> {
-                SyllableRenderer(
-                    line = line,
-                    currentTimeMs = currentTimeMs,
-                    config = config,
-                    textStyle = textStyle,
-                    baseColor = textColor,
-                )
-            }
-            else -> {
-                SimpleTextLine(
-                    text = line.getContent(),
-                    textStyle = textStyle,
-                    textColor = textColor,
-                )
-            }
-        }
+        LyricsCanvas(
+            line = line,
+            currentTimeMs = currentTimeMs,
+            config = config,
+            textStyle = textStyle,
+            baseColor = textColor,
+        )
     }
-}
-
-/**
- * Simple text line without karaoke effects
- */
-@Composable
-private fun SimpleTextLine(
-    text: String,
-    textStyle: TextStyle,
-    textColor: Color,
-) {
-    Text(
-        text = text,
-        style = textStyle,
-        color = textColor,
-        maxLines = Int.MAX_VALUE,
-        softWrap = true,
-    )
 }
 
 /**
  * Create text style based on line type and configuration
  */
 private fun createTextStyle(
-    line: SyncedLine,
+    line: KyricsLine,
     config: KyricsConfig,
-): TextStyle {
-    val isAccompaniment = line is KyricsLine && line.isAccompaniment
-
-    return TextStyle(
+): TextStyle =
+    TextStyle(
         fontSize =
-            if (isAccompaniment) {
+            if (line.isAccompaniment) {
                 config.visual.accompanimentFontSize
             } else {
                 config.visual.fontSize
@@ -167,25 +112,21 @@ private fun createTextStyle(
         letterSpacing = config.visual.letterSpacing,
         textAlign = config.visual.textAlign,
     )
-}
 
 /**
  * Calculate text color based on LineUiState
  */
 private fun calculateTextColor(
-    line: SyncedLine,
+    line: KyricsLine,
     lineUiState: LineUiState,
     config: KyricsConfig,
-): Color {
-    val isAccompaniment = line is KyricsLine && line.isAccompaniment
-
-    return when {
-        isAccompaniment -> config.visual.accompanimentTextColor
-        lineUiState.isPlaying -> config.visual.upcomingTextColor // Base color for unplayed chars in active line
+): Color =
+    when {
+        line.isAccompaniment -> config.visual.accompanimentTextColor
+        lineUiState.isPlaying -> config.visual.playingTextColor
         lineUiState.hasPlayed -> config.visual.playedTextColor
         else -> config.visual.upcomingTextColor
     }
-}
 
 /**
  * Get content alignment based on text align

@@ -23,7 +23,7 @@ import com.kyrics.demo.presentation.model.DemoUiState
 import com.kyrics.demo.presentation.screen.components.ColorPickerDialog
 import com.kyrics.demo.presentation.screen.components.SettingsPanel
 import com.kyrics.demo.presentation.viewmodel.DemoIntent
-import com.kyrics.models.SyncedLine
+import com.kyrics.models.KyricsLine
 
 /**
  * Main demo screen composable - stateless.
@@ -67,7 +67,7 @@ fun DemoScreen(
                     currentTimeMs = state.currentTimeMs.toInt(),
                     config = state.libraryConfig,
                     modifier = Modifier.fillMaxSize(),
-                    onLineClick = { _: SyncedLine, index: Int ->
+                    onLineClick = { _: KyricsLine, index: Int ->
                         onIntent(DemoIntent.Selection.SelectLine(index))
                     },
                 )

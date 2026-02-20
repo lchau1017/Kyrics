@@ -1,29 +1,27 @@
 package com.kyrics.state
 
-import com.kyrics.config.KyricsConfig
-import com.kyrics.models.SyncedLine
+import com.kyrics.config.VisualConfig
+import com.kyrics.models.KyricsLine
 import kotlin.math.abs
 
 /**
  * Pure calculation logic for karaoke UI state.
- * This class has no Compose dependencies and is fully unit-testable.
+ * This object has no Compose dependencies and is fully unit-testable.
  *
- * Extracts and consolidates state calculation logic that was previously
- * scattered across AnimationManager, EffectsManager, and various viewers.
+ * Extracts and consolidates state calculation logic.
  */
-class KyricsStateCalculator {
+internal object StateCalculator {
     /**
-     * Calculate the complete UI state based on current time and configuration.
+     * Calculate the complete UI state based on current time.
      *
      * @param lines List of synchronized lines
      * @param currentTimeMs Current playback time in milliseconds
-     * @param config Library configuration for visual/animation settings
      * @return Complete UI state ready for rendering
      */
     fun calculateState(
-        lines: List<SyncedLine>,
+        lines: List<KyricsLine>,
         currentTimeMs: Int,
-        config: KyricsConfig,
+        visualConfig: VisualConfig = VisualConfig(),
     ): KyricsUiState {
         if (lines.isEmpty()) {
             return KyricsUiState(currentTimeMs = currentTimeMs, isInitialized = true)
@@ -40,7 +38,7 @@ class KyricsStateCalculator {
                             lineIndex = index,
                             currentLineIndex = currentLineIndex,
                             currentTimeMs = currentTimeMs,
-                            config = config,
+                            visualConfig = visualConfig,
                         )
                 }.toMap()
 
@@ -61,7 +59,7 @@ class KyricsStateCalculator {
      * @return Index of the playing line, or null if no line is playing
      */
     fun findCurrentLineIndex(
-        lines: List<SyncedLine>,
+        lines: List<KyricsLine>,
         currentTimeMs: Int,
     ): Int? =
         lines
@@ -76,15 +74,14 @@ class KyricsStateCalculator {
      * @param lineIndex Index of this line in the list
      * @param currentLineIndex Index of the currently playing line (if any)
      * @param currentTimeMs Current playback time
-     * @param config Library configuration
      * @return Calculated line UI state
      */
     fun calculateLineState(
-        line: SyncedLine,
+        line: KyricsLine,
         lineIndex: Int,
         currentLineIndex: Int?,
         currentTimeMs: Int,
-        config: KyricsConfig,
+        visualConfig: VisualConfig = VisualConfig(),
     ): LineUiState {
         val isPlaying = currentTimeMs >= line.start && currentTimeMs <= line.end
         val hasPlayed = currentTimeMs > line.end
@@ -97,21 +94,16 @@ class KyricsStateCalculator {
                 isPlaying = isPlaying,
                 hasPlayed = hasPlayed,
                 distance = distanceFromCurrent,
-                config = config,
             )
 
-        val scale =
-            calculateScale(
-                isPlaying = isPlaying,
-                config = config,
-            )
+        val scale = calculateScale(isPlaying = isPlaying)
 
         val blurRadius =
             calculateBlurRadius(
                 isPlaying = isPlaying,
                 hasPlayed = hasPlayed,
                 distance = distanceFromCurrent,
-                config = config,
+                visualConfig = visualConfig,
             )
 
         return LineUiState(
@@ -140,90 +132,40 @@ class KyricsStateCalculator {
 
     /**
      * Calculate opacity based on line state and distance.
-     * Matches the logic from EffectsManager.calculateOpacity
      */
     fun calculateOpacity(
         isPlaying: Boolean,
         hasPlayed: Boolean,
         distance: Int,
-        config: KyricsConfig,
     ): Float {
-        val effects = config.effects
-        return when {
-            isPlaying -> {
-                effects.playingLineOpacity
-            }
-            hasPlayed -> {
-                effects.playedLineOpacity
-            }
-            else -> {
-                // Upcoming line - reduce opacity based on distance
-                val distanceReduction = (distance * effects.opacityFalloff).coerceAtMost(effects.maxOpacityReduction)
-                (effects.upcomingLineOpacity - distanceReduction).coerceAtLeast(0.2f)
-            }
-        }
+        if (isPlaying) return 1f
+        if (hasPlayed) return 0.25f
+        val distanceReduction = (distance * 0.1f).coerceAtMost(0.4f)
+        return (0.6f - distanceReduction).coerceAtLeast(0.2f)
     }
 
     /**
      * Calculate scale based on playing state.
-     * Matches the logic from AnimationManager.animateLine
      */
-    fun calculateScale(
-        isPlaying: Boolean,
-        config: KyricsConfig,
-    ): Float =
-        if (isPlaying && config.animation.enableLineAnimations) {
-            config.animation.lineScaleOnPlay
-        } else {
-            1f
-        }
+    fun calculateScale(isPlaying: Boolean): Float = if (isPlaying) 1.05f else 1f
 
     /**
      * Calculate blur radius based on line state and distance.
-     * Matches the logic from EffectsManager.applyConditionalBlur
+     * Returns 0 if blur is disabled.
      */
     fun calculateBlurRadius(
         isPlaying: Boolean,
         hasPlayed: Boolean,
         distance: Int,
-        config: KyricsConfig,
+        visualConfig: VisualConfig,
     ): Float {
-        val effects = config.effects
-        if (!effects.enableBlur) {
-            return 0f
+        if (!visualConfig.enableBlur) return 0f
+        if (isPlaying) return 0f
+        if (hasPlayed) return visualConfig.playedLineBlur.value
+        return if (distance > 2) {
+            visualConfig.distantLineBlur.value
+        } else {
+            visualConfig.upcomingLineBlur.value
         }
-
-        val baseBlurRadius =
-            when {
-                isPlaying -> 0f
-                hasPlayed -> effects.playedLineBlur.value
-                distance > effects.distanceThreshold -> effects.distantLineBlur.value
-                else -> effects.upcomingLineBlur.value
-            }
-
-        return baseBlurRadius * effects.blurIntensity
-    }
-
-    /**
-     * Determine the appropriate line state category.
-     * Useful for simple state checks without full calculation.
-     */
-    fun getLineStateCategory(
-        line: SyncedLine,
-        currentTimeMs: Int,
-    ): LineStateCategory =
-        when {
-            currentTimeMs >= line.start && currentTimeMs <= line.end -> LineStateCategory.PLAYING
-            currentTimeMs > line.end -> LineStateCategory.PLAYED
-            else -> LineStateCategory.UPCOMING
-        }
-
-    /**
-     * Simple enumeration of line state categories
-     */
-    enum class LineStateCategory {
-        PLAYING,
-        PLAYED,
-        UPCOMING,
     }
 }

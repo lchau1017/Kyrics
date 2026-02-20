@@ -1,27 +1,18 @@
 package com.kyrics.state
 
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
-import com.kyrics.config.AnimationConfig
-import com.kyrics.config.EffectsConfig
-import com.kyrics.config.KyricsConfig
+import com.kyrics.config.VisualConfig
 import com.kyrics.testdata.TestData
 import com.kyrics.testdata.TestData.TimePoints
-import org.junit.Before
 import org.junit.Test
 
 /**
- * Unit tests for KyricsStateCalculator.
+ * Unit tests for StateCalculator.
  * Tests the pure calculation logic that determines line states.
  */
-class KyricsStateCalculatorTest {
-    private lateinit var calculator: KyricsStateCalculator
-    private lateinit var defaultConfig: KyricsConfig
-
-    @Before
-    fun setup() {
-        calculator = KyricsStateCalculator()
-        defaultConfig = KyricsConfig.Default
-    }
+class StateCalculatorTest {
+    private val calculator = StateCalculator
 
     // ==================== findCurrentLineIndex Tests ====================
 
@@ -87,43 +78,6 @@ class KyricsStateCalculatorTest {
         assertThat(result).isNull()
     }
 
-    // ==================== getLineStateCategory Tests ====================
-
-    @Test
-    fun `getLineStateCategory returns PLAYING when time is within range`() {
-        val line = TestData.createSimpleLines()[0] // 0-2000ms
-        val result = calculator.getLineStateCategory(line, 1000)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.PLAYING)
-    }
-
-    @Test
-    fun `getLineStateCategory returns PLAYING at exact start`() {
-        val line = TestData.createSimpleLines()[0] // 0-2000ms
-        val result = calculator.getLineStateCategory(line, 0)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.PLAYING)
-    }
-
-    @Test
-    fun `getLineStateCategory returns PLAYING at exact end`() {
-        val line = TestData.createSimpleLines()[0] // 0-2000ms
-        val result = calculator.getLineStateCategory(line, 2000)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.PLAYING)
-    }
-
-    @Test
-    fun `getLineStateCategory returns PLAYED when time is after end`() {
-        val line = TestData.createSimpleLines()[0] // 0-2000ms
-        val result = calculator.getLineStateCategory(line, 2001)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.PLAYED)
-    }
-
-    @Test
-    fun `getLineStateCategory returns UPCOMING when time is before start`() {
-        val line = TestData.createSimpleLines()[1] // 2500-4500ms
-        val result = calculator.getLineStateCategory(line, 2000)
-        assertThat(result).isEqualTo(KyricsStateCalculator.LineStateCategory.UPCOMING)
-    }
-
     // ==================== calculateDistanceFromCurrent Tests ====================
 
     @Test
@@ -153,39 +107,36 @@ class KyricsStateCalculatorTest {
     // ==================== calculateOpacity Tests ====================
 
     @Test
-    fun `calculateOpacity returns playingLineOpacity when playing`() {
+    fun `calculateOpacity returns 1 when playing`() {
         val result =
             calculator.calculateOpacity(
                 isPlaying = true,
                 hasPlayed = false,
                 distance = 0,
-                config = defaultConfig,
             )
-        assertThat(result).isEqualTo(defaultConfig.effects.playingLineOpacity)
+        assertThat(result).isEqualTo(1f)
     }
 
     @Test
-    fun `calculateOpacity returns playedLineOpacity when played`() {
+    fun `calculateOpacity returns 0_25 when played`() {
         val result =
             calculator.calculateOpacity(
                 isPlaying = false,
                 hasPlayed = true,
                 distance = 1,
-                config = defaultConfig,
             )
-        assertThat(result).isEqualTo(defaultConfig.effects.playedLineOpacity)
+        assertThat(result).isEqualTo(0.25f)
     }
 
     @Test
-    fun `calculateOpacity returns upcomingLineOpacity for close upcoming line`() {
+    fun `calculateOpacity returns 0_6 for close upcoming line`() {
         val result =
             calculator.calculateOpacity(
                 isPlaying = false,
                 hasPlayed = false,
                 distance = 0,
-                config = defaultConfig,
             )
-        assertThat(result).isEqualTo(defaultConfig.effects.upcomingLineOpacity)
+        assertThat(result).isEqualTo(0.6f)
     }
 
     @Test
@@ -195,14 +146,12 @@ class KyricsStateCalculatorTest {
                 isPlaying = false,
                 hasPlayed = false,
                 distance = 1,
-                config = defaultConfig,
             )
         val farResult =
             calculator.calculateOpacity(
                 isPlaying = false,
                 hasPlayed = false,
                 distance = 3,
-                config = defaultConfig,
             )
         assertThat(farResult).isLessThan(closeResult)
     }
@@ -214,160 +163,23 @@ class KyricsStateCalculatorTest {
                 isPlaying = false,
                 hasPlayed = false,
                 distance = 100,
-                config = defaultConfig,
             )
         // Use tolerance for floating point comparison
         assertThat(result).isWithin(0.001f).of(0.2f)
     }
 
-    @Test
-    fun `calculateOpacity respects custom config values`() {
-        val customConfig =
-            KyricsConfig(
-                effects =
-                    EffectsConfig(
-                        playingLineOpacity = 0.9f,
-                        playedLineOpacity = 0.1f,
-                        upcomingLineOpacity = 0.5f,
-                    ),
-            )
-        val playingResult = calculator.calculateOpacity(true, false, 0, customConfig)
-        val playedResult = calculator.calculateOpacity(false, true, 0, customConfig)
-
-        assertThat(playingResult).isEqualTo(0.9f)
-        assertThat(playedResult).isEqualTo(0.1f)
-    }
-
     // ==================== calculateScale Tests ====================
 
     @Test
-    fun `calculateScale returns scaleOnPlay when playing and animations enabled`() {
-        val result = calculator.calculateScale(isPlaying = true, config = defaultConfig)
-        assertThat(result).isEqualTo(defaultConfig.animation.lineScaleOnPlay)
+    fun `calculateScale returns 1_05 when playing`() {
+        val result = calculator.calculateScale(isPlaying = true)
+        assertThat(result).isEqualTo(1.05f)
     }
 
     @Test
     fun `calculateScale returns 1 when not playing`() {
-        val result = calculator.calculateScale(isPlaying = false, config = defaultConfig)
+        val result = calculator.calculateScale(isPlaying = false)
         assertThat(result).isEqualTo(1f)
-    }
-
-    @Test
-    fun `calculateScale returns 1 when animations disabled`() {
-        val noAnimConfig =
-            KyricsConfig(
-                animation = AnimationConfig(enableLineAnimations = false),
-            )
-        val result = calculator.calculateScale(isPlaying = true, config = noAnimConfig)
-        assertThat(result).isEqualTo(1f)
-    }
-
-    @Test
-    fun `calculateScale respects custom scale value`() {
-        val customConfig =
-            KyricsConfig(
-                animation = AnimationConfig(lineScaleOnPlay = 1.2f),
-            )
-        val result = calculator.calculateScale(isPlaying = true, config = customConfig)
-        assertThat(result).isEqualTo(1.2f)
-    }
-
-    // ==================== calculateBlurRadius Tests ====================
-
-    @Test
-    fun `calculateBlurRadius returns 0 when playing`() {
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = true,
-                hasPlayed = false,
-                distance = 0,
-                config = defaultConfig,
-            )
-        assertThat(result).isEqualTo(0f)
-    }
-
-    @Test
-    fun `calculateBlurRadius returns playedLineBlur when played`() {
-        val blurEnabledConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = true),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = true,
-                distance = 1,
-                config = blurEnabledConfig,
-            )
-        val expected = blurEnabledConfig.effects.playedLineBlur.value * blurEnabledConfig.effects.blurIntensity
-        assertThat(result).isEqualTo(expected)
-    }
-
-    @Test
-    fun `calculateBlurRadius returns upcomingLineBlur for close upcoming`() {
-        val blurEnabledConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = true),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = false,
-                distance = 2,
-                config = blurEnabledConfig,
-            )
-        val expected = blurEnabledConfig.effects.upcomingLineBlur.value * blurEnabledConfig.effects.blurIntensity
-        assertThat(result).isEqualTo(expected)
-    }
-
-    @Test
-    fun `calculateBlurRadius returns distantLineBlur for far lines`() {
-        val blurEnabledConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = true),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = false,
-                distance = 5,
-                config = blurEnabledConfig,
-            )
-        val expected = blurEnabledConfig.effects.distantLineBlur.value * blurEnabledConfig.effects.blurIntensity
-        assertThat(result).isEqualTo(expected)
-    }
-
-    @Test
-    fun `calculateBlurRadius returns 0 when blur disabled`() {
-        val noBlurConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = false),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = false,
-                distance = 5,
-                config = noBlurConfig,
-            )
-        assertThat(result).isEqualTo(0f)
-    }
-
-    @Test
-    fun `calculateBlurRadius respects blur intensity multiplier`() {
-        val intensityConfig =
-            KyricsConfig(
-                effects = EffectsConfig(enableBlur = true, blurIntensity = 2.0f),
-            )
-        val result =
-            calculator.calculateBlurRadius(
-                isPlaying = false,
-                hasPlayed = true,
-                distance = 1,
-                config = intensityConfig,
-            )
-        val expected = intensityConfig.effects.playedLineBlur.value * 2.0f
-        assertThat(result).isEqualTo(expected)
     }
 
     // ==================== calculateLineState Tests ====================
@@ -381,14 +193,13 @@ class KyricsStateCalculatorTest {
                 lineIndex = 1,
                 currentLineIndex = 1,
                 currentTimeMs = 3500, // Middle of line 1
-                config = defaultConfig,
             )
 
         assertThat(result.isPlaying).isTrue()
         assertThat(result.hasPlayed).isFalse()
         assertThat(result.isUpcoming).isFalse()
         assertThat(result.distanceFromCurrent).isEqualTo(0)
-        assertThat(result.opacity).isEqualTo(defaultConfig.effects.playingLineOpacity)
+        assertThat(result.opacity).isEqualTo(1f)
     }
 
     @Test
@@ -400,7 +211,6 @@ class KyricsStateCalculatorTest {
                 lineIndex = 0,
                 currentLineIndex = 2,
                 currentTimeMs = 5500, // Line 0 has ended
-                config = defaultConfig,
             )
 
         assertThat(result.isPlaying).isFalse()
@@ -418,7 +228,6 @@ class KyricsStateCalculatorTest {
                 lineIndex = 3,
                 currentLineIndex = 1,
                 currentTimeMs = 3500, // Line 3 hasn't started
-                config = defaultConfig,
             )
 
         assertThat(result.isPlaying).isFalse()
@@ -435,7 +244,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = emptyList(),
                 currentTimeMs = 1000,
-                config = defaultConfig,
             )
 
         assertThat(result.lines).isEmpty()
@@ -452,7 +260,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = 3500, // Line 1 is playing
-                config = defaultConfig,
             )
 
         assertThat(result.lines).hasSize(5)
@@ -475,7 +282,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = TimePoints.BETWEEN_LINE_0_AND_1,
-                config = defaultConfig,
             )
 
         assertThat(result.currentLineIndex).isNull()
@@ -491,7 +297,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = 3500, // Line 1 is playing
-                config = defaultConfig,
             )
 
         assertThat(result.currentLine).isEqualTo(lines[1])
@@ -504,7 +309,6 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = TimePoints.BETWEEN_LINE_0_AND_1,
-                config = defaultConfig,
             )
 
         assertThat(result.currentLine).isNull()
@@ -517,10 +321,74 @@ class KyricsStateCalculatorTest {
             calculator.calculateState(
                 lines = lines,
                 currentTimeMs = 1000,
-                config = defaultConfig,
             )
 
         val invalidState = result.getLineState(999)
         assertThat(invalidState).isEqualTo(LineUiState())
+    }
+
+    // ==================== calculateBlurRadius Tests ====================
+
+    @Test
+    fun `calculateBlurRadius returns 0 when blur disabled`() {
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = false,
+                hasPlayed = true,
+                distance = 1,
+                visualConfig = VisualConfig(enableBlur = false),
+            )
+        assertThat(result).isEqualTo(0f)
+    }
+
+    @Test
+    fun `calculateBlurRadius returns 0 for playing line`() {
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = true,
+                hasPlayed = false,
+                distance = 0,
+                visualConfig = VisualConfig(enableBlur = true),
+            )
+        assertThat(result).isEqualTo(0f)
+    }
+
+    @Test
+    fun `calculateBlurRadius returns playedLineBlur for played lines`() {
+        val config = VisualConfig(enableBlur = true, playedLineBlur = 4.dp)
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = false,
+                hasPlayed = true,
+                distance = 2,
+                visualConfig = config,
+            )
+        assertThat(result).isEqualTo(4f)
+    }
+
+    @Test
+    fun `calculateBlurRadius returns upcomingLineBlur for close upcoming lines`() {
+        val config = VisualConfig(enableBlur = true, upcomingLineBlur = 3.dp)
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = false,
+                hasPlayed = false,
+                distance = 1,
+                visualConfig = config,
+            )
+        assertThat(result).isEqualTo(3f)
+    }
+
+    @Test
+    fun `calculateBlurRadius returns distantLineBlur for distant upcoming lines`() {
+        val config = VisualConfig(enableBlur = true, distantLineBlur = 6.dp)
+        val result =
+            calculator.calculateBlurRadius(
+                isPlaying = false,
+                hasPlayed = false,
+                distance = 3,
+                visualConfig = config,
+            )
+        assertThat(result).isEqualTo(6f)
     }
 }

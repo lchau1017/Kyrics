@@ -45,27 +45,6 @@ class DemoSettingsRepositoryImplTest {
         }
 
     @Test
-    fun `resetSettings resets to default`() =
-        runTest {
-            val customSettings = DemoSettings(fontSize = 50f)
-
-            repository.getSettings().test {
-                // Initial value
-                assertThat(awaitItem()).isEqualTo(DemoSettings.Default)
-
-                // Update to custom
-                repository.updateSettings(customSettings)
-                assertThat(awaitItem()).isEqualTo(customSettings)
-
-                // Reset
-                repository.resetSettings()
-                assertThat(awaitItem()).isEqualTo(DemoSettings.Default)
-
-                cancelAndConsumeRemainingEvents()
-            }
-        }
-
-    @Test
     fun `multiple updates emit correct values`() =
         runTest {
             val settings1 = DemoSettings(fontSize = 30f)

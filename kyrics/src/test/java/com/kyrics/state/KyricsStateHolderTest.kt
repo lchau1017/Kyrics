@@ -199,7 +199,7 @@ class KyricsStateHolderTest {
 
     @Test
     fun `currentConfig returns provided config`() {
-        val customConfig = KyricsConfig.Dramatic
+        val customConfig = KyricsConfig()
 
         val holder = KyricsStateHolder(customConfig)
 
@@ -207,16 +207,15 @@ class KyricsStateHolderTest {
     }
 
     @Test
-    fun `state calculations use provided config`() {
-        val minimalConfig = KyricsConfig.Minimal
-        val holder = KyricsStateHolder(minimalConfig)
+    fun `state calculations use default config`() {
+        val holder = KyricsStateHolder(KyricsConfig())
 
         holder.setLines(TestData.createSimpleLines())
         holder.updateTime(1000)
 
-        // With minimal config, line animations are disabled, so scale should be 1.0
+        // Playing line should have scale 1.05 (hardcoded default)
         val playingLineState = holder.uiState.value.lineStates[0]
-        assertThat(playingLineState?.scale).isEqualTo(1f)
+        assertThat(playingLineState?.scale).isEqualTo(1.05f)
     }
 
     // ==================== Edge Cases ====================

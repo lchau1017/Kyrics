@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.kyrics.demo.data.datasource.DemoLyricsDataSource
 import com.kyrics.demo.domain.model.DemoSettings
@@ -57,7 +56,7 @@ class DemoViewModelTest {
         uiMapper = DemoUiMapper()
 
         every { getDemoSettingsUseCase() } returns flowOf(DemoSettings.Default)
-        coEvery { getLyricsUseCase(any()) } returns defaultLyricsData
+        coEvery { getLyricsUseCase() } returns defaultLyricsData
         coEvery { updateDemoSettingsUseCase(any()) } returns Unit
     }
 
@@ -107,7 +106,7 @@ class DemoViewModelTest {
         runTest {
             val mockLines = listOf(mockk<com.kyrics.models.KyricsLine>())
             val lyricsData = LyricsData(lines = mockLines, totalDurationMs = 20_000L)
-            coEvery { getLyricsUseCase(any()) } returns lyricsData
+            coEvery { getLyricsUseCase() } returns lyricsData
 
             viewModel = createViewModel()
             testDispatcher.scheduler.advanceUntilIdle()
@@ -344,80 +343,6 @@ class DemoViewModelTest {
             coVerify { updateDemoSettingsUseCase(match { it.gradientAngle == 180f }) }
         }
 
-    @Test
-    fun `ToggleBlur calls update use case`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.onIntent(DemoIntent.VisualEffect.ToggleBlur(true))
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            coVerify { updateDemoSettingsUseCase(match { it.blurEnabled }) }
-        }
-
-    @Test
-    fun `UpdateBlurIntensity calls update use case`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.onIntent(DemoIntent.VisualEffect.UpdateBlurIntensity(2.5f))
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            coVerify { updateDemoSettingsUseCase(match { it.blurIntensity == 2.5f }) }
-        }
-
-    // ==================== Animation Tests ====================
-
-    @Test
-    fun `ToggleCharAnimation calls update use case`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.onIntent(DemoIntent.Animation.ToggleCharAnimation(true))
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            coVerify { updateDemoSettingsUseCase(match { it.charAnimEnabled }) }
-        }
-
-    @Test
-    fun `UpdateCharMaxScale calls update use case`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.onIntent(DemoIntent.Animation.UpdateCharMaxScale(1.5f))
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            coVerify { updateDemoSettingsUseCase(match { it.charMaxScale == 1.5f }) }
-        }
-
-    @Test
-    fun `ToggleLineAnimation calls update use case`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.onIntent(DemoIntent.Animation.ToggleLineAnimation(true))
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            coVerify { updateDemoSettingsUseCase(match { it.lineAnimEnabled }) }
-        }
-
-    @Test
-    fun `TogglePulse calls update use case`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.onIntent(DemoIntent.Animation.TogglePulse(true))
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            coVerify { updateDemoSettingsUseCase(match { it.pulseEnabled }) }
-        }
-
     // ==================== Preset Tests ====================
 
     @Test
@@ -442,21 +367,6 @@ class DemoViewModelTest {
             testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { updateDemoSettingsUseCase(any()) }
-        }
-
-    @Test
-    fun `LoadPreset sends PresetLoaded effect`() =
-        runTest {
-            viewModel = createViewModel()
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            viewModel.effect.test {
-                viewModel.onIntent(DemoIntent.LoadPreset(PresetType.CLASSIC))
-                testDispatcher.scheduler.advanceUntilIdle()
-
-                val effect = awaitItem()
-                assertThat(effect).isEqualTo(DemoEffect.PresetLoaded)
-            }
         }
 
     // ==================== Line Selection Tests ====================

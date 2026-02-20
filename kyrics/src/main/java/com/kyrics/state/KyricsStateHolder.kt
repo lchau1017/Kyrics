@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import com.kyrics.config.KyricsConfig
 import com.kyrics.config.KyricsConfigBuilder
 import com.kyrics.config.kyricsConfig
-import com.kyrics.models.SyncedLine
+import com.kyrics.models.KyricsLine
 
 /**
  * State holder for karaoke viewer UI state.
@@ -36,7 +36,6 @@ import com.kyrics.models.SyncedLine
 @Stable
 class KyricsStateHolder(
     initialConfig: KyricsConfig,
-    private val calculator: KyricsStateCalculator = KyricsStateCalculator(),
 ) {
     private val _uiState = mutableStateOf(KyricsUiState())
     private var currentConfigInternal = initialConfig
@@ -63,10 +62,10 @@ class KyricsStateHolder(
         val currentState = _uiState.value
         if (currentState.lines.isNotEmpty()) {
             _uiState.value =
-                calculator.calculateState(
+                StateCalculator.calculateState(
                     lines = currentState.lines,
                     currentTimeMs = currentState.currentTimeMs,
-                    config = config,
+                    visualConfig = config.visual,
                 )
         }
     }
@@ -76,12 +75,12 @@ class KyricsStateHolder(
      *
      * @param lines List of synchronized lines
      */
-    fun setLines(lines: List<SyncedLine>) {
+    fun setLines(lines: List<KyricsLine>) {
         _uiState.value =
-            calculator.calculateState(
+            StateCalculator.calculateState(
                 lines = lines,
                 currentTimeMs = _uiState.value.currentTimeMs,
-                config = currentConfigInternal,
+                visualConfig = currentConfigInternal.visual,
             )
     }
 
@@ -98,10 +97,10 @@ class KyricsStateHolder(
         }
 
         _uiState.value =
-            calculator.calculateState(
+            StateCalculator.calculateState(
                 lines = currentState.lines,
                 currentTimeMs = currentTimeMs,
-                config = currentConfigInternal,
+                visualConfig = currentConfigInternal.visual,
             )
     }
 
@@ -113,14 +112,14 @@ class KyricsStateHolder(
      * @param currentTimeMs Current playback time in milliseconds
      */
     fun update(
-        lines: List<SyncedLine>,
+        lines: List<KyricsLine>,
         currentTimeMs: Int,
     ) {
         _uiState.value =
-            calculator.calculateState(
+            StateCalculator.calculateState(
                 lines = lines,
                 currentTimeMs = currentTimeMs,
-                config = currentConfigInternal,
+                visualConfig = currentConfigInternal.visual,
             )
     }
 
@@ -140,7 +139,7 @@ class KyricsStateHolder(
     /**
      * Get the currently playing line, if any.
      */
-    val currentLine: SyncedLine?
+    val currentLine: KyricsLine?
         get() = _uiState.value.currentLine
 
     /**
@@ -156,7 +155,7 @@ class KyricsStateHolder(
  * The state holder is remembered across recompositions and survives
  * config changes. Config updates are handled internally via [KyricsStateHolder.updateConfig].
  *
- * @param config Library configuration for visual/animation settings
+ * @param config Library configuration for visual and layout settings
  * @return A remembered state holder instance
  */
 @Composable
@@ -176,12 +175,12 @@ fun rememberKyricsStateHolder(config: KyricsConfig = KyricsConfig.Default): Kyri
  * Creates and remembers a [KyricsStateHolder] instance with initial lines.
  *
  * @param lines Initial lines to display
- * @param config Library configuration for visual/animation settings
+ * @param config Library configuration for visual and layout settings
  * @return A remembered state holder instance initialized with lines
  */
 @Composable
 fun rememberKyricsStateHolder(
-    lines: List<SyncedLine>,
+    lines: List<KyricsLine>,
     config: KyricsConfig = KyricsConfig.Default,
 ): KyricsStateHolder {
     val stateHolder =
@@ -204,7 +203,7 @@ fun rememberKyricsStateHolder(
  * ```kotlin
  * val stateHolder = rememberKyricsStateHolder {
  *     colors { playing = Color.Yellow }
- *     animations { characterScale = 1.2f }
+ *     typography { fontSize = 28.sp }
  * }
  * ```
  *
@@ -224,7 +223,7 @@ fun rememberKyricsStateHolder(configBuilder: KyricsConfigBuilder.() -> Unit): Ky
  * ```kotlin
  * val stateHolder = rememberKyricsStateHolder(lyrics) {
  *     colors { playing = Color.Yellow }
- *     animations { characterScale = 1.2f }
+ *     typography { fontSize = 28.sp }
  * }
  * ```
  *
@@ -234,7 +233,7 @@ fun rememberKyricsStateHolder(configBuilder: KyricsConfigBuilder.() -> Unit): Ky
  */
 @Composable
 fun rememberKyricsStateHolder(
-    lines: List<SyncedLine>,
+    lines: List<KyricsLine>,
     configBuilder: KyricsConfigBuilder.() -> Unit,
 ): KyricsStateHolder {
     val config = kyricsConfig(configBuilder)

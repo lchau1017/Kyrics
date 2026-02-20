@@ -4,7 +4,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
@@ -14,18 +16,6 @@ enum class GradientType {
     LINEAR, // Simple linear gradient
     PROGRESS, // Progress-based gradient for karaoke
     MULTI_COLOR, // Multi-color gradient
-    PRESET, // Use preset gradient patterns
-}
-
-/**
- * Preset gradient patterns
- */
-enum class GradientPreset {
-    RAINBOW,
-    SUNSET,
-    OCEAN,
-    FIRE,
-    NEON,
 }
 
 /**
@@ -48,7 +38,6 @@ data class VisualConfig(
     val textAlign: TextAlign = TextAlign.Center,
     // Background
     val backgroundColor: Color = Color.Transparent,
-    val lineBackgroundColor: Color = Color.Transparent,
     // Gradient Configuration
     val playingGradientColors: List<Color> =
         listOf(
@@ -58,7 +47,11 @@ data class VisualConfig(
     val gradientAngle: Float = 45f,
     val gradientEnabled: Boolean = false,
     val gradientType: GradientType = GradientType.LINEAR,
-    val gradientPreset: GradientPreset? = null,
     // Colors for gradient
     val colors: ColorConfig = ColorConfig(),
+    // Blur Effects (disabled by default - opt-in feature)
+    val enableBlur: Boolean = false,
+    val playedLineBlur: Dp = 2.dp,
+    val upcomingLineBlur: Dp = 3.dp,
+    val distantLineBlur: Dp = 5.dp,
 )
