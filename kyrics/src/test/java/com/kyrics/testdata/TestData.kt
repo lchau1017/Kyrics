@@ -132,12 +132,12 @@ object TestData {
                     end = 2000,
                 ),
                 KyricsLine(
-                    listOf(KyricsSyllable("\u8FD9\u662F\u4E00\u4E2A\u6D4B\u8BD5", 2500, 4500)),
+                    listOf(KyricsSyllable("\u9019\u662F\u4E00\u500B\u6E2C\u8A66", 2500, 4500)),
                     start = 2500,
                     end = 4500,
                 ),
                 KyricsLine(
-                    listOf(KyricsSyllable("\u518D\u89C1", 5000, 7000)),
+                    listOf(KyricsSyllable("\u518D\u898B", 5000, 7000)),
                     start = 5000,
                     end = 7000,
                 ),
