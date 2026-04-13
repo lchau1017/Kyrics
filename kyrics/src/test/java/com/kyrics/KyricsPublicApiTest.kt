@@ -258,4 +258,40 @@ class KyricsPublicApiTest {
         assertThat(line.syllables).isEmpty()
         assertThat(line.getContent()).isEmpty()
     }
+
+    // ==================== DualSync Public API ====================
+
+    @Test
+    fun `DualTrackLyrics is accessible from com kyrics package`() {
+        val dual = DualTrackLyrics(primary = emptyList(), secondary = emptyList())
+        assertThat(dual.primary).isEmpty()
+        assertThat(dual.secondary).isEmpty()
+    }
+
+    @Test
+    fun `DualSyncState is accessible from com kyrics package`() {
+        val state = DualSyncState()
+        assertThat(state.primaryHighlight.lines).isEmpty()
+        assertThat(state.secondaryHighlight.lines).isEmpty()
+    }
+
+    @Test
+    fun `TrackIdentifier enum values are accessible`() {
+        assertThat(TrackIdentifier.PRIMARY).isNotNull()
+        assertThat(TrackIdentifier.SECONDARY).isNotNull()
+        assertThat(TrackIdentifier.entries).hasSize(2)
+    }
+
+    @Test
+    fun `DualTrackLyrics works with KyricsLine lists`() {
+        val lines =
+            kyricsLyrics {
+                line(start = 0, end = 1000) {
+                    syllable("Hello", duration = 1000)
+                }
+            }
+        val dual = DualTrackLyrics(primary = lines, secondary = lines)
+        assertThat(dual.primary).hasSize(1)
+        assertThat(dual.secondary).hasSize(1)
+    }
 }
