@@ -1,6 +1,7 @@
 package com.kyrics.demo.presentation.dualsync
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -25,13 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.kyrics.demo.data.datasource.DemoLanguage
 import com.kyrics.dualsync.DualSyncLyricsView
-import com.kyrics.dualsync.model.DualSyncState
-import com.kyrics.state.KyricsUiState
 
-/**
- * Demo screen showcasing dual-language synchronized lyrics highlighting.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DualSyncDemoScreen(
@@ -57,7 +56,6 @@ fun DualSyncDemoScreen(
                     .fillMaxSize()
                     .padding(paddingValues),
         ) {
-            // Lyrics display area
             Box(
                 modifier =
                     Modifier
@@ -65,37 +63,17 @@ fun DualSyncDemoScreen(
                         .weight(1f)
                         .background(Color(0xFF121212)),
             ) {
-                val displayState = buildDisplayState(state)
                 DualSyncLyricsView(
-                    state = displayState,
+                    state = state.syncState,
                     modifier = Modifier.fillMaxSize(),
-                    showSecondary = state.languageMode != LanguageMode.EN_ONLY,
+                    showSecondary = state.showSecondary,
                 )
             }
 
-            // Controls
-            ControlBar(
-                state = state,
-                onIntent = onIntent,
-            )
+            ControlBar(state = state, onIntent = onIntent)
         }
     }
 }
-
-@Composable
-private fun buildDisplayState(state: DualSyncUiState): DualSyncState =
-    when (state.languageMode) {
-        LanguageMode.DUAL -> state.syncState
-        LanguageMode.EN_ONLY ->
-            state.syncState.copy(
-                secondaryHighlight = KyricsUiState(),
-            )
-        LanguageMode.ZH_ONLY ->
-            DualSyncState(
-                primaryHighlight = state.syncState.secondaryHighlight,
-                secondaryHighlight = KyricsUiState(),
-            )
-    }
 
 @Composable
 private fun ControlBar(
@@ -110,59 +88,120 @@ private fun ControlBar(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                    .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            // Playback controls
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                OutlinedButton(onClick = { onIntent(DualSyncIntent.Reset) }) {
-                    Text("Reset")
-                }
+            PlaybackRow(state = state, onIntent = onIntent)
 
-                Button(onClick = { onIntent(DualSyncIntent.TogglePlayPause) }) {
-                    Text(if (state.isPlaying) "Pause" else "Play")
-                }
+            LanguageRow(
+                label = "Primary",
+                selected = state.primaryLanguage,
+                onSelect = { onIntent(DualSyncIntent.SetPrimaryLanguage(it)) },
+                disabledLanguages = setOf(state.secondaryLanguage),
+            )
 
-                Text(
-                    text = formatTime(state.currentTimeMs),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                )
-            }
-
-            // Language toggle
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                LanguageMode.entries.forEach { mode ->
-                    FilterChip(
-                        selected = state.languageMode == mode,
-                        onClick = { onIntent(DualSyncIntent.SetLanguageMode(mode)) },
-                        label = { Text(mode.label()) },
-                        colors =
-                            FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                            ),
-                        shape = RoundedCornerShape(20.dp),
-                    )
-                }
-            }
+            SecondaryRow(state = state, onIntent = onIntent)
         }
     }
 }
 
-private fun LanguageMode.label(): String =
-    when (this) {
-        LanguageMode.DUAL -> "Dual"
-        LanguageMode.EN_ONLY -> "EN"
-        LanguageMode.ZH_ONLY -> "ZH"
+@Composable
+private fun PlaybackRow(
+    state: DualSyncUiState,
+    onIntent: (DualSyncIntent) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        OutlinedButton(onClick = { onIntent(DualSyncIntent.Reset) }) {
+            Text("Reset")
+        }
+        Button(onClick = { onIntent(DualSyncIntent.TogglePlayPause) }) {
+            Text(if (state.isPlaying) "Pause" else "Play")
+        }
+        OutlinedButton(onClick = { onIntent(DualSyncIntent.SwapLanguages) }) {
+            Text("\u2B83 Swap")
+        }
+        Text(
+            text = formatTime(state.currentTimeMs),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        )
     }
+}
+
+@Composable
+private fun SecondaryRow(
+    state: DualSyncUiState,
+    onIntent: (DualSyncIntent) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Switch(
+            checked = state.showSecondary,
+            onCheckedChange = { onIntent(DualSyncIntent.ToggleSecondary) },
+            modifier = Modifier.padding(top = 12.dp),
+        )
+        LanguageRow(
+            label = "Secondary",
+            selected = state.secondaryLanguage,
+            onSelect = { onIntent(DualSyncIntent.SetSecondaryLanguage(it)) },
+            modifier = Modifier.weight(1f),
+            enabled = state.showSecondary,
+            disabledLanguages = setOf(state.primaryLanguage),
+        )
+    }
+}
+
+@Composable
+@Suppress("LongParameterList")
+private fun LanguageRow(
+    label: String,
+    selected: DemoLanguage,
+    onSelect: (DemoLanguage) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    disabledLanguages: Set<DemoLanguage> = emptySet(),
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color =
+                MaterialTheme.colorScheme.onSurface.copy(
+                    alpha = if (enabled) 0.7f else 0.3f,
+                ),
+        )
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            DemoLanguage.entries.forEach { lang ->
+                val isDisabled = lang in disabledLanguages
+                FilterChip(
+                    selected = selected == lang,
+                    onClick = { onSelect(lang) },
+                    enabled = enabled && !isDisabled,
+                    label = { Text(lang.displayName) },
+                    colors =
+                        FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                    shape = RoundedCornerShape(16.dp),
+                )
+            }
+        }
+    }
+}
 
 private fun formatTime(ms: Long): String {
     val totalSeconds = ms / 1000

@@ -2,8 +2,10 @@ package com.kyrics.demo.presentation.dualsync
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kyrics.demo.data.datasource.DemoLanguage
 import com.kyrics.demo.data.datasource.DualSyncDataSource
 import com.kyrics.dualsync.DualSyncController
+import com.kyrics.dualsync.model.DualTrackLyrics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -20,59 +22,81 @@ class DualSyncViewModel
     constructor(
         private val dataSource: DualSyncDataSource,
     ) : ViewModel() {
-        private val _state = MutableStateFlow(DualSyncUiState())
+        private val _state = MutableStateFlow(DualSyncUiState(totalDurationMs = DualSyncDataSource.TOTAL_DURATION_MS))
         val state: StateFlow<DualSyncUiState> = _state.asStateFlow()
 
         private val positionFlow = MutableStateFlow(0L)
         private var playbackJob: Job? = null
-        private var controller: DualSyncController? = null
+        private var syncJob: Job? = null
 
         init {
-            loadLyrics()
-        }
-
-        private fun loadLyrics() {
-            val lyrics = dataSource.getDualTrackLyrics()
-            val totalDuration = dataSource.getTotalDurationMs()
-
-            _state.update {
-                it.copy(
-                    lyrics = lyrics,
-                    totalDurationMs = totalDuration,
-                )
-            }
-
-            controller =
-                DualSyncController(
-                    lyrics = lyrics,
-                    positionMs = positionFlow,
-                    scope = viewModelScope,
-                )
-
-            viewModelScope.launch {
-                controller?.state?.collect { syncState ->
-                    _state.update { it.copy(syncState = syncState) }
-                }
-            }
+            rebuildController()
         }
 
         fun onIntent(intent: DualSyncIntent) {
             when (intent) {
                 is DualSyncIntent.TogglePlayPause -> togglePlayPause()
                 is DualSyncIntent.Reset -> reset()
-                is DualSyncIntent.SetLanguageMode -> setLanguageMode(intent.mode)
+                is DualSyncIntent.ToggleSecondary -> toggleSecondary()
+                is DualSyncIntent.SetPrimaryLanguage -> setPrimaryLanguage(intent.language)
+                is DualSyncIntent.SetSecondaryLanguage -> setSecondaryLanguage(intent.language)
+                is DualSyncIntent.SwapLanguages -> swapLanguages()
             }
+        }
+
+        private fun rebuildController() {
+            syncJob?.cancel()
+            val current = _state.value
+            val lyrics =
+                DualTrackLyrics(
+                    primary = dataSource.getTrack(current.primaryLanguage),
+                    secondary = dataSource.getTrack(current.secondaryLanguage),
+                )
+            val controller =
+                DualSyncController(
+                    lyrics = lyrics,
+                    positionMs = positionFlow,
+                    scope = viewModelScope,
+                )
+            syncJob =
+                viewModelScope.launch {
+                    controller.state.collect { syncState ->
+                        _state.update { it.copy(syncState = syncState) }
+                    }
+                }
+        }
+
+        private fun setPrimaryLanguage(language: DemoLanguage) {
+            if (language == _state.value.primaryLanguage) return
+            _state.update { it.copy(primaryLanguage = language) }
+            rebuildController()
+        }
+
+        private fun setSecondaryLanguage(language: DemoLanguage) {
+            if (language == _state.value.secondaryLanguage) return
+            _state.update { it.copy(secondaryLanguage = language) }
+            rebuildController()
+        }
+
+        private fun swapLanguages() {
+            val current = _state.value
+            _state.update {
+                it.copy(
+                    primaryLanguage = current.secondaryLanguage,
+                    secondaryLanguage = current.primaryLanguage,
+                )
+            }
+            rebuildController()
+        }
+
+        private fun toggleSecondary() {
+            _state.update { it.copy(showSecondary = !it.showSecondary) }
         }
 
         private fun togglePlayPause() {
             val newIsPlaying = !_state.value.isPlaying
             _state.update { it.copy(isPlaying = newIsPlaying) }
-
-            if (newIsPlaying) {
-                startPlayback()
-            } else {
-                stopPlayback()
-            }
+            if (newIsPlaying) startPlayback() else stopPlayback()
         }
 
         private fun startPlayback() {
@@ -91,7 +115,6 @@ class DualSyncViewModel
                             }
                         _state.update { it.copy(currentTimeMs = newTime) }
                         positionFlow.value = newTime
-
                         if (newTime == 0L) {
                             _state.update { it.copy(isPlaying = false) }
                             stopPlayback()
@@ -108,17 +131,8 @@ class DualSyncViewModel
 
         private fun reset() {
             stopPlayback()
-            _state.update {
-                it.copy(
-                    isPlaying = false,
-                    currentTimeMs = 0L,
-                )
-            }
+            _state.update { it.copy(isPlaying = false, currentTimeMs = 0L) }
             positionFlow.value = 0L
-        }
-
-        private fun setLanguageMode(mode: LanguageMode) {
-            _state.update { it.copy(languageMode = mode) }
         }
 
         companion object {

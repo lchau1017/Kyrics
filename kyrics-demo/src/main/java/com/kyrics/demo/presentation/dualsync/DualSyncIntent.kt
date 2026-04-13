@@ -1,5 +1,7 @@
 package com.kyrics.demo.presentation.dualsync
 
+import com.kyrics.demo.data.datasource.DemoLanguage
+
 /**
  * User intents for the DualSync demo screen.
  */
@@ -8,7 +10,15 @@ sealed interface DualSyncIntent {
 
     data object Reset : DualSyncIntent
 
-    data class SetLanguageMode(
-        val mode: LanguageMode,
+    data object ToggleSecondary : DualSyncIntent
+
+    data class SetPrimaryLanguage(
+        val language: DemoLanguage,
     ) : DualSyncIntent
+
+    data class SetSecondaryLanguage(
+        val language: DemoLanguage,
+    ) : DualSyncIntent
+
+    data object SwapLanguages : DualSyncIntent
 }
