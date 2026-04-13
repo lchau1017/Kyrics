@@ -1,5 +1,6 @@
 package com.kyrics.testdata
 
+import com.kyrics.dualsync.model.DualTrackLyrics
 import com.kyrics.models.KyricsLine
 import com.kyrics.models.KyricsSyllable
 
@@ -91,6 +92,58 @@ object TestData {
             end = 500,
             isAccompaniment = true,
         )
+
+    /**
+     * Creates a DualTrackLyrics with English primary and Chinese secondary tracks.
+     * Both tracks have the same timing windows but different content.
+     */
+    fun createDualTrackLyrics(): DualTrackLyrics {
+        val primary =
+            listOf(
+                KyricsLine(
+                    listOf(
+                        KyricsSyllable("Hello ", 0, 1000),
+                        KyricsSyllable("world", 1000, 2000),
+                    ),
+                    start = 0,
+                    end = 2000,
+                ),
+                KyricsLine(
+                    listOf(
+                        KyricsSyllable("This ", 2500, 3200),
+                        KyricsSyllable("is ", 3200, 3600),
+                        KyricsSyllable("a ", 3600, 3800),
+                        KyricsSyllable("test", 3800, 4500),
+                    ),
+                    start = 2500,
+                    end = 4500,
+                ),
+                KyricsLine(
+                    listOf(KyricsSyllable("Goodbye", 5000, 7000)),
+                    start = 5000,
+                    end = 7000,
+                ),
+            )
+        val secondary =
+            listOf(
+                KyricsLine(
+                    listOf(KyricsSyllable("\u4F60\u597D\u4E16\u754C", 0, 2000)),
+                    start = 0,
+                    end = 2000,
+                ),
+                KyricsLine(
+                    listOf(KyricsSyllable("\u8FD9\u662F\u4E00\u4E2A\u6D4B\u8BD5", 2500, 4500)),
+                    start = 2500,
+                    end = 4500,
+                ),
+                KyricsLine(
+                    listOf(KyricsSyllable("\u518D\u89C1", 5000, 7000)),
+                    start = 5000,
+                    end = 7000,
+                ),
+            )
+        return DualTrackLyrics(primary = primary, secondary = secondary)
+    }
 
     /**
      * Test time points for various scenarios

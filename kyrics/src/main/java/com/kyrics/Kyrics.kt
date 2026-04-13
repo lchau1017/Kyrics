@@ -151,3 +151,27 @@ object KyricsLineFactory {
         end: Int,
     ): KyricsLine = DslLineFactory.accompaniment(content, start, end)
 }
+
+// ============================================================================
+// DualSync re-exports — dual-language synchronized highlighting
+// ============================================================================
+
+/**
+ * Two independent timed transcripts mapped to the same audio playback position.
+ */
+typealias DualTrackLyrics = com.kyrics.dualsync.model.DualTrackLyrics
+
+/**
+ * Combined highlight state for two synchronized tracks.
+ */
+typealias DualSyncState = com.kyrics.dualsync.model.DualSyncState
+
+/**
+ * Identifies which track a word belongs to (PRIMARY or SECONDARY).
+ */
+typealias TrackIdentifier = com.kyrics.dualsync.model.TrackIdentifier
+
+/**
+ * Controller that synchronizes two independent lyric tracks against the same audio clock.
+ */
+typealias DualSyncController = com.kyrics.dualsync.DualSyncController
