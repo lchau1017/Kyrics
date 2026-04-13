@@ -7,7 +7,14 @@
 A Jetpack Compose library for displaying synchronized karaoke-style lyrics with customizable visual styles.
 
 <p align="center">
-  <img src="media/demo_screenshot.png" alt="Kyrics Demo Screenshot" width="300"/>
+  <a href="#demo-app"><img src="media/demo_screenshot.png" alt="Kyrics Demo" width="280"/></a>
+  &nbsp;&nbsp;
+  <a href="#dualsync---dual-language-lyrics"><img src="media/dualsync_screenshot.png" alt="DualSync Demo" width="280"/></a>
+</p>
+<p align="center">
+  <a href="#demo-app"><b>Kyrics Demo</b></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#dualsync---dual-language-lyrics"><b>DualSync Demo</b></a>
 </p>
 
 ---
@@ -64,7 +71,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.lchau1017:Kyrics:v1.3.0")
+    implementation("com.github.lchau1017:Kyrics:v1.4.0")
 }
 ```
 

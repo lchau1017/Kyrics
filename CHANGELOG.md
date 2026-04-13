@@ -5,6 +5,25 @@ All notable changes to Kyrics will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-04-13
+
+### Added
+- **DualSync - Dual-Language Lyrics** - Two independent timed transcripts synchronized to the same audio clock
+  - `DualTrackLyrics` data model holding primary and secondary `List<KyricsLine>`
+  - `DualSyncController` accepting dual tracks + `Flow<Long>` position, emitting `StateFlow<DualSyncState>`
+  - `DualSyncLyricsView` Compose component rendering both tracks with canvas-level character animations
+  - `rememberDualSyncController` Compose helper for lifecycle-scoped controllers
+  - `DualSyncState` and `TrackIdentifier` types
+  - Public API re-exports in `com.kyrics` package for single-import access
+  - Unit tests for DualSyncController (8 tests)
+- **Multi-Language Demo** - 9 languages with dynamic switching
+  - English, Traditional Chinese, Japanese, Korean, French, Spanish, German, Portuguese, Italian
+  - Independent primary/secondary language pickers
+  - Swap button to exchange languages
+  - Toggle to show/hide secondary track
+- **Demo Home Screen** - Navigation with buttons to Kyrics Demo and DualSync Demo
+- **Updated README** - DualSync documentation with usage examples, language table, and screenshots
+
 ## [1.3.0] - 2026-02-20
 
 ### Changed

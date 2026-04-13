@@ -73,7 +73,7 @@ mavenPublishing {
     coordinates(
         groupId = "com.kyrics",
         artifactId = "kyrics",
-        version = "1.3.0",
+        version = "1.4.0",
     )
 
     pom {
