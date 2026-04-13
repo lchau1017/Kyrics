@@ -4,11 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.kyrics.config.KyricsConfig
 import com.kyrics.config.KyricsConfigBuilder
+import com.kyrics.config.VisualConfig
 import com.kyrics.config.kyricsConfig
 import com.kyrics.dsl.KyricsLineBuilder
 import com.kyrics.dsl.KyricsLyricsBuilder
 import com.kyrics.models.KyricsLine
+import com.kyrics.parser.LyricsParserFactory
 import com.kyrics.parser.ParseResult
+import kotlinx.coroutines.flow.Flow
 import com.kyrics.config.KyricsPresets as ConfigPresets
 import com.kyrics.dsl.KyricsLineFactory as DslLineFactory
 
@@ -18,9 +21,7 @@ import com.kyrics.dsl.KyricsLineFactory as DslLineFactory
  * @param content The raw TTML lyrics file content
  * @return [ParseResult.Success] with parsed lines or [ParseResult.Failure] with error
  */
-fun parseLyrics(content: String): ParseResult =
-    com.kyrics.parser.LyricsParserFactory
-        .parse(content)
+fun parseLyrics(content: String): ParseResult = LyricsParserFactory.parse(content)
 
 /**
  * Complete lyrics viewer with automatic scrolling and synchronization.
@@ -175,3 +176,13 @@ typealias TrackIdentifier = com.kyrics.dualsync.model.TrackIdentifier
  * Controller that synchronizes two independent lyric tracks against the same audio clock.
  */
 typealias DualSyncController = com.kyrics.dualsync.DualSyncController
+
+/**
+ * Creates and remembers a [DualSyncController] scoped to the calling composable's lifecycle.
+ */
+@Composable
+fun rememberDualSyncController(
+    lyrics: DualTrackLyrics,
+    positionMs: Flow<Long>,
+    visualConfig: VisualConfig = VisualConfig(),
+): DualSyncController = com.kyrics.dualsync.rememberDualSyncController(lyrics, positionMs, visualConfig)
