@@ -16,6 +16,8 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 
 - **TTML Lyrics Parser** - Parse TTML lyrics with syllable-level timing and automatic format detection
 - **Synchronized Lyrics Display** - Character-by-character and syllable-by-syllable highlighting
+- **DualSync** - Dual-language synchronized highlighting with independent timed tracks
+- **Multi-Language Support** - 9 languages: English, Traditional Chinese, Japanese, Korean, French, Spanish, German, Portuguese, Italian
 - **2 Viewer Types** - Smooth Scroll and Fade Through
 - **Customizable Gradients** - Progress-based, multi-color gradient options
 - **Blur Effects** - Optional blur on non-playing lines for focus effect
@@ -29,6 +31,7 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [DualSync - Dual-Language Lyrics](#dualsync---dual-language-lyrics)
 - [Parsing Lyrics](#parsing-lyrics)
 - [Creating Lyrics](#creating-lyrics)
 - [Configuration](#configuration)
@@ -157,6 +160,60 @@ fun LyricsScreen(lyrics: List<KyricsLine>, currentTimeMs: Int) {
     }
 }
 ```
+
+---
+
+## DualSync - Dual-Language Lyrics
+
+Display two independently timed transcripts synchronized to the same audio. Both tracks use the full character-level canvas renderer for rich highlighting animations.
+
+<p align="center">
+  <img src="media/dualsync_screenshot.png" alt="DualSync Demo" width="300"/>
+</p>
+
+### Basic Usage
+
+```kotlin
+import com.kyrics.dualsync.*
+import com.kyrics.dualsync.model.*
+
+// Two tracks with independent timing, same audio clock
+val lyrics = DualTrackLyrics(
+    primary = englishLines,   // List<KyricsLine>
+    secondary = chineseLines, // List<KyricsLine>
+)
+
+// Controller drives both tracks from a single position flow
+val controller = rememberDualSyncController(
+    lyrics = lyrics,
+    positionMs = audioPositionFlow, // Flow<Long> of playback position in ms
+)
+val state by controller.state.collectAsState()
+
+// Render both tracks
+DualSyncLyricsView(
+    state = state,
+    showSecondary = true,
+)
+```
+
+### Supported Languages
+
+The demo app includes transcripts for 9 languages:
+
+| Language | Script | Timing |
+|----------|--------|--------|
+| English | Latin | Word-level |
+| Traditional Chinese | CJK | Line-level |
+| Japanese | CJK + Kana | Line-level |
+| Korean | Hangul | Line-level |
+| French | Latin | Word-level |
+| Spanish | Latin | Word-level |
+| German | Latin | Word-level |
+| Portuguese | Latin | Word-level |
+| Italian | Latin | Word-level |
+
+The library itself is language-agnostic. Any language that renders left-to-right works with the canvas renderer. See the demo app for a live example with switchable primary/secondary language pairs.
 
 ---
 
@@ -395,16 +452,25 @@ val stateHolder = rememberKyricsStateHolder(lyrics) {
 The `kyrics-demo` module provides a complete demo showcasing library features with clean architecture (MVI pattern).
 
 <p align="center">
-  <img src="media/demo_screenshot.png" alt="Demo App" width="280"/>
+  <img src="media/demo_screenshot.png" alt="Kyrics Demo" width="280"/>
+  &nbsp;&nbsp;
+  <img src="media/dualsync_screenshot.png" alt="DualSync Demo" width="280"/>
 </p>
 
-**Features:**
+**Kyrics Demo:**
 - Playback controls (play/pause, seek)
 - Both viewer types
 - Preset themes (Classic, Neon)
 - Font size, weight, and family customization
 - Gradient and blur effect toggles
 - Real-time configuration changes
+
+**DualSync Demo:**
+- Dual-language synchronized lyrics with 9 languages
+- Independent primary/secondary language selection
+- Swap button to exchange languages
+- Toggle to show/hide secondary track
+- Fake audio playback for standalone testing
 
 **Run the demo:**
 
