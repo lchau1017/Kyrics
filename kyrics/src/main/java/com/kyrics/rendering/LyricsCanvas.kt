@@ -2,6 +2,7 @@ package com.kyrics.rendering
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -10,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -32,6 +34,8 @@ private data class RenderContext(
 /**
  * Composable that renders a karaoke line character by character on Canvas.
  * Handles layout, per-character timing, color, animation, and drawing.
+ *
+ * @param onSyllableClick Optional callback when a syllable is tapped. Receives the tapped syllable.
  */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -42,6 +46,7 @@ fun LyricsCanvas(
     textStyle: TextStyle,
     baseColor: Color,
     modifier: Modifier = Modifier,
+    onSyllableClick: ((KyricsSyllable) -> Unit)? = null,
 ) {
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
@@ -70,6 +75,18 @@ fun LyricsCanvas(
                 textMeasurer = textMeasurer,
             )
 
+        val tapModifier =
+            if (onSyllableClick != null) {
+                Modifier.pointerInput(layoutInfo) {
+                    detectTapGestures { offset ->
+                        findTappedSyllable(layoutInfo, offset.x, offset.y)
+                            ?.let { onSyllableClick(it) }
+                    }
+                }
+            } else {
+                Modifier
+            }
+
         Canvas(
             modifier =
                 Modifier
@@ -78,7 +95,7 @@ fun LyricsCanvas(
                         with(density) {
                             layoutInfo.totalHeight.toDp()
                         },
-                    ),
+                    ).then(tapModifier),
         ) {
             layoutInfo.lines.forEachIndexed { lineIndex, lineData ->
                 val yPosition = lineIndex * layoutInfo.lineHeight
@@ -94,6 +111,34 @@ fun LyricsCanvas(
             }
         }
     }
+}
+
+/**
+ * Finds the syllable at the given tap coordinates using layout info.
+ * Uses the same lineHeight spacing as the rendering loop (no 1.2f multiplier).
+ * For X-axis, finds the nearest syllable to handle taps in inter-word gaps.
+ */
+private fun findTappedSyllable(
+    layoutInfo: TextLayout.LayoutInfo,
+    tapX: Float,
+    tapY: Float,
+): KyricsSyllable? {
+    val lineIndex = (tapY / layoutInfo.lineHeight).toInt()
+    val lineData = layoutInfo.lines.getOrNull(lineIndex) ?: return null
+
+    // Exact hit first
+    val exactHit =
+        lineData.syllables.firstOrNull { syllableData ->
+            tapX >= syllableData.xOffset && tapX <= syllableData.xOffset + syllableData.width
+        }
+    if (exactHit != null) return exactHit.syllable
+
+    // Nearest syllable for taps in gaps between words
+    return lineData.syllables
+        .minByOrNull { syllableData ->
+            val center = syllableData.xOffset + syllableData.width / 2f
+            kotlin.math.abs(tapX - center)
+        }?.syllable
 }
 
 /**

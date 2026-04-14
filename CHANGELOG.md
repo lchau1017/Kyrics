@@ -5,6 +5,22 @@ All notable changes to Kyrics will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-04-14
+
+### Added
+- **Word Tap - Vocabulary Knowledge** - Tap highlighted words in lyrics to see definitions
+  - Syllable-level click detection via `onSyllableClick` in `KyricsSingleLine` and `LyricsCanvas`
+  - Canvas hit-testing against syllable layout positions with nearest-syllable fallback for inter-word gaps
+  - `KyricsSingleLine` made public for consumer reuse
+  - Word Tap demo with curated vocabulary, definition bottom sheet, and seek-by-word
+
+### Changed
+- **`DualSyncLyricsView.onWordClick` signature** - Now passes `(KyricsSyllable, KyricsLine, TrackIdentifier)` instead of `(String, TrackIdentifier)`. Consumers using this callback need to update their lambda parameters. The parameter defaults to `null`, so consumers not using it are unaffected.
+- **Extracted `PlaybackController`** - Reusable fake audio tick loop shared across demo ViewModels
+- **Extracted shared constants** - `formatTime`, `AccentGreen`, `DemoBackgroundColor` in shared utils
+- **Moved `WordDefinition` to data layer** - Fixed presentation-to-data dependency inversion
+- **Updated README** - Documentation for Word Tap and all three demo screenshots
+
 ## [1.4.0] - 2026-04-13
 
 ### Added

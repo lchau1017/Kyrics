@@ -32,6 +32,8 @@ import com.kyrics.demo.presentation.dualsync.DualSyncDemoScreen
 import com.kyrics.demo.presentation.dualsync.DualSyncViewModel
 import com.kyrics.demo.presentation.screen.DemoScreen
 import com.kyrics.demo.presentation.viewmodel.DemoViewModel
+import com.kyrics.demo.presentation.wordtap.WordTapDemoScreen
+import com.kyrics.demo.presentation.wordtap.WordTapViewModel
 import com.kyrics.demo.theme.KyricsDemoTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,6 +61,7 @@ private enum class Screen {
     HOME,
     KYRICS_DEMO,
     DUAL_SYNC_DEMO,
+    WORD_TAP_DEMO,
 }
 
 @Composable
@@ -70,6 +73,7 @@ private fun DemoNavigation() {
             HomeScreen(
                 onKyricsDemoClick = { currentScreen = Screen.KYRICS_DEMO },
                 onDualSyncDemoClick = { currentScreen = Screen.DUAL_SYNC_DEMO },
+                onWordTapDemoClick = { currentScreen = Screen.WORD_TAP_DEMO },
             )
         }
         Screen.KYRICS_DEMO -> {
@@ -88,6 +92,14 @@ private fun DemoNavigation() {
                 onIntent = viewModel::onIntent,
             )
         }
+        Screen.WORD_TAP_DEMO -> {
+            val viewModel: WordTapViewModel = hiltViewModel()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+            WordTapDemoScreen(
+                state = state,
+                onIntent = viewModel::onIntent,
+            )
+        }
     }
 }
 
@@ -96,6 +108,7 @@ private fun DemoNavigation() {
 private fun HomeScreen(
     onKyricsDemoClick: () -> Unit,
     onDualSyncDemoClick: () -> Unit,
+    onWordTapDemoClick: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -138,6 +151,15 @@ private fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("DualSync Demo")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onWordTapDemoClick,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Word Tap Demo")
             }
         }
     }

@@ -24,6 +24,8 @@ import com.kyrics.config.KyricsConfig
 import com.kyrics.config.kyricsConfig
 import com.kyrics.dualsync.model.DualSyncState
 import com.kyrics.dualsync.model.TrackIdentifier
+import com.kyrics.models.KyricsLine
+import com.kyrics.models.KyricsSyllable
 import com.kyrics.state.KyricsUiState
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -39,7 +41,7 @@ import kotlin.math.max
  * @param primaryConfig Kyrics configuration for the primary track
  * @param secondaryConfig Kyrics configuration for the secondary track (smaller font by default)
  * @param showSecondary Whether to display the secondary track
- * @param onWordClick Callback when a line is tapped, with the line text and its track
+ * @param onWordClick Callback when a syllable is tapped, with the syllable, its line, and track
  */
 @Composable
 fun DualSyncLyricsView(
@@ -48,7 +50,7 @@ fun DualSyncLyricsView(
     primaryConfig: KyricsConfig = KyricsConfig.Default,
     secondaryConfig: KyricsConfig = DefaultSecondaryConfig,
     showSecondary: Boolean = true,
-    onWordClick: ((word: String, track: TrackIdentifier) -> Unit)? = null,
+    onWordClick: ((syllable: KyricsSyllable, line: KyricsLine, track: TrackIdentifier) -> Unit)? = null,
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -110,7 +112,7 @@ private fun DualLineBlock(
     primaryConfig: KyricsConfig,
     secondaryConfig: KyricsConfig,
     showSecondary: Boolean,
-    onWordClick: ((word: String, track: TrackIdentifier) -> Unit)?,
+    onWordClick: ((KyricsSyllable, KyricsLine, TrackIdentifier) -> Unit)?,
 ) {
     val primaryLine = primaryHighlight.lines.getOrNull(index)
     val secondaryLine = if (showSecondary) secondaryHighlight.lines.getOrNull(index) else null
@@ -126,9 +128,9 @@ private fun DualLineBlock(
                 lineUiState = primaryHighlight.getLineState(index),
                 currentTimeMs = primaryHighlight.currentTimeMs,
                 config = primaryConfig,
-                onLineClick =
+                onSyllableClick =
                     onWordClick?.let { callback ->
-                        { _ -> callback(primaryLine.getContent(), TrackIdentifier.PRIMARY) }
+                        { syllable, line -> callback(syllable, line, TrackIdentifier.PRIMARY) }
                     },
             )
         }
@@ -138,9 +140,9 @@ private fun DualLineBlock(
                 lineUiState = secondaryHighlight.getLineState(index),
                 currentTimeMs = secondaryHighlight.currentTimeMs,
                 config = secondaryConfig,
-                onLineClick =
+                onSyllableClick =
                     onWordClick?.let { callback ->
-                        { _ -> callback(secondaryLine.getContent(), TrackIdentifier.SECONDARY) }
+                        { syllable, line -> callback(syllable, line, TrackIdentifier.SECONDARY) }
                     },
             )
         }
