@@ -27,6 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.kyrics.demo.presentation.shared.AccentGreen
+import com.kyrics.demo.presentation.shared.DemoBackgroundColor
+import com.kyrics.demo.presentation.shared.formatTime
 
 /**
  * Demo screen showcasing word-tap knowledge feature.
@@ -76,7 +79,7 @@ fun WordTapDemoScreen(
                     Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .background(Color(0xFF121212)),
+                        .background(DemoBackgroundColor),
             ) {
                 WordTapLyricsView(
                     lines = state.lines,
@@ -141,9 +144,9 @@ private fun WordListBar(
                     Surface(
                         color =
                             if (isSelected) {
-                                Color(0xFF1DB954)
+                                AccentGreen
                             } else {
-                                Color(0xFF1DB954).copy(alpha = 0.15f)
+                                AccentGreen.copy(alpha = 0.15f)
                             },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.clickable { onWordClick(word) },
@@ -152,7 +155,7 @@ private fun WordListBar(
                             text = word.word,
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
-                            color = if (isSelected) Color.White else Color(0xFF1DB954),
+                            color = if (isSelected) Color.White else AccentGreen,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         )
                     }
@@ -192,11 +195,4 @@ private fun PlaybackControls(
             )
         }
     }
-}
-
-private fun formatTime(ms: Long): String {
-    val totalSeconds = ms / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return "%d:%02d".format(minutes, seconds)
 }

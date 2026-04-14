@@ -32,7 +32,7 @@ import com.kyrics.state.LineUiState
  * @param onSyllableClick Word-level click callback. Receives the tapped syllable and its parent line.
  */
 @Composable
-internal fun KyricsSingleLine(
+fun KyricsSingleLine(
     line: KyricsLine,
     lineUiState: LineUiState,
     currentTimeMs: Int,

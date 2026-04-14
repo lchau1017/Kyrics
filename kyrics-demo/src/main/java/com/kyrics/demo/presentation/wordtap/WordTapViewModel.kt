@@ -4,11 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kyrics.demo.data.datasource.DemoLyricsEnglish
 import com.kyrics.demo.data.datasource.DemoWordDictionary
+import com.kyrics.demo.presentation.shared.PlaybackController
 import com.kyrics.models.KyricsLine
 import com.kyrics.models.KyricsSyllable
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +22,7 @@ class WordTapViewModel
         private val dictionary: DemoWordDictionary,
     ) : ViewModel() {
         private val lines = DemoLyricsEnglish.track()
+        private val playback = PlaybackController(TOTAL_DURATION_MS, viewModelScope)
 
         private val _state =
             MutableStateFlow(
@@ -34,13 +34,27 @@ class WordTapViewModel
             )
         val state: StateFlow<WordTapUiState> = _state.asStateFlow()
 
-        private var playbackJob: Job? = null
+        init {
+            observePlayback()
+        }
+
+        private fun observePlayback() {
+            viewModelScope.launch {
+                playback.isPlaying.collect { isPlaying ->
+                    _state.update { it.copy(isPlaying = isPlaying) }
+                }
+            }
+            viewModelScope.launch {
+                playback.currentTimeMs.collect { timeMs ->
+                    _state.update { it.copy(currentTimeMs = timeMs) }
+                }
+            }
+        }
 
         fun onIntent(intent: WordTapIntent) {
             when (intent) {
-                is WordTapIntent.TogglePlayPause -> togglePlayPause()
-                is WordTapIntent.Reset -> reset()
-                is WordTapIntent.LineTapped -> onLineTapped()
+                is WordTapIntent.TogglePlayPause -> playback.togglePlayPause()
+                is WordTapIntent.Reset -> playback.reset()
                 is WordTapIntent.WordTapped -> onWordTapped(intent.syllable, intent.line)
                 is WordTapIntent.DismissWordSheet -> dismissWordSheet()
                 is WordTapIntent.SeekToWord -> seekToWord(intent.word)
@@ -62,28 +76,16 @@ class WordTapViewModel
                     }
             }
 
-        private fun onLineTapped() {
-            if (_state.value.isPlaying) {
-                _state.update { it.copy(isPlaying = false) }
-                stopPlayback()
-            }
-        }
-
         private fun onWordTapped(
             syllable: KyricsSyllable,
             line: KyricsLine,
         ) {
-            if (_state.value.isPlaying) {
-                _state.update { it.copy(isPlaying = false) }
-                stopPlayback()
-            }
+            playback.pause()
             val definition = dictionary.lookup(syllable.content) ?: return
-            val lineIndex = lines.indexOf(line)
+            playback.seekTo(line.start.toLong())
             _state.update {
                 it.copy(
-                    currentTimeMs = line.start.toLong(),
                     selectedWord = syllable.content.trim().lowercase(),
-                    selectedLineIndex = if (lineIndex >= 0) lineIndex else null,
                     wordKnowledge =
                         WordKnowledgeState(
                             syllable = syllable,
@@ -99,22 +101,21 @@ class WordTapViewModel
         }
 
         private fun seekToWord(word: WordListItem) {
+            playback.pause()
+            playback.seekTo(word.lineStartMs.toLong())
             val line = lines.getOrNull(word.lineIndex)
-            val syllable = line?.syllables?.firstOrNull { it.content.trim().equals(word.word, ignoreCase = true) }
+            val syllable =
+                line?.syllables?.firstOrNull {
+                    it.content.trim().equals(word.word, ignoreCase = true)
+                }
             val definition = dictionary.lookup(word.word)
 
             _state.update {
                 it.copy(
-                    currentTimeMs = word.lineStartMs.toLong(),
                     selectedWord = word.word.lowercase(),
-                    selectedLineIndex = word.lineIndex,
                     wordKnowledge =
                         if (definition != null && syllable != null && line != null) {
-                            WordKnowledgeState(
-                                syllable = syllable,
-                                line = line,
-                                definition = definition,
-                            )
+                            WordKnowledgeState(syllable = syllable, line = line, definition = definition)
                         } else {
                             null
                         },
@@ -122,43 +123,7 @@ class WordTapViewModel
             }
         }
 
-        private fun togglePlayPause() {
-            val newIsPlaying = !_state.value.isPlaying
-            _state.update { it.copy(isPlaying = newIsPlaying) }
-            if (newIsPlaying) startPlayback() else stopPlayback()
-        }
-
-        private fun startPlayback() {
-            playbackJob?.cancel()
-            playbackJob =
-                viewModelScope.launch {
-                    while (_state.value.isPlaying) {
-                        delay(TICK_MS)
-                        val current = _state.value.currentTimeMs
-                        val newTime =
-                            if (current + TICK_MS > TOTAL_DURATION_MS) 0L else current + TICK_MS
-                        _state.update { it.copy(currentTimeMs = newTime) }
-                        if (newTime == 0L) {
-                            _state.update { it.copy(isPlaying = false) }
-                            stopPlayback()
-                            return@launch
-                        }
-                    }
-                }
-        }
-
-        private fun stopPlayback() {
-            playbackJob?.cancel()
-            playbackJob = null
-        }
-
-        private fun reset() {
-            stopPlayback()
-            _state.update { it.copy(isPlaying = false, currentTimeMs = 0L) }
-        }
-
         companion object {
-            private const val TICK_MS = 100L
             private const val TOTAL_DURATION_MS = 31_000L
         }
     }

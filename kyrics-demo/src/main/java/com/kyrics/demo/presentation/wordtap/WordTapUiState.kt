@@ -26,6 +26,5 @@ data class WordTapUiState(
     val lines: List<KyricsLine> = emptyList(),
     val clickableWords: List<WordListItem> = emptyList(),
     val selectedWord: String? = null,
-    val selectedLineIndex: Int? = null,
     val wordKnowledge: WordKnowledgeState? = null,
 )

@@ -1,6 +1,6 @@
 package com.kyrics.demo.data.datasource
 
-import com.kyrics.demo.presentation.wordtap.WordDefinition
+import com.kyrics.demo.data.model.WordDefinition
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -11,10 +11,6 @@ sealed interface WordTapIntent {
 
     data object Reset : WordTapIntent
 
-    data class LineTapped(
-        val line: KyricsLine,
-    ) : WordTapIntent
-
     data class WordTapped(
         val syllable: KyricsSyllable,
         val line: KyricsLine,

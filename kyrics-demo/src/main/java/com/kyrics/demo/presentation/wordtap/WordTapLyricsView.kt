@@ -40,7 +40,7 @@ import com.kyrics.models.KyricsSyllable
 import kotlinx.coroutines.launch
 
 private const val WORD_TAG = "WORD"
-private val HighlightColor = Color(0xFF1DB954)
+private val HighlightColor = com.kyrics.demo.presentation.shared.AccentGreen
 
 /**
  * Custom lyrics view for the Word Tap demo.
