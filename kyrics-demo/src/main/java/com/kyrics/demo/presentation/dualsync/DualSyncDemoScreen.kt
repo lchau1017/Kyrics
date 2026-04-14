@@ -26,9 +26,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kyrics.demo.data.datasource.DemoLanguage
+import com.kyrics.demo.presentation.shared.DemoBackgroundColor
+import com.kyrics.demo.presentation.shared.formatTime
 import com.kyrics.dualsync.DualSyncLyricsView
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +62,7 @@ fun DualSyncDemoScreen(
                     Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .background(Color(0xFF121212)),
+                        .background(DemoBackgroundColor),
             ) {
                 DualSyncLyricsView(
                     state = state.syncState,
@@ -201,11 +202,4 @@ private fun LanguageRow(
             }
         }
     }
-}
-
-private fun formatTime(ms: Long): String {
-    val totalSeconds = ms / 1000
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
-    return "%d:%02d".format(minutes, seconds)
 }

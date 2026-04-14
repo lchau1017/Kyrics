@@ -7,14 +7,18 @@
 A Jetpack Compose library for displaying synchronized karaoke-style lyrics with customizable visual styles.
 
 <p align="center">
-  <a href="#demo-app"><img src="media/demo_screenshot.png" alt="Kyrics Demo" width="280"/></a>
-  &nbsp;&nbsp;
-  <a href="#dualsync---dual-language-lyrics"><img src="media/dualsync_screenshot.png" alt="DualSync Demo" width="280"/></a>
+  <a href="#demo-app"><img src="media/demo_screenshot.png" alt="Kyrics Demo" width="250"/></a>
+  &nbsp;
+  <a href="#dualsync---dual-language-lyrics"><img src="media/dualsync_screenshot.png" alt="DualSync Demo" width="250"/></a>
+  &nbsp;
+  <a href="#word-tap---vocabulary-knowledge"><img src="media/wordtap_screenshot.png" alt="Word Tap Demo" width="250"/></a>
 </p>
 <p align="center">
   <a href="#demo-app"><b>Kyrics Demo</b></a>
   &nbsp;&nbsp;&nbsp;&nbsp;
   <a href="#dualsync---dual-language-lyrics"><b>DualSync Demo</b></a>
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#word-tap---vocabulary-knowledge"><b>Word Tap Demo</b></a>
 </p>
 
 ---
@@ -24,7 +28,9 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 - **TTML Lyrics Parser** - Parse TTML lyrics with syllable-level timing and automatic format detection
 - **Synchronized Lyrics Display** - Character-by-character and syllable-by-syllable highlighting
 - **DualSync** - Dual-language synchronized highlighting with independent timed tracks
+- **Word Tap** - Tap vocabulary words in lyrics to see definitions, phonetics, and seek to context
 - **Multi-Language Support** - 9 languages: English, Traditional Chinese, Japanese, Korean, French, Spanish, German, Portuguese, Italian
+- **Syllable-Level Click Detection** - Canvas hit-testing for word-level tap interactions
 - **2 Viewer Types** - Smooth Scroll and Fade Through
 - **Customizable Gradients** - Progress-based, multi-color gradient options
 - **Blur Effects** - Optional blur on non-playing lines for focus effect
@@ -39,6 +45,7 @@ A Jetpack Compose library for displaying synchronized karaoke-style lyrics with 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [DualSync - Dual-Language Lyrics](#dualsync---dual-language-lyrics)
+- [Word Tap - Vocabulary Knowledge](#word-tap---vocabulary-knowledge)
 - [Parsing Lyrics](#parsing-lyrics)
 - [Creating Lyrics](#creating-lyrics)
 - [Configuration](#configuration)
@@ -221,6 +228,39 @@ The demo app includes transcripts for 9 languages:
 | Italian | Latin | Word-level |
 
 The library itself is language-agnostic. Any language that renders left-to-right works with the canvas renderer. See the demo app for a live example with switchable primary/secondary language pairs.
+
+---
+
+## Word Tap - Vocabulary Knowledge
+
+Tap highlighted vocabulary words in lyrics to see their definition, phonetics, and context. Builds on the syllable-level click detection in `KyricsSingleLine`.
+
+<p align="center">
+  <img src="media/wordtap_screenshot.png" alt="Word Tap Demo" width="300"/>
+</p>
+
+### How It Works
+
+The library provides syllable-level tap detection via `onSyllableClick` on `KyricsSingleLine` and `LyricsCanvas`. When a user taps a word, the canvas hit-tests the tap coordinates against syllable layout positions and returns the tapped `KyricsSyllable`.
+
+```kotlin
+import com.kyrics.components.KyricsSingleLine
+
+KyricsSingleLine(
+    line = line,
+    lineUiState = lineState,
+    currentTimeMs = currentTimeMs,
+    config = config,
+    onSyllableClick = { syllable, parentLine ->
+        // syllable.content = the tapped word text
+        // syllable.start / syllable.end = timestamps in ms
+        // parentLine = the full KyricsLine for context
+        showDefinition(syllable)
+    },
+)
+```
+
+The demo app uses this to show a bottom sheet with word definitions, and a vocabulary chip bar for seeking to specific words in the lyrics.
 
 ---
 
@@ -459,9 +499,11 @@ val stateHolder = rememberKyricsStateHolder(lyrics) {
 The `kyrics-demo` module provides a complete demo showcasing library features with clean architecture (MVI pattern).
 
 <p align="center">
-  <img src="media/demo_screenshot.png" alt="Kyrics Demo" width="280"/>
-  &nbsp;&nbsp;
-  <img src="media/dualsync_screenshot.png" alt="DualSync Demo" width="280"/>
+  <img src="media/demo_screenshot.png" alt="Kyrics Demo" width="250"/>
+  &nbsp;
+  <img src="media/dualsync_screenshot.png" alt="DualSync Demo" width="250"/>
+  &nbsp;
+  <img src="media/wordtap_screenshot.png" alt="Word Tap Demo" width="250"/>
 </p>
 
 **Kyrics Demo:**
@@ -478,6 +520,13 @@ The `kyrics-demo` module provides a complete demo showcasing library features wi
 - Swap button to exchange languages
 - Toggle to show/hide secondary track
 - Fake audio playback for standalone testing
+
+**Word Tap Demo:**
+- Vocabulary words highlighted in green within lyrics
+- Tap any green word to see definition, phonetics, and example
+- Vocabulary chip bar for seeking to specific words
+- Bottom sheet with word knowledge card
+- Auto-pause on word tap
 
 **Run the demo:**
 
