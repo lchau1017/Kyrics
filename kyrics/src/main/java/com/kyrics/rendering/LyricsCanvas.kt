@@ -115,18 +115,29 @@ fun LyricsCanvas(
 
 /**
  * Finds the syllable at the given tap coordinates using layout info.
+ * Uses the same lineHeight spacing as the rendering loop (no 1.2f multiplier).
+ * For X-axis, finds the nearest syllable to handle taps in inter-word gaps.
  */
 private fun findTappedSyllable(
     layoutInfo: TextLayout.LayoutInfo,
     tapX: Float,
     tapY: Float,
 ): KyricsSyllable? {
-    val lineIndex = (tapY / (layoutInfo.lineHeight * 1.2f)).toInt()
+    val lineIndex = (tapY / layoutInfo.lineHeight).toInt()
     val lineData = layoutInfo.lines.getOrNull(lineIndex) ?: return null
 
-    return lineData.syllables
-        .firstOrNull { syllableData ->
+    // Exact hit first
+    val exactHit =
+        lineData.syllables.firstOrNull { syllableData ->
             tapX >= syllableData.xOffset && tapX <= syllableData.xOffset + syllableData.width
+        }
+    if (exactHit != null) return exactHit.syllable
+
+    // Nearest syllable for taps in gaps between words
+    return lineData.syllables
+        .minByOrNull { syllableData ->
+            val center = syllableData.xOffset + syllableData.width / 2f
+            kotlin.math.abs(tapX - center)
         }?.syllable
 }
 

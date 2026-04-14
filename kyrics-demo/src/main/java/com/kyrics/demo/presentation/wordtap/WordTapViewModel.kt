@@ -41,7 +41,12 @@ class WordTapViewModel
         private fun observePlayback() {
             viewModelScope.launch {
                 playback.isPlaying.collect { isPlaying ->
-                    _state.update { it.copy(isPlaying = isPlaying) }
+                    _state.update {
+                        it.copy(
+                            isPlaying = isPlaying,
+                            selectedWord = if (isPlaying) null else it.selectedWord,
+                        )
+                    }
                 }
             }
             viewModelScope.launch {

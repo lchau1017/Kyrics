@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Demo Home Screen** - Navigation with buttons to Kyrics Demo, DualSync Demo, and Word Tap Demo
 
 ### Changed
+- **`DualSyncLyricsView.onWordClick` signature** - Now passes `(KyricsSyllable, KyricsLine, TrackIdentifier)` instead of `(String, TrackIdentifier)`. Consumers using this callback need to update their lambda parameters. The parameter defaults to `null`, so consumers not using it are unaffected.
 - **Extracted `PlaybackController`** - Reusable fake audio tick loop shared across demo ViewModels
 - **Extracted shared constants** - `formatTime`, `AccentGreen`, `DemoBackgroundColor` in shared utils
 - **Moved `WordDefinition` to data layer** - Fixed presentation-to-data dependency inversion
