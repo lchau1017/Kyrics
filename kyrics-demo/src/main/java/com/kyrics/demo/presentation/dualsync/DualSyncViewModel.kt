@@ -22,7 +22,8 @@ class DualSyncViewModel
     constructor(
         private val dataSource: DualSyncDataSource,
     ) : ViewModel() {
-        private val _state = MutableStateFlow(DualSyncUiState(totalDurationMs = DualSyncDataSource.TOTAL_DURATION_MS))
+        private val _state =
+            MutableStateFlow(DualSyncUiState(totalDurationMs = DualSyncDataSource.TOTAL_DURATION_MS))
         val state: StateFlow<DualSyncUiState> = _state.asStateFlow()
 
         private val positionFlow = MutableStateFlow(0L)
@@ -108,11 +109,7 @@ class DualSyncViewModel
                         delay(TICK_MS)
                         val current = _state.value.currentTimeMs
                         val newTime =
-                            if (current + TICK_MS > totalDuration) {
-                                0L
-                            } else {
-                                current + TICK_MS
-                            }
+                            if (current + TICK_MS > totalDuration) 0L else current + TICK_MS
                         _state.update { it.copy(currentTimeMs = newTime) }
                         positionFlow.value = newTime
                         if (newTime == 0L) {

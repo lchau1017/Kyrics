@@ -20,12 +20,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kyrics.config.KyricsConfig
 import com.kyrics.models.KyricsLine
+import com.kyrics.models.KyricsSyllable
 import com.kyrics.rendering.LyricsCanvas
 import com.kyrics.state.LineUiState
 
 /**
  * Stateless composable for displaying a single karaoke line with synchronized highlighting.
  * Uses pre-calculated LineUiState for efficient rendering.
+ *
+ * @param onLineClick Legacy line-level click callback. Used when syllable-level detection is not needed.
+ * @param onSyllableClick Word-level click callback. Receives the tapped syllable and its parent line.
  */
 @Composable
 internal fun KyricsSingleLine(
@@ -35,6 +39,7 @@ internal fun KyricsSingleLine(
     config: KyricsConfig,
     modifier: Modifier = Modifier,
     onLineClick: ((KyricsLine) -> Unit)? = null,
+    onSyllableClick: ((KyricsSyllable, KyricsLine) -> Unit)? = null,
 ) {
     val animatedScale by animateFloatAsState(
         targetValue = lineUiState.scale,
@@ -61,6 +66,14 @@ internal fun KyricsSingleLine(
     val textStyle = createTextStyle(line, config)
     val textColor = calculateTextColor(line, lineUiState, config)
 
+    // Use line-level clickable only when no syllable click is provided
+    val lineClickModifier =
+        if (onSyllableClick == null && config.layout.enableLineClick && onLineClick != null) {
+            Modifier.clickable { onLineClick(line) }
+        } else {
+            Modifier
+        }
+
     Box(
         modifier =
             modifier
@@ -74,13 +87,7 @@ internal fun KyricsSingleLine(
                     } else {
                         Modifier
                     },
-                ).then(
-                    if (config.layout.enableLineClick && onLineClick != null) {
-                        Modifier.clickable { onLineClick(line) }
-                    } else {
-                        Modifier
-                    },
-                ),
+                ).then(lineClickModifier),
         contentAlignment = getContentAlignment(config.visual.textAlign),
     ) {
         LyricsCanvas(
@@ -89,6 +96,10 @@ internal fun KyricsSingleLine(
             config = config,
             textStyle = textStyle,
             baseColor = textColor,
+            onSyllableClick =
+                onSyllableClick?.let { callback ->
+                    { syllable -> callback(syllable, line) }
+                },
         )
     }
 }
