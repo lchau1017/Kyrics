@@ -78,7 +78,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.lchau1017:Kyrics:v1.4.0")
+    implementation("com.github.lchau1017:Kyrics:v1.5.0")
 }
 ```
 
